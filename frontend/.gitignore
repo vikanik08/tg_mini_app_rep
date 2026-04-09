@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
+# Python
+venv/
+backend/venv/
+__pycache__/
+*.pyc
