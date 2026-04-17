@@ -15,6 +15,7 @@ import {
   buildPassportPath,
   syncActivePet,
 } from "../shared/lib/activePet";
+import { zonedDateTimeToUtcIso } from "../shared/lib/dateTime";
 import arrowIcon from "../shared/ui/icons/arrow-icon.svg";
 import { useToast } from "../shared/ui/useToast";
 import "./health-check-page.css";
@@ -172,8 +173,8 @@ function parseIntegerField(value: string, fieldName: string) {
 function buildNextMonthlyReminderDate() {
   const date = new Date();
   date.setMonth(date.getMonth() + 1);
-  date.setHours(10, 0, 0, 0);
-  return date.toISOString();
+  const dateKey = date.toISOString().slice(0, 10);
+  return zonedDateTimeToUtcIso(dateKey, "10:00");
 }
 
 function buildPayload(petId: string, draft: HealthCheckDraft): CreateHealthCheckPayload {

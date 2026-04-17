@@ -17,6 +17,10 @@ import {
   buildPassportPath,
   syncActivePet,
 } from "../shared/lib/activePet";
+import {
+  formatDateKeyInUserTimezone,
+  zonedDateTimeToUtcIso,
+} from "../shared/lib/dateTime";
 import arrowIcon from "../shared/ui/icons/arrow-icon.svg";
 import { useToast } from "../shared/ui/useToast";
 import "./procedure-page.css";
@@ -109,7 +113,7 @@ function getSafeType(value: string | undefined): ProcedureRouteType {
 }
 
 function toDateTimeString(date: string) {
-  return `${date}T12:00:00`;
+  return zonedDateTimeToUtcIso(date, "12:00");
 }
 
 function buildNotes(doneDate: string, notes: string, nextDate: string) {
@@ -132,13 +136,7 @@ function getRequestedDate(value: string | null) {
 }
 
 function toInputDate(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return formatDateKeyInUserTimezone(value);
 }
 
 function shiftDate(

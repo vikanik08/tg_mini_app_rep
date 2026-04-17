@@ -13,6 +13,7 @@ import {
   buildProcedurePath,
   pickActivePet,
 } from "@/shared/lib/activePet";
+import { formatDateTimeInUserTimezone } from "@/shared/lib/dateTime";
 import { useToast } from "@/shared/ui/useToast";
 import plusIcon from "../../shared/ui/icons/plus-icon.svg";
 import calendarIcon from "../../shared/ui/icons/calendar-icon.svg";
@@ -32,13 +33,10 @@ function toDateKey(date: Date) {
 }
 
 function formatTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-
-  return new Intl.DateTimeFormat("ru-RU", {
+  return formatDateTimeInUserTimezone(value, {
     hour: "2-digit",
     minute: "2-digit",
-  }).format(date);
+  });
 }
 
 function formatSelectedDate(date: Date) {

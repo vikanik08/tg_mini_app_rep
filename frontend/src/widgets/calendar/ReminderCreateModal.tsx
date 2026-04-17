@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, Clock3, PencilLine, X } from "lucide-react";
 import { createEvent, type EventType } from "@/entities/event/api";
 import type { Pet } from "@/entities/pet/api";
+import { zonedDateTimeToUtcIso } from "@/shared/lib/dateTime";
 import { useToast } from "@/shared/ui/useToast";
 import arrowIcon from "../../shared/ui/icons/arrow-icon.svg";
 import "./reminder-create-modal.css";
@@ -47,15 +48,6 @@ function toDateKey(date: Date) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
-}
-
-function toDateTimeString(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${year}-${month}-${day}T${hours}:${minutes}:00`;
 }
 
 function addDays(date: Date, days: number) {
@@ -162,7 +154,7 @@ export default function ReminderCreateModal({
             pet_id: selectedPetId,
             type: selectedTask.eventType,
             title: eventTitle,
-            scheduled_at: toDateTimeString(eventDate),
+            scheduled_at: zonedDateTimeToUtcIso(toDateKey(eventDate), timeValue),
           }),
         ),
       );

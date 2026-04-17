@@ -36,6 +36,7 @@ class EventResponse(BaseModel):
     scheduled_at: datetime
     is_done: bool
     done_at: datetime | None
+    reminder_sent_at: datetime | None
     notes: str | None
     created_at: datetime
 

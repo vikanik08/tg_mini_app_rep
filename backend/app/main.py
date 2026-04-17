@@ -1,3 +1,6 @@
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -5,12 +8,32 @@ from pydantic import ValidationError
 
 from app.api.routes import get_routers
 from app.core.config import settings
+from app.services.notifications import notification_worker
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task: asyncio.Task[None] | None = None
+
+    if settings.telegram_bot_token:
+        task = asyncio.create_task(notification_worker())
+
+    try:
+        yield
+    finally:
+        if task:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
 
 app = FastAPI(
     title=settings.app_name,
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    lifespan=lifespan,
 )
 
 

@@ -15,6 +15,10 @@ import {
   setActivePetId,
   syncActivePet,
 } from "@/shared/lib/activePet";
+import {
+  formatDateKeyInUserTimezone,
+  formatDateTimeInUserTimezone,
+} from "@/shared/lib/dateTime";
 import AppLayout from "../widgets/layout/AppLayout";
 import DashboardPetCard from "../widgets/home/DashboardPetCard";
 import DashboardUpcomingEvents from "../widgets/home/DashboardUpcomingEvents";
@@ -72,15 +76,12 @@ function formatAge(birthdate?: string | null) {
 function formatShortDateTime(dateValue?: string | null) {
   if (!dateValue) return "";
 
-  const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) return "";
-
-  return new Intl.DateTimeFormat("ru-RU", {
+  return formatDateTimeInUserTimezone(dateValue, {
     day: "numeric",
     month: "long",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(date);
+  });
 }
 
 function formatPetStatus(pet: DashboardPet) {
@@ -90,38 +91,28 @@ function formatPetStatus(pet: DashboardPet) {
 }
 
 function toDateKey(dateValue: string) {
-  const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) return "";
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return formatDateKeyInUserTimezone(dateValue);
 }
 
 function mapUpcomingEvent(
   event: DashboardEvent,
   petName: string | undefined,
 ) {
-  const date = new Date(event.scheduled_at);
-  const weekday = new Intl.DateTimeFormat("ru-RU", {
+  const eventDateKey = formatDateKeyInUserTimezone(event.scheduled_at);
+  const weekday = formatDateTimeInUserTimezone(event.scheduled_at, {
     weekday: "short",
-  }).format(date);
-  const day = new Intl.DateTimeFormat("ru-RU", {
+  });
+  const day = formatDateTimeInUserTimezone(event.scheduled_at, {
     day: "numeric",
-  }).format(date);
-  const time = new Intl.DateTimeFormat("ru-RU", {
+  });
+  const time = formatDateTimeInUserTimezone(event.scheduled_at, {
     hour: "2-digit",
     minute: "2-digit",
-  }).format(date);
+  });
 
-  const today = new Date();
-  const eventDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const currentDay = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
-  );
+  const todayKey = formatDateKeyInUserTimezone(new Date().toISOString());
+  const eventDay = new Date(`${eventDateKey}T12:00:00`);
+  const currentDay = new Date(`${todayKey}T12:00:00`);
   const diffDays = Math.round(
     (eventDay.getTime() - currentDay.getTime()) / 86_400_000,
   );

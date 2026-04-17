@@ -9,6 +9,7 @@ export type DashboardEvent = {
   scheduled_at: string;
   is_done: boolean;
   done_at: string | null;
+  reminder_sent_at: string | null;
   notes: string | null;
   created_at: string;
 };

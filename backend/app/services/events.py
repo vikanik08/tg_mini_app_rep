@@ -9,6 +9,12 @@ from app.models.user import User
 from app.schemas.event import EventCreate, EventUpdate
 
 
+def _normalize_datetime(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
 def list_events(
     db: Session,
     user: User,
@@ -48,7 +54,7 @@ def create_event(db: Session, user: User, payload: EventCreate) -> Event:
         pet_id=payload.pet_id,
         type=payload.type,
         title=payload.title,
-        scheduled_at=payload.scheduled_at,
+        scheduled_at=_normalize_datetime(payload.scheduled_at),
         notes=payload.notes,
         is_done=False,
     )
@@ -71,6 +77,8 @@ def update_event(db: Session, user: User, event: Event, payload: EventUpdate) ->
             raise ValueError("Pet not found")
 
     for field, value in update_data.items():
+        if field == "scheduled_at" and value is not None:
+            value = _normalize_datetime(value)
         setattr(event, field, value)
 
     db.commit()

@@ -378,6 +378,9 @@ function buildPayload(form: PassportFormState): CreatePetPayload {
   };
 }
 
+const maxPhotoDataUrlLength = 1_800_000;
+const maxPhotoSide = 900;
+
 function readImageAsDataUrl(file: File) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -385,6 +388,54 @@ function readImageAsDataUrl(file: File) {
     reader.onerror = () => reject(new Error("Не удалось загрузить фото с устройства"));
     reader.readAsDataURL(file);
   });
+}
+
+function loadImage(dataUrl: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () =>
+      reject(new Error("Фото не удалось прочитать. Выберите JPG, PNG или WebP."));
+    image.src = dataUrl;
+  });
+}
+
+async function preparePhotoDataUrl(file: File) {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Выберите изображение в формате JPG, PNG или WebP");
+  }
+
+  const originalDataUrl = await readImageAsDataUrl(file);
+
+  const isHeicLike = file.type === "image/heic" || file.type === "image/heif";
+
+  if (originalDataUrl.length <= maxPhotoDataUrlLength && !isHeicLike) {
+    return originalDataUrl;
+  }
+
+  const image = await loadImage(originalDataUrl);
+  const scale = Math.min(1, maxPhotoSide / Math.max(image.width, image.height));
+  const width = Math.max(1, Math.round(image.width * scale));
+  const height = Math.max(1, Math.round(image.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext("2d");
+  if (!context) {
+    throw new Error("Не удалось подготовить фото");
+  }
+
+  context.drawImage(image, 0, 0, width, height);
+
+  for (const quality of [0.82, 0.72, 0.62, 0.52]) {
+    const compressed = canvas.toDataURL("image/jpeg", quality);
+    if (compressed.length <= maxPhotoDataUrlLength) {
+      return compressed;
+    }
+  }
+
+  throw new Error("Фото слишком большое. Попробуйте выбрать другое фото или скриншот.");
 }
 
 function ToggleField({
@@ -660,7 +711,7 @@ export default function PassportPetEditPage() {
 
     setIsReadingPhoto(true);
     try {
-      const photoUrl = await readImageAsDataUrl(file);
+      const photoUrl = await preparePhotoDataUrl(file);
       updateField("photo_url", photoUrl);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Не удалось загрузить фото";

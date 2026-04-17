@@ -38,6 +38,11 @@ class Event(Base):
 
     is_done: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     done_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reminder_sent_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+        nullable=True,
+    )
 
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 

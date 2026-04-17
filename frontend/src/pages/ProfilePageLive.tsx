@@ -14,6 +14,7 @@ import {
   setActivePetId as persistActivePetId,
   syncActivePet,
 } from "../shared/lib/activePet";
+import { formatDateTimeInUserTimezone } from "../shared/lib/dateTime";
 import "./profile-page-live.css";
 
 function readCurrentUser(): AuthUser | null {
@@ -52,11 +53,11 @@ function getLoginMode() {
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat("ru-RU", {
+  return formatDateTimeInUserTimezone(value, {
     day: "2-digit",
     month: "long",
     year: "numeric",
-  }).format(new Date(value));
+  });
 }
 
 function formatPetEmoji(species: "cat" | "dog" | "other") {

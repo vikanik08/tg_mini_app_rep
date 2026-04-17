@@ -1,6 +1,7 @@
 import uuid
 from collections import defaultdict
 from datetime import date, datetime, time, timedelta, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from sqlalchemy.orm import Session
 
@@ -8,15 +9,23 @@ from app.models.event import Event
 from app.models.user import User
 
 
-def get_month_range(year: int, month: int) -> tuple[datetime, datetime]:
-    start = datetime(year, month, 1, 0, 0, 0, tzinfo=timezone.utc)
+def _safe_timezone(value: str | None) -> ZoneInfo:
+    try:
+        return ZoneInfo(value or "UTC")
+    except ZoneInfoNotFoundError:
+        return ZoneInfo("UTC")
+
+
+def get_month_range(year: int, month: int, timezone_name: str | None) -> tuple[datetime, datetime]:
+    user_tz = _safe_timezone(timezone_name)
+    start = datetime(year, month, 1, 0, 0, 0, tzinfo=user_tz)
 
     if month == 12:
-        end = datetime(year + 1, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        end = datetime(year + 1, 1, 1, 0, 0, 0, tzinfo=user_tz)
     else:
-        end = datetime(year, month + 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        end = datetime(year, month + 1, 1, 0, 0, 0, tzinfo=user_tz)
 
-    return start, end
+    return start.astimezone(timezone.utc), end.astimezone(timezone.utc)
 
 
 def get_calendar_month(
@@ -26,7 +35,8 @@ def get_calendar_month(
     month: int,
     pet_id: uuid.UUID | None = None,
 ) -> dict:
-    start, end = get_month_range(year, month)
+    user_tz = _safe_timezone(user.timezone)
+    start, end = get_month_range(year, month, user.timezone)
 
     query = db.query(Event).filter(
         Event.user_id == user.id,
@@ -41,7 +51,10 @@ def get_calendar_month(
 
     grouped = defaultdict(list)
     for event in events:
-        event_day = event.scheduled_at.date()
+        scheduled_at = event.scheduled_at
+        if scheduled_at.tzinfo is None:
+            scheduled_at = scheduled_at.replace(tzinfo=timezone.utc)
+        event_day = scheduled_at.astimezone(user_tz).date()
         grouped[event_day].append(event)
 
     days = []
@@ -72,13 +85,16 @@ def get_calendar_day(
     target_date: date,
     pet_id: uuid.UUID | None = None,
 ) -> dict:
-    start = datetime.combine(target_date, time.min).replace(tzinfo=timezone.utc)
+    user_tz = _safe_timezone(user.timezone)
+    start = datetime.combine(target_date, time.min).replace(tzinfo=user_tz)
     end = start + timedelta(days=1)
+    start_utc = start.astimezone(timezone.utc)
+    end_utc = end.astimezone(timezone.utc)
 
     query = db.query(Event).filter(
         Event.user_id == user.id,
-        Event.scheduled_at >= start,
-        Event.scheduled_at < end,
+        Event.scheduled_at >= start_utc,
+        Event.scheduled_at < end_utc,
     )
 
     if pet_id:
