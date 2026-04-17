@@ -1,0 +1,424 @@
+﻿.P-ProfilePageLive {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.P-ProfilePageLive__hero,
+.P-ProfilePageLive__card,
+.P-ProfilePageLive__statCard {
+  background: var(--color-white);
+  border-radius: 24px;
+  box-shadow: var(--shadow-soft);
+}
+
+.P-ProfilePageLive__hero,
+.P-ProfilePageLive__card {
+  padding: 18px;
+}
+
+.P-ProfilePageLive__hero,
+.P-ProfilePageLive__sectionTop,
+.P-ProfilePageLive__listRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.P-ProfilePageLive__hero {
+  align-items: flex-start;
+}
+
+.P-ProfilePageLive__avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #d9bef6 0%, #f1d7bc 100%);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  font: var(--font-24);
+  color: var(--color-text);
+}
+
+.P-ProfilePageLive__heroBody {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.P-ProfilePageLive__eyebrow,
+.P-ProfilePageLive__meta,
+.P-ProfilePageLive__muted,
+.P-ProfilePageLive__textLink,
+.P-ProfilePageLive__statLabel,
+.P-ProfilePageLive__rowMeta,
+.P-ProfilePageLive__eventMeta,
+.P-ProfilePageLive__eventPet,
+.P-ProfilePageLive__eventDate {
+  margin: 0;
+  color: var(--color-grey-text);
+}
+
+.P-ProfilePageLive__eyebrow,
+.P-ProfilePageLive__textLink {
+  font: var(--font-12);
+}
+
+.P-ProfilePageLive__title,
+.P-ProfilePageLive__sectionTitle,
+.P-ProfilePageLive__rowTitle,
+.P-ProfilePageLive__eventTitle {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.P-ProfilePageLive__title {
+  font: var(--font-24);
+}
+
+.P-ProfilePageLive__sectionTitle {
+  font: var(--font-20);
+}
+
+.P-ProfilePageLive__meta,
+.P-ProfilePageLive__muted,
+.P-ProfilePageLive__emptyTitle,
+.P-ProfilePageLive__rowMeta,
+.P-ProfilePageLive__eventMeta,
+.P-ProfilePageLive__eventPet,
+.P-ProfilePageLive__eventDate {
+  font: var(--font-14);
+  line-height: 1.35;
+}
+
+.P-ProfilePageLive__rowTitle,
+.P-ProfilePageLive__eventTitle {
+  font: var(--font-20);
+  line-height: 1.18;
+}
+
+.P-ProfilePageLive__textLink {
+  text-decoration: none;
+}
+
+.P-ProfilePageLive__pillRow,
+.P-ProfilePageLive__actions,
+.P-ProfilePageLive__filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.P-ProfilePageLive__pill,
+.P-ProfilePageLive__actionButton,
+.P-ProfilePageLive__timezoneField select {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.P-ProfilePageLive__pill {
+  background: rgba(217, 190, 246, 0.45);
+  color: var(--color-text);
+  font: var(--font-12);
+}
+
+.P-ProfilePageLive__timezoneField {
+  display: grid;
+  gap: 6px;
+  width: min(100%, 260px);
+  max-width: 100%;
+}
+
+.P-ProfilePageLive__timezoneField span {
+  color: var(--color-grey-text);
+  font: var(--font-12);
+}
+
+.P-ProfilePageLive__timezoneField select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(41, 31, 58, 0.12);
+  appearance: none;
+  background:
+    #fff
+    url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7L9 11L13 7' stroke='%23291F3A' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat right 22px center / 18px 18px;
+  color: var(--color-text);
+  font: var(--font-14);
+  padding: 0 54px 0 18px;
+}
+
+.P-ProfilePageLive__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.P-ProfilePageLive__statCard {
+  min-height: 116px;
+  padding: 18px 14px;
+  display: grid;
+  gap: 10px;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.P-ProfilePageLive__statCard--loading {
+  align-content: start;
+}
+
+.P-ProfilePageLive__statValue {
+  font: var(--font-24);
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.P-ProfilePageLive__statLabel {
+  max-width: 14ch;
+  font: 400 12px/1.25 var(--font-family);
+  overflow-wrap: anywhere;
+}
+
+.P-ProfilePageLive__list {
+  display: grid;
+  gap: 12px;
+}
+
+.P-ProfilePageLive__emptyState {
+  display: grid;
+  gap: 10px;
+}
+
+.P-ProfilePageLive__emptyTitle {
+  color: var(--color-text);
+}
+
+.P-ProfilePageLive__listRow {
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(111, 107, 127, 0.15);
+}
+
+.P-ProfilePageLive__listRow:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.P-ProfilePageLive__listRow--event {
+  align-items: flex-start;
+}
+
+.P-ProfilePageLive__sectionTop {
+  margin-bottom: 10px;
+}
+
+.P-ProfilePageLive__listCol,
+.P-ProfilePageLive__petCopy,
+.P-ProfilePageLive__eventCopy {
+  min-width: 0;
+  display: grid;
+}
+
+.P-ProfilePageLive__listCol {
+  gap: 8px;
+}
+
+.P-ProfilePageLive__petCopy {
+  gap: 4px;
+}
+
+.P-ProfilePageLive__eventCopy {
+  gap: 4px;
+}
+
+.P-ProfilePageLive__petIdentity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.P-ProfilePageLive__petEmoji {
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  background: rgba(217, 190, 246, 0.28);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.P-ProfilePageLive__petBadge {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.P-ProfilePageLive__petBadge.is-active {
+  background: var(--color-purple);
+  border-color: transparent;
+}
+
+.P-ProfilePageLive__petTag {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(217, 190, 246, 0.28);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text);
+  font: var(--font-12);
+}
+
+.P-ProfilePageLive__filterChip {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.P-ProfilePageLive__filterChip.is-active {
+  background: var(--color-purple);
+  border-color: transparent;
+}
+
+.P-ProfilePageLive__eventDate {
+  text-align: right;
+  max-width: 110px;
+  flex-shrink: 0;
+}
+
+.P-ProfilePageLive__eventTitle {
+  font: var(--font-16);
+  line-height: 1.24;
+}
+
+.P-ProfilePageLive__eventMeta {
+  display: none;
+}
+
+.P-ProfilePageLive__eventSide {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+  flex-shrink: 0;
+}
+
+.P-ProfilePageLive__eventAction {
+  color: var(--color-grey-text);
+  font: var(--font-14);
+  text-decoration: none;
+}
+
+.P-ProfilePageLive__actionButton {
+  border: none;
+  background: var(--color-purple);
+  color: var(--color-text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.P-ProfilePageLive__actionButton--ghost {
+  background: transparent;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+}
+
+.P-ProfilePageLive__skeleton {
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    rgba(236, 231, 239, 0.9) 0%,
+    rgba(247, 244, 250, 0.98) 50%,
+    rgba(236, 231, 239, 0.9) 100%
+  );
+  background-size: 200% 100%;
+  animation: profile-skeleton 1.5s ease-in-out infinite;
+}
+
+.P-ProfilePageLive__skeleton--statValue {
+  width: 54px;
+  height: 30px;
+}
+
+.P-ProfilePageLive__skeleton--statLabel {
+  width: 110px;
+  height: 14px;
+}
+
+.P-ProfilePageLive__skeleton--rowTitle {
+  width: 120px;
+  height: 18px;
+}
+
+.P-ProfilePageLive__skeleton--rowMeta {
+  width: 88px;
+  height: 14px;
+}
+
+.P-ProfilePageLive__skeleton--badge {
+  width: 86px;
+  height: 36px;
+  border-radius: 999px;
+}
+
+@keyframes profile-skeleton {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .P-ProfilePageLive__sectionTop,
+  .P-ProfilePageLive__listRow {
+    align-items: flex-start;
+  }
+
+  .P-ProfilePageLive__eventDate {
+    max-width: 96px;
+  }
+}
+
+@media (max-width: 380px) {
+  .P-ProfilePageLive__hero {
+    flex-direction: column;
+  }
+
+  .P-ProfilePageLive__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .P-ProfilePageLive__listRow,
+  .P-ProfilePageLive__listRow--event {
+    flex-direction: column;
+  }
+
+  .P-ProfilePageLive__eventSide {
+    width: 100%;
+    justify-items: start;
+  }
+
+  .P-ProfilePageLive__eventDate {
+    text-align: left;
+    max-width: none;
+  }
+}

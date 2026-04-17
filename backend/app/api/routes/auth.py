@@ -7,33 +7,19 @@ from app.services.auth import authenticate_telegram_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-@router.post("/telegram")
-def telegram_auth():
+
+@router.post("/telegram", response_model=TokenResponse)
+def telegram_auth(payload: TelegramAuthRequest, db: Session = Depends(get_db)):
+    try:
+        token, user = authenticate_telegram_user(payload.init_data, db)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+        ) from e
+
     return {
-        "access_token": "dev-token",
+        "access_token": token,
         "token_type": "bearer",
-        "user": {
-            "id": "1",
-            "telegram_id": 123,
-            "first_name": "Test",
-            "last_name": None,
-            "username": "test",
-            "timezone": "UTC",
-        },
+        "user": user,
     }
-
-# @router.post("/telegram", response_model=TokenResponse)
-# def telegram_auth(payload: TelegramAuthRequest, db: Session = Depends(get_db)):
-#     try:
-#         token, user = authenticate_telegram_user(payload.init_data, db)
-#     except ValueError as e:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail=str(e),
-#         ) from e
-
-#     return {
-#         "access_token": token,
-#         "token_type": "bearer",
-#         "user": user,
-#     }

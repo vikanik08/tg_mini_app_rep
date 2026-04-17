@@ -77,7 +77,10 @@
   padding-top: 4px;
   position: relative;
   border-radius: 12px;
+  border: none;
+  background: transparent;
   border-bottom: 1px solid rgba(111, 107, 127, 0.1);
+  cursor: pointer;
 }
 
 .O-MiniCalendar__cell.is-selected {

@@ -4,10 +4,98 @@
   gap: 14px;
 }
 
+.P-Calendar__filterCard {
+  background: var(--color-white);
+  border-radius: 24px;
+  box-shadow: var(--shadow-soft);
+  padding: 16px 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.P-Calendar__filterCard--loading {
+  align-items: start;
+}
+
+.P-Calendar__filterTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.P-Calendar__filterTitle,
+.P-Calendar__filterMeta {
+  margin: 0;
+}
+
+.P-Calendar__filterTitle {
+  font: var(--font-20);
+  color: var(--color-text);
+}
+
+.P-Calendar__filterMeta {
+  font: var(--font-12);
+  color: var(--color-grey-text);
+}
+
+.P-Calendar__filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.P-Calendar__filterChip {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.P-Calendar__filterChip.is-active {
+  background: var(--color-purple);
+  border-color: transparent;
+}
+
 .P-Calendar__calendarSection {
   margin-top: 4px;
 }
 
 .P-Calendar__remindersSection {
   margin-top: 4px;
+}
+
+.P-Calendar__skeleton {
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(236, 231, 239, 0.9) 0%,
+    rgba(247, 244, 250, 0.98) 50%,
+    rgba(236, 231, 239, 0.9) 100%
+  );
+  background-size: 200% 100%;
+  animation: calendar-page-skeleton 1.5s ease-in-out infinite;
+}
+
+.P-Calendar__skeleton--title {
+  width: 160px;
+  height: 22px;
+}
+
+.P-Calendar__skeleton--chip {
+  width: 132px;
+  height: 38px;
+}
+
+@keyframes calendar-page-skeleton {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }

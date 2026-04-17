@@ -1,0 +1,49 @@
+.O-ToastViewport {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 92px;
+  display: grid;
+  gap: 10px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.O-Toast {
+  min-height: 56px;
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--color-text);
+  background: var(--color-white);
+  pointer-events: auto;
+}
+
+.O-Toast--success {
+  background: #eef9eb;
+}
+
+.O-Toast--error {
+  background: #fff1f1;
+}
+
+.O-Toast--info {
+  background: #f6f0fb;
+}
+
+.O-Toast__close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}

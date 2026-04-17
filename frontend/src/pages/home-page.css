@@ -23,6 +23,13 @@
   gap: 12px;
 }
 
+.W-PetSwitcher {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
 .W-SectionTitleRow {
   display: flex;
   justify-content: space-between;
@@ -49,4 +56,161 @@
   box-shadow: var(--shadow-soft);
   cursor: pointer;
   flex-shrink: 0;
+  text-decoration: none;
+}
+
+.A-PetSwitcherChip {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+  background: var(--color-white);
+  color: var(--color-text);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.A-PetSwitcherChip.is-active {
+  background: var(--color-purple);
+  border-color: transparent;
+}
+
+.A-FirstRunCard,
+.A-TipCard {
+  background: var(--color-white);
+  border-radius: 24px;
+  box-shadow: var(--shadow-soft);
+}
+
+.A-FirstRunCard {
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.A-FirstRunCard__eyebrow,
+.A-TipCard__title {
+  margin: 0;
+  font: var(--font-12);
+  color: var(--color-grey-text);
+}
+
+.A-FirstRunCard__title {
+  margin: 0;
+  font: var(--font-20);
+  color: var(--color-text);
+}
+
+.A-FirstRunCard__text,
+.A-TipCard__text {
+  margin: 0;
+  font: var(--font-14);
+  color: var(--color-grey-text);
+}
+
+.A-FirstRunCard__steps {
+  display: grid;
+  gap: 8px;
+}
+
+.A-FirstRunCard__step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 16px;
+  background: rgba(217, 190, 246, 0.24);
+  color: var(--color-text);
+  font: var(--font-14);
+}
+
+.A-FirstRunCard__step span:first-child {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-white);
+  display: grid;
+  place-items: center;
+  font: var(--font-12);
+}
+
+.A-FirstRunCard__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.A-FirstRunCard__button {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--color-purple);
+  color: var(--color-text);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.A-FirstRunCard__button--ghost {
+  background: transparent;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+}
+
+.A-TipCard {
+  padding: 16px 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.A-HealthSummaryCard {
+  min-height: 188px;
+  border-radius: 28px;
+  padding: 20px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(246, 211, 91, 0.28), transparent 28%),
+    linear-gradient(145deg, #fff 0%, #f5ecff 58%, #ead9ff 100%);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.A-HealthSummaryCard__eyebrow,
+.A-HealthSummaryCard__text {
+  margin: 0;
+  color: var(--color-grey-text);
+}
+
+.A-HealthSummaryCard__eyebrow {
+  font: var(--font-12);
+}
+
+.A-HealthSummaryCard__title {
+  margin: 8px 0;
+  max-width: 330px;
+  font: var(--font-24);
+  color: var(--color-text);
+}
+
+.A-HealthSummaryCard__text {
+  max-width: 380px;
+  font: var(--font-14);
+}
+
+.A-HealthSummaryCard__button {
+  min-height: 44px;
+  width: fit-content;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--color-purple);
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font: var(--font-16);
 }

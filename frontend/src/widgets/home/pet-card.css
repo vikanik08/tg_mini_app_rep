@@ -5,6 +5,12 @@
   padding: 12px;
 }
 
+.O-PetCard__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
 .O-PetCard__top {
   display: flex;
   gap: 12px;

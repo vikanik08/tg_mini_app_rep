@@ -1,0 +1,197 @@
+﻿.M-ReminderModal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(41, 31, 58, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(6px);
+}
+
+.M-ReminderModal {
+  width: min(100%, 392px);
+  max-height: min(calc(100vh - 32px), 760px);
+  background: #fdfbff;
+  border-radius: 28px;
+  box-shadow: 0 18px 48px rgba(41, 31, 58, 0.18);
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.M-ReminderModal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.M-ReminderModal__title,
+.M-ReminderModal__label {
+  margin: 0;
+}
+
+.M-ReminderModal__title {
+  color: var(--color-text);
+  font: var(--font-24);
+}
+
+.M-ReminderModal__close {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(217, 190, 246, 0.6);
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.M-ReminderModal__field {
+  display: grid;
+  gap: 8px;
+}
+
+.M-ReminderModal__row,
+.M-ReminderModal__repeatGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.M-ReminderModal__row {
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+}
+
+.M-ReminderModal__label {
+  color: var(--color-grey-text);
+  font: var(--font-14);
+}
+
+.M-ReminderModal__selectWrap,
+.M-ReminderModal__inputWrap,
+.M-ReminderModal__toggleRow {
+  min-height: 58px;
+  border-radius: 20px;
+  background: var(--color-white);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  position: relative;
+  min-width: 0;
+}
+
+.M-ReminderModal__select,
+.M-ReminderModal__input {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font: var(--font-20);
+  width: 100%;
+  min-width: 0;
+  outline: none;
+  padding-right: 6px;
+}
+
+.M-ReminderModal__row .M-ReminderModal__input {
+  font: var(--font-16);
+}
+
+.M-ReminderModal__input--singleLine {
+  font: var(--font-16);
+}
+
+.M-ReminderModal__inputWrap input[type="date"]::-webkit-calendar-picker-indicator,
+.M-ReminderModal__inputWrap input[type="time"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.M-ReminderModal__leadingIcon,
+.M-ReminderModal__petPreview {
+  width: 28px;
+  height: 28px;
+  border-radius: 12px;
+  background: rgba(217, 190, 246, 0.22);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.M-ReminderModal__decorIcon {
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+
+.M-ReminderModal__arrowDown {
+  transform: rotate(-90deg);
+  flex-shrink: 0;
+}
+
+.M-ReminderModal__toggleRow {
+  justify-content: space-between;
+  color: var(--color-text);
+  font: var(--font-20);
+}
+
+.M-ReminderModal__switch {
+  width: 46px;
+  height: 28px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(111, 107, 127, 0.18);
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.M-ReminderModal__switch.is-on {
+  background: rgba(202, 164, 244, 0.92);
+}
+
+.M-ReminderModal__switchThumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-white);
+  transform: translateX(0);
+  transition: transform 180ms ease;
+}
+
+.M-ReminderModal__switch.is-on .M-ReminderModal__switchThumb {
+  transform: translateX(18px);
+}
+
+.M-ReminderModal__submit {
+  min-height: 56px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #d6b4f4 0%, #caa3f2 100%);
+  color: var(--color-text);
+  font: var(--font-20);
+  cursor: pointer;
+}
+
+.M-ReminderModal__submit:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+@media (max-width: 380px) {
+  .M-ReminderModal__row {
+    grid-template-columns: 1fr;
+  }
+}

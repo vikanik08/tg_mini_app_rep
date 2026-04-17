@@ -33,9 +33,12 @@
 }
 
 .O-MonthCalendar__arrow {
-  font-size: 28px;
-  line-height: 1;
+  width: 28px;
+  height: 28px;
   padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .O-MonthCalendar__add {
@@ -67,11 +70,26 @@
   grid-template-columns: repeat(7, 1fr);
 }
 
+.O-MonthCalendar__grid--loading {
+  gap: 0;
+}
+
 .O-MonthCalendar__cell {
   min-height: 74px;
   border-bottom: 1px solid rgba(111, 107, 127, 0.1);
   padding: 4px 3px 6px;
   position: relative;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  background: transparent;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
+
+.O-MonthCalendar__cell--loading {
+  cursor: default;
 }
 
 .O-MonthCalendar__cell.is-selected {
@@ -168,4 +186,46 @@
 .O-MonthCalendar__legendText {
   font: var(--font-14);
   color: var(--color-text);
+}
+
+.O-MonthCalendar__skeleton {
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    rgba(236, 231, 239, 0.9) 0%,
+    rgba(247, 244, 250, 0.98) 50%,
+    rgba(236, 231, 239, 0.9) 100%
+  );
+  background-size: 200% 100%;
+  animation: month-calendar-skeleton 1.5s ease-in-out infinite;
+}
+
+.O-MonthCalendar__skeleton--day {
+  width: 18px;
+  height: 16px;
+  margin: 0 auto 8px;
+}
+
+.O-MonthCalendar__skeleton--event,
+.O-MonthCalendar__skeleton--eventShort {
+  height: 10px;
+}
+
+.O-MonthCalendar__skeleton--event {
+  width: 100%;
+}
+
+.O-MonthCalendar__skeleton--eventShort {
+  width: 70%;
+  margin-top: 4px;
+}
+
+@keyframes month-calendar-skeleton {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }

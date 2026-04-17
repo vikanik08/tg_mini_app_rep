@@ -9,6 +9,7 @@
   position: relative;
   display: flex;
   gap: 12px;
+  align-items: flex-start;
   padding: 10px 0 12px;
 }
 
@@ -44,14 +45,19 @@
   min-width: 0;
 }
 
+.M-EventRow__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .M-EventRow__title {
   font-size: 16px;
   line-height: 1.25;
   font-weight: 500;
   color: var(--color-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .M-EventRow__meta {
@@ -59,6 +65,106 @@
   font-size: 12px;
   line-height: 1.2;
   color: var(--color-grey-text);
+}
+
+.M-EventRow__petRow,
+.M-EventRow__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.M-EventRow__petRow {
+  margin-top: 8px;
+}
+
+.M-EventRow__actions {
+  margin-top: 10px;
+}
+
+.M-EventRow__petName,
+.M-EventRow__petLink {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.M-EventRow__petName {
+  color: var(--color-grey-text);
+}
+
+.M-EventRow__petLink {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.M-EventRow__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 2px;
+}
+
+.M-EventRow__checkButton,
+.M-EventRow__menuButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+  background: transparent;
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.M-EventRow__checkButton.is-checked {
+  background: var(--color-purple);
+  border-color: rgba(217, 190, 246, 0.9);
+}
+
+.M-EventRow__menuWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.M-EventRow__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 2;
+  min-width: 148px;
+  padding: 6px;
+  border-radius: 16px;
+  background: var(--color-white);
+  box-shadow: var(--shadow-soft);
+  display: grid;
+  gap: 4px;
+}
+
+.M-EventRow__menuItem {
+  min-height: 36px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--color-text);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.M-EventRow__menuItem:hover,
+.M-EventRow__menuButton:hover,
+.M-EventRow__checkButton:hover {
+  background: rgba(217, 190, 246, 0.26);
+}
+
+.M-EventRow__menuItem--danger {
+  color: #9e2f2f;
 }
 
 .M-EventRow__divider {
@@ -76,4 +182,21 @@
   line-height: 1.2;
   color: var(--color-grey-text);
   margin-top: 4px;
+}
+
+.O-EventsCard__footerLink {
+  display: block;
+  text-align: right;
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--color-grey-text);
+  margin-top: 6px;
+  text-decoration: none;
+}
+
+@media (max-width: 420px) {
+  .M-EventRow__petRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

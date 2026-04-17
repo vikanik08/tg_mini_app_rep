@@ -17,10 +17,11 @@
   border: none;
   background: transparent;
   color: var(--color-text);
-  font-size: 28px;
-  line-height: 1;
   padding: 0;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .O-ProcedureHeader__title {
@@ -116,13 +117,48 @@
   text-align: center;
 }
 
+.P-ProcedurePage__actions {
+  display: grid;
+  gap: 10px;
+}
+
+.O-ProcedureStatusRow {
+  display: flex;
+  gap: 8px;
+}
+
+.O-ProcedureStatusChip {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+  background: transparent;
+  color: var(--color-text);
+  font: var(--font-14);
+  cursor: pointer;
+}
+
+.O-ProcedureStatusChip.is-active {
+  background: var(--color-purple);
+  border-color: transparent;
+}
+
 .A-ProcedureSaveButton {
-  margin-top: 12px;
   height: 76px;
   border: none;
   border-radius: 28px;
   background: var(--color-purple);
   color: var(--color-white);
   font: var(--font-24);
+  cursor: pointer;
+}
+
+.A-ProcedureSecondaryButton {
+  min-height: 52px;
+  border: 1px solid rgba(202, 87, 87, 0.28);
+  border-radius: 22px;
+  background: #fff5f5;
+  color: #9e2f2f;
+  font: var(--font-16);
   cursor: pointer;
 }

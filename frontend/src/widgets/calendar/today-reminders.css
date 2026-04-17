@@ -46,6 +46,8 @@
   width: 100%;
   max-width: 310px;
   align-self: center;
+  text-decoration: none;
+  padding: 0 18px;
 }
 
 .A-Icon-Calendar {
@@ -56,4 +58,111 @@
 .O-TodayReminders__buttonPlus {
   font-size: 26px;
   line-height: 1;
+}
+
+.O-TodayReminders__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.O-TodayReminders__eventCard {
+  background: var(--color-white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
+  padding: 14px 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.O-TodayReminders__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.O-TodayReminders__actionButton {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+  background: transparent;
+  color: var(--color-text);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: var(--font-12);
+  cursor: pointer;
+}
+
+.O-TodayReminders__actionButton--danger {
+  border-color: rgba(202, 87, 87, 0.28);
+  background: #fff5f5;
+  color: #9e2f2f;
+}
+
+.O-TodayReminders__eventTop,
+.O-TodayReminders__petRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.O-TodayReminders__eventTitle {
+  font: var(--font-16);
+  color: var(--color-text);
+}
+
+.O-TodayReminders__eventMeta {
+  margin-top: 4px;
+  font: var(--font-14);
+  color: var(--color-grey-text);
+}
+
+.O-TodayReminders__eventNotes {
+  margin-top: 8px;
+  font: var(--font-14);
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.O-TodayReminders__eventState {
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(217, 190, 246, 0.45);
+  color: var(--color-text);
+  font: var(--font-12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.O-TodayReminders__eventState.is-done {
+  background: #e2f2dd;
+}
+
+.O-TodayReminders__petLabel,
+.O-TodayReminders__petLink {
+  font: var(--font-14);
+}
+
+.O-TodayReminders__petLabel {
+  color: var(--color-grey-text);
+}
+
+.O-TodayReminders__petLink {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+@media (max-width: 420px) {
+  .O-TodayReminders__eventTop,
+  .O-TodayReminders__petRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

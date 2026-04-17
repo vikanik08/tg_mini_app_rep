@@ -1,10 +1,11 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, func
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
+from app.models.enums import EventType
 
 
 class Event(Base):
@@ -23,9 +24,16 @@ class Event(Base):
         nullable=False,
     )
 
-    type: Mapped[str] = mapped_column(String(32), nullable=False)
-    title: Mapped[str] = mapped_column(String(128), nullable=False)
+    type: Mapped[EventType] = mapped_column(
+        Enum(
+            EventType,
+            name="event_type",
+            values_callable=lambda enum_cls: [item.value for item in enum_cls],
+        ),
+        nullable=False,
+    )
 
+    title: Mapped[str] = mapped_column(String(128), nullable=False)
     scheduled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True, nullable=False)
 
     is_done: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

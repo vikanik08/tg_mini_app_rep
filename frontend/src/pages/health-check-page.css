@@ -1,0 +1,340 @@
+.P-HealthCheck {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.P-HealthCheck__header {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 44px;
+  gap: 10px;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.P-HealthCheck__header p,
+.P-HealthCheck__hero span,
+.P-HealthCheck__sectionTop span,
+.P-HealthCheck__question p,
+.P-HealthCheck__numberQuestion p,
+.P-HealthCheck__note p {
+  margin: 0;
+  font: var(--font-12);
+  color: var(--color-grey-text);
+}
+
+.P-HealthCheck__header h1,
+.P-HealthCheck__hero h2,
+.P-HealthCheck__why h2,
+.P-HealthCheck__sectionTop h2,
+.P-HealthCheck__result h2,
+.P-HealthCheck__question h3 {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.P-HealthCheck__header h1 {
+  font: var(--font-24);
+}
+
+.P-HealthCheck__back {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.P-HealthCheck__petAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  background: var(--color-white);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+
+.P-HealthCheck__petAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.P-HealthCheck__hero,
+.P-HealthCheck__why,
+.P-HealthCheck__dynamics,
+.P-HealthCheck__result,
+.P-HealthCheck__question,
+.P-HealthCheck__numberQuestion,
+.P-HealthCheck__note,
+.P-HealthCheck__state {
+  background: var(--color-white);
+  border-radius: 28px;
+  box-shadow: var(--shadow-soft);
+}
+
+.P-HealthCheck__hero {
+  min-height: 176px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  background:
+    radial-gradient(circle at 88% 16%, rgba(246, 211, 91, 0.32), transparent 24%),
+    linear-gradient(145deg, #fff 0%, #f7ecff 55%, #eadbff 100%);
+}
+
+.P-HealthCheck__hero h2 {
+  margin-top: 8px;
+  font: var(--font-24);
+}
+
+.P-HealthCheck__hero p,
+.P-HealthCheck__why p,
+.P-HealthCheck__result p,
+.P-HealthCheck__state p {
+  margin: 8px 0 0;
+  font: var(--font-14);
+  color: var(--color-grey-text);
+}
+
+.P-HealthCheck__hero a,
+.P-HealthCheck__state a {
+  min-height: 42px;
+  width: fit-content;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--color-purple);
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  font: var(--font-14);
+}
+
+.P-HealthCheck__why,
+.P-HealthCheck__dynamics,
+.P-HealthCheck__result,
+.P-HealthCheck__state {
+  padding: 18px;
+}
+
+.P-HealthCheck__why h2,
+.P-HealthCheck__sectionTop h2,
+.P-HealthCheck__result h2 {
+  font: var(--font-20);
+}
+
+.P-HealthCheck__sectionTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.P-HealthCheck__dynamics {
+  display: grid;
+  gap: 14px;
+}
+
+.P-HealthCheck__dynamicsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.P-HealthCheck__dynamicsGrid article {
+  min-height: 106px;
+  border-radius: 22px;
+  background: #f8f4fb;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.P-HealthCheck__dynamicsGrid span {
+  font: var(--font-12);
+  color: var(--color-grey-text);
+}
+
+.P-HealthCheck__dynamicsGrid strong {
+  font: var(--font-20);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.P-HealthCheck__result {
+  border: 1px solid rgba(154, 112, 202, 0.24);
+  background: #fbf7ff;
+}
+
+.P-HealthCheck__form {
+  display: grid;
+  gap: 14px;
+}
+
+.P-HealthCheck__question,
+.P-HealthCheck__numberQuestion,
+.P-HealthCheck__note {
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.P-HealthCheck__question h3,
+.P-HealthCheck__numberQuestion span,
+.P-HealthCheck__note span {
+  font: var(--font-20);
+  color: var(--color-text);
+}
+
+.P-HealthCheck__scaleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.P-HealthCheck__scaleButton {
+  min-height: 74px;
+  border: 1px solid rgba(41, 31, 58, 0.12);
+  border-radius: 20px;
+  background: #fbf9fc;
+  color: var(--color-text);
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.P-HealthCheck__scaleButton strong {
+  font: var(--font-20);
+}
+
+.P-HealthCheck__scaleButton span {
+  font: var(--font-12);
+  color: var(--color-grey-text);
+  overflow-wrap: anywhere;
+}
+
+.P-HealthCheck__scaleButton.is-active,
+.P-HealthCheck__choiceChip.is-active {
+  background: var(--color-purple);
+  border-color: transparent;
+}
+
+.P-HealthCheck__scaleButton.is-active span {
+  color: var(--color-text);
+}
+
+.P-HealthCheck__chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.P-HealthCheck__choiceChip {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+  background: transparent;
+  color: var(--color-text);
+  font: var(--font-14);
+  cursor: pointer;
+}
+
+.P-HealthCheck__split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.P-HealthCheck__inputWrap {
+  min-height: 54px;
+  border-radius: 18px;
+  background: #f8f4fb;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  min-width: 0;
+}
+
+.P-HealthCheck__inputWrap input,
+.P-HealthCheck__note textarea {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font: var(--font-20);
+  min-width: 0;
+  width: 100%;
+}
+
+.P-HealthCheck__inputWrap input::placeholder,
+.P-HealthCheck__note textarea::placeholder {
+  color: rgba(111, 107, 127, 0.58);
+}
+
+.P-HealthCheck__inputWrap strong {
+  font: var(--font-14);
+  color: var(--color-grey-text);
+}
+
+.P-HealthCheck__note textarea {
+  min-height: 120px;
+  resize: vertical;
+  border-radius: 20px;
+  background: #f8f4fb;
+  padding: 14px;
+  font: var(--font-16);
+}
+
+.P-HealthCheck__error {
+  margin: 0;
+  font: var(--font-14);
+  color: #9e2f2f;
+  text-align: center;
+}
+
+.P-HealthCheck__submit {
+  min-height: 68px;
+  border: none;
+  border-radius: 26px;
+  background: var(--color-purple);
+  color: var(--color-white);
+  font: var(--font-24);
+  cursor: pointer;
+}
+
+.P-HealthCheck__submit:disabled {
+  opacity: 0.68;
+  cursor: default;
+}
+
+.P-HealthCheck__state {
+  display: grid;
+  gap: 12px;
+}
+
+@media (max-width: 380px) {
+  .P-HealthCheck__split,
+  .P-HealthCheck__dynamicsGrid,
+  .P-HealthCheck__scaleGrid {
+    grid-template-columns: 1fr;
+  }
+}
