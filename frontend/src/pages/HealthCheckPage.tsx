@@ -16,6 +16,8 @@ import {
   syncActivePet,
 } from "../shared/lib/activePet";
 import { zonedDateTimeToUtcIso } from "../shared/lib/dateTime";
+import { getApiErrorMessage } from "../shared/api/errors";
+import { hasPremiumAccess } from "../shared/lib/subscription";
 import arrowIcon from "../shared/ui/icons/arrow-icon.svg";
 import { useToast } from "../shared/ui/useToast";
 import "./health-check-page.css";
@@ -354,6 +356,7 @@ export default function HealthCheckPage() {
   const [draft, setDraft] = useState<HealthCheckDraft>(initialDraft);
   const [savedCheck, setSavedCheck] = useState<HealthCheck | null>(null);
   const [errorText, setErrorText] = useState("");
+  const hasExtendedAccess = hasPremiumAccess();
 
   const petsQuery = useQuery({
     queryKey: ["pets"],
@@ -386,6 +389,10 @@ export default function HealthCheckPage() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
+      if (!hasExtendedAccess) {
+        throw new Error("Трекер здоровья доступен в подписке Премиум или Семейная");
+      }
+
       if (!pet?.id) {
         throw new Error("Сначала выбери или добавь питомца");
       }
@@ -414,9 +421,10 @@ export default function HealthCheckPage() {
       await queryClient.invalidateQueries({ queryKey: ["events"] });
       showToast("Проверка сохранена, следующее напоминание добавлено", "success");
     },
-    onError: (error: Error) => {
-      setErrorText(error.message || "Не удалось сохранить проверку");
-      showToast(error.message || "Не удалось сохранить проверку", "error");
+    onError: (error: unknown) => {
+      const message = getApiErrorMessage(error, "Не удалось сохранить проверку");
+      setErrorText(message);
+      showToast(message, "error");
     },
   });
 
@@ -438,6 +446,23 @@ export default function HealthCheckPage() {
             <h1>Контроль здоровья</h1>
             <p>Сначала добавь питомца, чтобы сохранить наблюдения в его историю.</p>
             <Link to="/passport/edit">Добавить питомца</Link>
+          </section>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!hasExtendedAccess) {
+    return (
+      <AppLayout>
+        <div className="P-HealthCheck">
+          <section className="P-HealthCheck__state">
+            <h1>Контроль здоровья</h1>
+            <p>
+              Трекер здоровья доступен в подписке Премиум или Семейная.
+              После оформления здесь можно будет вести регулярные проверки питомца.
+            </p>
+            <Link to="/subscriptions">Оформить подписку</Link>
           </section>
         </div>
       </AppLayout>

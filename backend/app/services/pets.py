@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.models.pet import Pet
 from app.models.user import User
 from app.schemas.pet import PetCreate, PetUpdate
+from app.services.subscriptions import assert_can_create_pet
 
 
 def list_pets(db: Session, user: User) -> list[Pet]:
@@ -10,6 +11,8 @@ def list_pets(db: Session, user: User) -> list[Pet]:
 
 
 def create_pet(db: Session, user: User, payload: PetCreate) -> Pet:
+    assert_can_create_pet(db, user)
+
     pet = Pet(
         user_id=user.id,
         name=payload.name,

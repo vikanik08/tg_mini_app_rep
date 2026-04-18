@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
 
     telegram_bot_token: str
+    admin_secret: str = ""
 
     cors_origins: str = ""
     allow_dev_login: bool = True

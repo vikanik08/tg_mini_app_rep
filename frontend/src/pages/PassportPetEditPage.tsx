@@ -18,6 +18,7 @@ import {
   pickActivePet,
   setActivePetId,
 } from "../shared/lib/activePet";
+import { canAddPet } from "../shared/lib/subscription";
 import { useToast } from "../shared/ui/useToast";
 import "./passport-edit-page-live.css";
 
@@ -603,6 +604,10 @@ export default function PassportPetEditPage() {
         throw new Error("Напиши, какой это питомец");
       }
 
+      if (!hasExistingPet && !canAddPet((petsQuery.data ?? []).length)) {
+        throw new Error("Чтобы добавить еще одного питомца, оформите подписку");
+      }
+
       if (hasExistingPet && pet) {
         return updatePet(pet.id, payload);
       }
@@ -638,6 +643,10 @@ export default function PassportPetEditPage() {
       const message = error.message || "Не удалось сохранить питомца";
       setErrorText(message);
       showToast(message, "error");
+
+      if (message.includes("подпис")) {
+        navigate("/subscriptions");
+      }
     },
   });
 

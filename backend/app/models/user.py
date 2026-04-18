@@ -18,6 +18,11 @@ class User(Base):
     username: Mapped[str | None] = mapped_column(String(128), nullable=True)
 
     timezone: Mapped[str] = mapped_column(String(64), default="UTC", nullable=False)
+    subscription_plan: Mapped[str] = mapped_column(String(32), default="basic", nullable=False)
+    subscription_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

@@ -234,8 +234,8 @@ export default function ProfilePageLive() {
               <div className="P-ProfilePageLive__statValue">{upcomingEvents.length}</div>
               <div className="P-ProfilePageLive__statLabel">
                 {effectiveFilterMode === "active" && activePet
-                  ? "Запланировано для активного"
-                  : "Запланировано"}
+                  ? `Напоминаний для ${activePet.name}`
+                  : "Напоминаний"}
               </div>
             </article>
 

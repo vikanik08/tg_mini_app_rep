@@ -49,6 +49,8 @@ def create_event_route(
 ):
     try:
         return create_event(db, current_user, payload)
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
 
@@ -78,6 +80,8 @@ def update_event_route(
 
     try:
         return update_event(db, current_user, event, payload)
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
 

@@ -30,6 +30,8 @@ services:
         value: HS256
       - key: TELEGRAM_BOT_TOKEN
         sync: false
+      - key: ADMIN_SECRET
+        sync: false
       - key: CORS_ORIGINS
         value: https://tg-miniapp-sand.vercel.app
       - key: DATABASE_URL

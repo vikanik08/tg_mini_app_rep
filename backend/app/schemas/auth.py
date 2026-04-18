@@ -1,6 +1,11 @@
 import uuid
+from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel
+
+
+SubscriptionPlan = Literal["basic", "premium", "family"]
 
 
 class TelegramAuthRequest(BaseModel):
@@ -14,6 +19,8 @@ class UserInfoResponse(BaseModel):
     last_name: str | None
     username: str | None
     timezone: str
+    subscription_plan: SubscriptionPlan
+    subscription_expires_at: datetime | None
 
     model_config = {"from_attributes": True}
 

@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AppLayout from "../widgets/layout/AppLayout";
 import {
@@ -19,6 +19,7 @@ import {
 } from "../shared/lib/activePet";
 import { formatHealthFeatureNotes } from "../shared/lib/healthFeatures";
 import { openPassportPdf } from "../shared/lib/passportPdf";
+import { hasPremiumAccess } from "../shared/lib/subscription";
 import { useToast } from "../shared/ui/useToast";
 import "./passport-page-live.css";
 
@@ -207,6 +208,7 @@ function PassportSkeleton() {
 }
 
 export default function PassportPetPage() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const params = useParams();
@@ -258,6 +260,7 @@ export default function PassportPetPage() {
     [pet?.chronic_conditions_notes],
   );
   const surgeryDetails = pet?.surgeries_notes ? [pet.surgeries_notes] : [];
+  const hasExtendedPassport = hasPremiumAccess();
   const toggleDoneMutation = useMutation({
     mutationFn: async ({
       eventId,
@@ -353,6 +356,12 @@ export default function PassportPetPage() {
               type="button"
               className="P-PassportLive__ghostAction"
               onClick={() => {
+                if (!hasExtendedPassport) {
+                  showToast("Экспорт PDF доступен в подписке Премиум или Семейная", "error");
+                  navigate("/subscriptions");
+                  return;
+                }
+
                 try {
                   openPassportPdf(pet, sortedEvents);
                 } catch (error) {
@@ -477,7 +486,15 @@ export default function PassportPetPage() {
           </div>
 
           <div className="P-PassportLive__actionRow">
-            <Link className="P-PassportLive__actionChip" to={buildHealthCheckPath(pet.id)}>
+            <Link
+              className="P-PassportLive__actionChip"
+              to={hasExtendedPassport ? buildHealthCheckPath(pet.id) : "/subscriptions"}
+              onClick={() => {
+                if (!hasExtendedPassport) {
+                  showToast("Трекер здоровья доступен в подписке Премиум или Семейная", "error");
+                }
+              }}
+            >
               Контроль здоровья
             </Link>
             {procedureLinks.map((item) => (

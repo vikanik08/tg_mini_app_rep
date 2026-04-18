@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, Clock3, PencilLine, X } from "lucide-react";
 import { createEvent, type EventType } from "@/entities/event/api";
 import type { Pet } from "@/entities/pet/api";
+import { getApiErrorMessage } from "@/shared/api/errors";
 import { zonedDateTimeToUtcIso } from "@/shared/lib/dateTime";
 import { useToast } from "@/shared/ui/useToast";
 import arrowIcon from "../../shared/ui/icons/arrow-icon.svg";
@@ -148,24 +149,22 @@ export default function ReminderCreateModal({
         }
       }
 
-      await Promise.all(
-        scheduleDates.map((eventDate) =>
-          createEvent({
-            pet_id: selectedPetId,
-            type: selectedTask.eventType,
-            title: eventTitle,
-            scheduled_at: zonedDateTimeToUtcIso(toDateKey(eventDate), timeValue),
-          }),
-        ),
-      );
+      for (const eventDate of scheduleDates) {
+        await createEvent({
+          pet_id: selectedPetId,
+          type: selectedTask.eventType,
+          title: eventTitle,
+          scheduled_at: zonedDateTimeToUtcIso(toDateKey(eventDate), timeValue),
+        });
+      }
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries();
       showToast("Напоминание создано", "success");
       onClose();
     },
-    onError: (error: Error) => {
-      showToast(error.message || "Не удалось создать напоминание", "error");
+    onError: (error: unknown) => {
+      showToast(getApiErrorMessage(error, "Не удалось создать напоминание"), "error");
     },
   });
 

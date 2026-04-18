@@ -7,6 +7,7 @@ from app.models.event import Event
 from app.models.pet import Pet
 from app.models.user import User
 from app.schemas.event import EventCreate, EventUpdate
+from app.services.subscriptions import assert_can_create_active_reminder
 
 
 def _normalize_datetime(value: datetime) -> datetime:
@@ -49,12 +50,15 @@ def create_event(db: Session, user: User, payload: EventCreate) -> Event:
     if not pet:
         raise ValueError("Pet not found")
 
+    scheduled_at = _normalize_datetime(payload.scheduled_at)
+    assert_can_create_active_reminder(db, user, scheduled_at)
+
     event = Event(
         user_id=user.id,
         pet_id=payload.pet_id,
         type=payload.type,
         title=payload.title,
-        scheduled_at=_normalize_datetime(payload.scheduled_at),
+        scheduled_at=scheduled_at,
         notes=payload.notes,
         is_done=False,
     )
@@ -76,9 +80,20 @@ def update_event(db: Session, user: User, event: Event, payload: EventUpdate) ->
         if not pet:
             raise ValueError("Pet not found")
 
+    if "scheduled_at" in update_data and update_data["scheduled_at"] is not None:
+        update_data["scheduled_at"] = _normalize_datetime(update_data["scheduled_at"])
+
+    next_scheduled_at = update_data.get("scheduled_at", event.scheduled_at)
+    next_is_done = update_data.get("is_done", event.is_done)
+    if not next_is_done:
+        assert_can_create_active_reminder(
+            db,
+            user,
+            next_scheduled_at,
+            exclude_event_id=event.id,
+        )
+
     for field, value in update_data.items():
-        if field == "scheduled_at" and value is not None:
-            value = _normalize_datetime(value)
         setattr(event, field, value)
 
     db.commit()

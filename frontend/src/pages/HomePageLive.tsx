@@ -19,6 +19,7 @@ import {
   formatDateKeyInUserTimezone,
   formatDateTimeInUserTimezone,
 } from "@/shared/lib/dateTime";
+import { canAddPet, hasPremiumAccess } from "@/shared/lib/subscription";
 import AppLayout from "../widgets/layout/AppLayout";
 import DashboardPetCard from "../widgets/home/DashboardPetCard";
 import DashboardUpcomingEvents from "../widgets/home/DashboardUpcomingEvents";
@@ -165,10 +166,18 @@ export default function HomePageLive() {
     return pickActivePet(pets);
   }, [pets, selectedPetId]);
   const showFirstRunState = !isLoading && !isError && !activePet;
+  const canCreatePet = canAddPet(pets.length, data?.user);
+  const hasExtendedAccess = hasPremiumAccess(data?.user);
 
   useEffect(() => {
     syncActivePet(activePet ?? null);
   }, [activePet]);
+
+  useEffect(() => {
+    if (data?.user) {
+      localStorage.setItem("current_user", JSON.stringify(data.user));
+    }
+  }, [data?.user]);
 
   function handleSelectPet(petId: string) {
     setSelectedPetId(petId);
@@ -195,7 +204,10 @@ export default function HomePageLive() {
           <div className="W-SectionTitleRow">
             <h1 className="A-SectionTitle">Мои питомцы</h1>
 
-            <Link className="A-SectionAddButton" to="/passport/edit">
+            <Link
+              className="A-SectionAddButton"
+              to={canCreatePet ? "/passport/edit" : "/subscriptions"}
+            >
               <img
                 src={plusIcon}
                 alt="Добавить"
@@ -350,9 +362,9 @@ export default function HomePageLive() {
 
             <Link
               className="A-HealthSummaryCard__button"
-              to={buildHealthCheckPath(activePet.id)}
+              to={hasExtendedAccess ? buildHealthCheckPath(activePet.id) : "/subscriptions"}
             >
-              Внести данные
+              {hasExtendedAccess ? "Внести данные" : "Оформить подписку"}
             </Link>
           </section>
         ) : null}

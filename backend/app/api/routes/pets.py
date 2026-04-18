@@ -25,7 +25,10 @@ def create_pet_route(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return create_pet(db, current_user, payload)
+    try:
+        return create_pet(db, current_user, payload)
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
 
 
 @router.get("/{pet_id}", response_model=PetResponse)

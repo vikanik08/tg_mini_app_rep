@@ -7,6 +7,8 @@ export type AuthUser = {
   last_name: string | null;
   username: string | null;
   timezone: string;
+  subscription_plan: "basic" | "premium" | "family";
+  subscription_expires_at: string | null;
 };
 
 export type AuthResponse = {

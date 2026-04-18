@@ -26,7 +26,7 @@
 }
 
 .M-EventRow__weekday {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
   color: var(--color-grey-text);
   text-transform: uppercase;
@@ -34,7 +34,7 @@
 }
 
 .M-EventRow__day {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
   font-weight: 600;
   color: var(--color-text);

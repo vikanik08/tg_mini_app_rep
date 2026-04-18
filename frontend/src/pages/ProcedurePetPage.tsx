@@ -13,14 +13,15 @@ import {
 } from "../entities/event/api";
 import { getPets } from "../entities/pet/api";
 import {
-  buildPassportEditPath,
   buildPassportPath,
   syncActivePet,
 } from "../shared/lib/activePet";
 import {
   formatDateKeyInUserTimezone,
+  formatDateTimeInUserTimezone,
   zonedDateTimeToUtcIso,
 } from "../shared/lib/dateTime";
+import { getApiErrorMessage } from "../shared/api/errors";
 import arrowIcon from "../shared/ui/icons/arrow-icon.svg";
 import { useToast } from "../shared/ui/useToast";
 import "./procedure-page.css";
@@ -112,8 +113,8 @@ function getSafeType(value: string | undefined): ProcedureRouteType {
   return "custom";
 }
 
-function toDateTimeString(date: string) {
-  return zonedDateTimeToUtcIso(date, "12:00");
+function toDateTimeString(date: string, time = "12:00") {
+  return zonedDateTimeToUtcIso(date, time);
 }
 
 function buildNotes(doneDate: string, notes: string, nextDate: string) {
@@ -137,6 +138,14 @@ function getRequestedDate(value: string | null) {
 
 function toInputDate(value: string) {
   return formatDateKeyInUserTimezone(value);
+}
+
+function toInputTime(value: string) {
+  return formatDateTimeInUserTimezone(value, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
 }
 
 function shiftDate(
@@ -195,6 +204,7 @@ export default function ProcedurePetPage() {
   const today = new Date().toISOString().slice(0, 10);
   const [draftTitle, setDraftTitle] = useState<string | null>(null);
   const [draftDoneDate, setDraftDoneDate] = useState<string | null>(null);
+  const [draftTime, setDraftTime] = useState<string | null>(null);
   const [nextDate, setNextDate] = useState("");
   const [selectedReminderPreset, setSelectedReminderPreset] = useState<string | null>(null);
   const [draftNotes, setDraftNotes] = useState<string | null>(null);
@@ -203,6 +213,8 @@ export default function ProcedurePetPage() {
 
   const title = draftTitle ?? eventQuery.data?.title ?? (isReminderMode ? "Напоминание для питомца" : config.defaultTitle);
   const doneDate = draftDoneDate ?? (eventQuery.data ? toInputDate(eventQuery.data.scheduled_at) : requestedDate || today);
+  const eventTime = eventQuery.data ? toInputTime(eventQuery.data.scheduled_at) : "12:00";
+  const timeValue = draftTime ?? eventTime;
   const notes = draftNotes ?? eventQuery.data?.notes ?? "";
   const isDone = draftIsDone ?? eventQuery.data?.is_done ?? false;
 
@@ -240,7 +252,7 @@ export default function ProcedurePetPage() {
         await updateEvent(eventId, {
           pet_id: pet.id,
           title: title.trim(),
-          scheduled_at: toDateTimeString(doneDate),
+          scheduled_at: toDateTimeString(doneDate, timeValue),
           notes: notes.trim() || null,
         });
 
@@ -260,7 +272,7 @@ export default function ProcedurePetPage() {
           pet_id: pet.id,
           type: config.eventType,
           title: title.trim(),
-          scheduled_at: toDateTimeString(doneDate),
+          scheduled_at: toDateTimeString(doneDate, timeValue),
           notes: notes.trim() || null,
         });
         return;
@@ -307,9 +319,10 @@ export default function ProcedurePetPage() {
         navigate("/passport");
       }
     },
-    onError: (error: Error) => {
-      setErrorText(error.message || "Не удалось сохранить событие");
-      showToast(error.message || "Не удалось сохранить событие", "error");
+    onError: (error: unknown) => {
+      const message = getApiErrorMessage(error, "Не удалось сохранить событие");
+      setErrorText(message);
+      showToast(message, "error");
     },
   });
 
@@ -412,6 +425,21 @@ export default function ProcedurePetPage() {
               />
             </label>
 
+            {(isEditMode || isReminderMode) ? (
+              <label className="O-ProcedureField">
+                <span className="O-ProcedureField__label">Время напоминания</span>
+                <input
+                  className="O-ProcedureField__input"
+                  type="time"
+                  value={timeValue}
+                  onChange={(event) => {
+                    setDraftTime(event.target.value);
+                    if (errorText) setErrorText("");
+                  }}
+                />
+              </label>
+            ) : null}
+
             <label className="O-ProcedureField">
               <span className="O-ProcedureField__label">Название</span>
               <input
@@ -484,12 +512,6 @@ export default function ProcedurePetPage() {
                     ? `Создаю напоминание для питомца: ${pet.name}`
                     : `Сохраняю запись для питомца: ${pet.name}`}
               </div>
-            ) : null}
-
-            {pet ? (
-              <Link className="P-PassportEditLive__ghostAction" to={buildPassportEditPath(pet.id)}>
-                Открыть редактирование питомца
-              </Link>
             ) : null}
 
             {errorText ? <div className="P-ProcedurePage__error">{errorText}</div> : null}

@@ -35,6 +35,8 @@ export type DashboardResponse = {
     last_name: string | null;
     username: string | null;
     timezone: string;
+    subscription_plan: "basic" | "premium" | "family";
+    subscription_expires_at: string | null;
   };
   pets: DashboardPet[];
   upcoming_events: DashboardEvent[];
