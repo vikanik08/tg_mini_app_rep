@@ -138,6 +138,7 @@
 .M-ReminderModal__arrowDown {
   transform: rotate(-90deg);
   flex-shrink: 0;
+  pointer-events: none;
 }
 
 .M-ReminderModal__toggleRow {

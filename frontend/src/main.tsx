@@ -4,6 +4,7 @@ import { RouterProvider } from "react-router-dom";
 
 import "./index.css";
 import { router } from "./app/router";
+import { initAnalytics, trackEvent } from "./shared/analytics/metrica";
 import { initTelegram } from "./shared/telegram/init";
 import { bootstrapAuth } from "./shared/auth/bootstrap";
 import { AppProviders } from "./app/providers";
@@ -28,6 +29,10 @@ function renderApp() {
 
 function renderBootError(message: string) {
   const isTelegramInitDataMissing = message.includes("Telegram initData");
+  trackEvent("boot_error", {
+    telegram_init_missing: isTelegramInitDataMissing,
+    message,
+  });
   const telegramWebApp = window.Telegram?.WebApp;
   const debugInfo = isTelegramInitDataMissing
     ? [
@@ -91,8 +96,10 @@ function renderBootError(message: string) {
 }
 
 async function startApp() {
+  initAnalytics();
   initTelegram();
   await bootstrapAuth();
+  trackEvent("app_open");
   renderApp();
 }
 

@@ -1,4 +1,5 @@
 import { api } from "@/shared/api/client";
+import { trackEvent } from "@/shared/analytics/metrica";
 
 export type Pet = {
   id: string;
@@ -69,14 +70,23 @@ export async function getPetById(petId: string) {
 
 export async function createPet(payload: CreatePetPayload) {
   const response = await api.post<Pet>("/pets", payload);
+  trackEvent("pet_created", {
+    species: payload.species,
+    has_photo: Boolean(payload.photo_url),
+  });
   return response.data;
 }
 
 export async function updatePet(petId: string, payload: UpdatePetPayload) {
   const response = await api.patch<Pet>(`/pets/${petId}`, payload);
+  trackEvent("pet_updated", {
+    pet_id: petId,
+    changed_species: payload.species ?? null,
+  });
   return response.data;
 }
 
 export async function deletePet(petId: string) {
   await api.delete(`/pets/${petId}`);
+  trackEvent("pet_deleted", { pet_id: petId });
 }

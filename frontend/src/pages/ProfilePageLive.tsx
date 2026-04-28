@@ -14,6 +14,11 @@ import {
   setActivePetId as persistActivePetId,
   syncActivePet,
 } from "../shared/lib/activePet";
+import {
+  trackButtonClick,
+  trackEvent,
+  trackFeatureUse,
+} from "../shared/analytics/metrica";
 import { formatDateTimeInUserTimezone } from "../shared/lib/dateTime";
 import "./profile-page-live.css";
 
@@ -126,9 +131,11 @@ export default function ProfilePageLive() {
   function handleSelectPet(petId: string) {
     setSelectedPetId(petId);
     persistActivePetId(petId);
+    trackEvent("pet_switch", { pet_id: petId, source: "profile" });
   }
 
   function handleResetSession() {
+    trackButtonClick("profile_reset_session");
     localStorage.removeItem("access_token");
     localStorage.removeItem("current_user");
     window.location.reload();
@@ -139,6 +146,7 @@ export default function ProfilePageLive() {
 
     setUser({ ...user, timezone });
     updateTimezoneMutation.mutate({ timezone });
+    trackEvent("timezone_changed", { timezone });
   }
 
   const effectiveFilterMode = activePet ? filterMode : "all";
@@ -253,7 +261,14 @@ export default function ProfilePageLive() {
         <section className="P-ProfilePageLive__card">
           <div className="P-ProfilePageLive__sectionTop">
             <h2 className="P-ProfilePageLive__sectionTitle">Мои питомцы</h2>
-            <Link className="P-ProfilePageLive__textLink" to={activePassportEditPath}>
+            <Link
+              className="P-ProfilePageLive__textLink"
+              to={activePassportEditPath}
+              onClick={() => {
+                trackButtonClick("profile_edit_pet");
+                trackFeatureUse("pet_form", "open", { source: "profile_pets" });
+              }}
+            >
               Изменить
             </Link>
           </div>
@@ -310,12 +325,23 @@ export default function ProfilePageLive() {
                 ближайшие события.
               </p>
               <div className="P-ProfilePageLive__actions">
-                <Link className="P-ProfilePageLive__actionButton" to="/passport/edit">
+                <Link
+                  className="P-ProfilePageLive__actionButton"
+                  to="/passport/edit"
+                  onClick={() => {
+                    trackButtonClick("profile_add_first_pet");
+                    trackFeatureUse("pet_form", "open", { source: "profile_empty_state" });
+                  }}
+                >
                   Добавить питомца
                 </Link>
                 <Link
                   className="P-ProfilePageLive__actionButton P-ProfilePageLive__actionButton--ghost"
                   to="/calendar"
+                  onClick={() => {
+                    trackButtonClick("profile_open_calendar_empty");
+                    trackFeatureUse("calendar", "open", { source: "profile_empty_state" });
+                  }}
                 >
                   Открыть календарь
                 </Link>
@@ -338,14 +364,22 @@ export default function ProfilePageLive() {
               <button
                 type="button"
                 className={`P-ProfilePageLive__filterChip ${effectiveFilterMode === "active" ? "is-active" : ""}`}
-                onClick={() => setFilterMode("active")}
+                onClick={() => {
+                  setFilterMode("active");
+                  trackButtonClick("profile_filter_active_pet");
+                  trackFeatureUse("profile_event_filter", "change", { mode: "active" });
+                }}
               >
                 Активный питомец
               </button>
               <button
                 type="button"
                 className={`P-ProfilePageLive__filterChip ${effectiveFilterMode === "all" ? "is-active" : ""}`}
-                onClick={() => setFilterMode("all")}
+                onClick={() => {
+                  setFilterMode("all");
+                  trackButtonClick("profile_filter_all_pets");
+                  trackFeatureUse("profile_event_filter", "change", { mode: "all" });
+                }}
               >
                 Все питомцы
               </button>
@@ -356,7 +390,14 @@ export default function ProfilePageLive() {
         <section className="P-ProfilePageLive__card">
           <div className="P-ProfilePageLive__sectionTop">
             <h2 className="P-ProfilePageLive__sectionTitle">Ближайшие записи</h2>
-            <Link className="P-ProfilePageLive__textLink" to="/calendar">
+            <Link
+              className="P-ProfilePageLive__textLink"
+              to="/calendar"
+              onClick={() => {
+                trackButtonClick("profile_to_calendar");
+                trackFeatureUse("calendar", "open", { source: "profile_upcoming" });
+              }}
+            >
               К календарю
             </Link>
           </div>
@@ -398,7 +439,14 @@ export default function ProfilePageLive() {
                     </div>
                     <div className="P-ProfilePageLive__eventSide">
                       <span className="P-ProfilePageLive__eventDate">{formatDate(event.scheduled_at)}</span>
-                      <Link className="P-ProfilePageLive__eventAction" to="/calendar">
+                      <Link
+                        className="P-ProfilePageLive__eventAction"
+                        to="/calendar"
+                        onClick={() => {
+                          trackButtonClick("profile_upcoming_add");
+                          trackFeatureUse("calendar", "open", { source: "profile_upcoming_item" });
+                        }}
+                      >
                         Добавить
                       </Link>
                     </div>
@@ -419,12 +467,23 @@ export default function ProfilePageLive() {
                   : "Создай первое напоминание, и оно сразу появится здесь."}
               </p>
               <div className="P-ProfilePageLive__actions">
-                <Link className="P-ProfilePageLive__actionButton" to="/calendar">
+                <Link
+                  className="P-ProfilePageLive__actionButton"
+                  to="/calendar"
+                  onClick={() => {
+                    trackButtonClick("profile_add_reminder_empty");
+                    trackFeatureUse("calendar", "open", { source: "profile_empty_upcoming" });
+                  }}
+                >
                   Добавить напоминание
                 </Link>
                 <Link
                   className="P-ProfilePageLive__actionButton P-ProfilePageLive__actionButton--ghost"
                   to={activePassportPath}
+                  onClick={() => {
+                    trackButtonClick("profile_go_to_passport_empty");
+                    trackFeatureUse("passport", "open", { source: "profile_empty_upcoming" });
+                  }}
                 >
                   Перейти в паспорт
                 </Link>
@@ -439,10 +498,24 @@ export default function ProfilePageLive() {
           </div>
 
           <div className="P-ProfilePageLive__actions">
-            <Link className="P-ProfilePageLive__actionButton" to={activePassportPath}>
+            <Link
+              className="P-ProfilePageLive__actionButton"
+              to={activePassportPath}
+              onClick={() => {
+                trackButtonClick("profile_open_passport");
+                trackFeatureUse("passport", "open", { source: "profile_actions" });
+              }}
+            >
               {primaryActionLabel}
             </Link>
-            <Link className="P-ProfilePageLive__actionButton" to="/calendar">
+            <Link
+              className="P-ProfilePageLive__actionButton"
+              to="/calendar"
+              onClick={() => {
+                trackButtonClick("profile_open_calendar");
+                trackFeatureUse("calendar", "open", { source: "profile_actions" });
+              }}
+            >
               Открыть календарь
             </Link>
             <button

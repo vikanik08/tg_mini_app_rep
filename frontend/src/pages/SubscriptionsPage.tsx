@@ -1,6 +1,7 @@
 ﻿import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, Shield, Sparkles } from "lucide-react";
+import { trackEvent } from "@/shared/analytics/metrica";
 import AppLayout from "../widgets/layout/AppLayout";
 import arrowIcon from "../shared/ui/icons/arrow-icon.svg";
 import "./subscriptions-page.css";
@@ -121,7 +122,10 @@ export default function SubscriptionsPage() {
               key={plan.id}
               type="button"
               className={`P-Subscriptions__plan ${selectedPlanId === plan.id ? "is-active" : ""}`}
-              onClick={() => setSelectedPlanId(plan.id)}
+              onClick={() => {
+                setSelectedPlanId(plan.id);
+                trackEvent("subscription_plan_selected", { plan: plan.id });
+              }}
             >
               <div className="P-Subscriptions__planTop">
                 <div>
@@ -160,7 +164,10 @@ export default function SubscriptionsPage() {
           <button
             type="button"
             className="P-Subscriptions__cta"
-            onClick={openSupportChat}
+            onClick={() => {
+              trackEvent("subscription_cta_clicked", { plan: selectedPlan.id });
+              openSupportChat();
+            }}
           >
             {`Оформить подписку ${selectedPlan.name}`}
           </button>

@@ -1,4 +1,5 @@
 import { api } from "@/shared/api/client";
+import { trackEvent } from "@/shared/analytics/metrica";
 
 export type HealthCheck = {
   id: string;
@@ -53,5 +54,9 @@ export async function getHealthChecks(petId?: string | null) {
 
 export async function createHealthCheck(payload: CreateHealthCheckPayload) {
   const response = await api.post<HealthCheck>("/health-checks", payload);
+  trackEvent("health_check_created", {
+    pet_id: payload.pet_id,
+    has_note: Boolean(payload.owner_note),
+  });
   return response.data;
 }

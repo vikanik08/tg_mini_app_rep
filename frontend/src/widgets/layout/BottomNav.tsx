@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { trackButtonClick, trackFeatureUse } from "@/shared/analytics/metrica";
 
 import mainActive from "../../shared/ui/icons/main-screen-active-icon.svg";
 import mainDisable from "../../shared/ui/icons/main-screen-diable-icon.svg";
@@ -42,7 +43,15 @@ export default function BottomNav() {
   return (
     <nav className="O-BottomNav">
       {items.map((item) => (
-        <NavLink key={item.to} to={item.to} className="O-BottomNav__link">
+        <NavLink
+          key={item.to}
+          to={item.to}
+          className="O-BottomNav__link"
+          onClick={() => {
+            trackButtonClick(`bottom_nav_${item.to}`);
+            trackFeatureUse("bottom_nav", "navigate", { destination: item.to });
+          }}
+        >
           {({ isActive }) => (
             <>
               <img

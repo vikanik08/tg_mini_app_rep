@@ -19,6 +19,11 @@ import {
   formatDateKeyInUserTimezone,
   formatDateTimeInUserTimezone,
 } from "@/shared/lib/dateTime";
+import {
+  trackButtonClick,
+  trackEvent,
+  trackFeatureUse,
+} from "@/shared/analytics/metrica";
 import { canAddPet, hasPremiumAccess } from "@/shared/lib/subscription";
 import AppLayout from "../widgets/layout/AppLayout";
 import DashboardPetCard from "../widgets/home/DashboardPetCard";
@@ -182,11 +187,17 @@ export default function HomePageLive() {
   function handleSelectPet(petId: string) {
     setSelectedPetId(petId);
     setActivePetId(petId);
+    trackEvent("pet_switch", { pet_id: petId, source: "home" });
   }
 
   function openReminderModal(date = new Date()) {
     setReminderDate(date);
     setIsCreateReminderOpen(true);
+    trackButtonClick("home_add_reminder");
+    trackEvent("reminder_modal_open", {
+      source: "home",
+      date: date.toISOString().slice(0, 10),
+    });
   }
 
   return (
@@ -195,7 +206,14 @@ export default function HomePageLive() {
         <header className="W-HomeHeader">
           <div className="A-HomeGreeting">{`Привет, ${greetingName}`}</div>
 
-          <Link className="A-HeaderCircleButton" to="/subscriptions">
+          <Link
+            className="A-HeaderCircleButton"
+            to="/subscriptions"
+            onClick={() => {
+              trackButtonClick("home_subscription");
+              trackFeatureUse("subscriptions", "open", { source: "home_header" });
+            }}
+          >
             <Star size={20} fill="#F6D35B" color="#F6D35B" />
           </Link>
         </header>
@@ -207,6 +225,14 @@ export default function HomePageLive() {
             <Link
               className="A-SectionAddButton"
               to={canCreatePet ? "/passport/edit" : "/subscriptions"}
+              onClick={() => {
+                trackButtonClick("home_add_pet");
+                trackFeatureUse(
+                  canCreatePet ? "pet_form" : "subscriptions",
+                  "open",
+                  { source: "home_pets_section" },
+                );
+              }}
             >
               <img
                 src={plusIcon}
@@ -285,12 +311,23 @@ export default function HomePageLive() {
               </div>
 
               <div className="A-FirstRunCard__actions">
-                <Link className="A-FirstRunCard__button" to="/passport/edit">
+                <Link
+                  className="A-FirstRunCard__button"
+                  to="/passport/edit"
+                  onClick={() => {
+                    trackButtonClick("first_run_add_pet");
+                    trackFeatureUse("pet_form", "open", { source: "first_run" });
+                  }}
+                >
                   Добавить питомца
                 </Link>
                 <Link
                   className="A-FirstRunCard__button A-FirstRunCard__button--ghost"
                   to="/calendar"
+                  onClick={() => {
+                    trackButtonClick("first_run_open_calendar");
+                    trackFeatureUse("calendar", "open", { source: "first_run" });
+                  }}
                 >
                   Открыть календарь
                 </Link>
@@ -312,7 +349,14 @@ export default function HomePageLive() {
                 <Plus size={22} />
               </button>
             ) : (
-              <Link className="A-SectionAddButton" to="/passport/edit">
+              <Link
+                className="A-SectionAddButton"
+                to="/passport/edit"
+                onClick={() => {
+                  trackButtonClick("home_events_add_without_pet");
+                  trackFeatureUse("pet_form", "open", { source: "home_events_section" });
+                }}
+              >
                 <Plus size={22} />
               </Link>
             )}
@@ -363,6 +407,14 @@ export default function HomePageLive() {
             <Link
               className="A-HealthSummaryCard__button"
               to={hasExtendedAccess ? buildHealthCheckPath(activePet.id) : "/subscriptions"}
+              onClick={() => {
+                trackButtonClick("home_health_summary");
+                trackFeatureUse(
+                  hasExtendedAccess ? "health_check" : "subscriptions",
+                  "open",
+                  { source: "home_health_summary" },
+                );
+              }}
             >
               {hasExtendedAccess ? "Внести данные" : "Оформить подписку"}
             </Link>

@@ -1,4 +1,5 @@
 import { devLogin, telegramLogin } from "@/shared/auth/requests";
+import { setAnalyticsUser, trackEvent } from "@/shared/analytics/metrica";
 
 function getTelegramInitData() {
   const fromWebApp = window.Telegram?.WebApp?.initData;
@@ -35,6 +36,11 @@ export async function bootstrapAuth() {
 
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("current_user", JSON.stringify(data.user));
+    setAnalyticsUser(data.user);
+    trackEvent("auth_success", {
+      mode: "dev",
+      subscription_plan: data.user.subscription_plan,
+    });
     return;
   }
 
@@ -45,6 +51,11 @@ export async function bootstrapAuth() {
 
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("current_user", JSON.stringify(data.user));
+    setAnalyticsUser(data.user);
+    trackEvent("auth_success", {
+      mode: "telegram",
+      subscription_plan: data.user.subscription_plan,
+    });
     return;
   }
 

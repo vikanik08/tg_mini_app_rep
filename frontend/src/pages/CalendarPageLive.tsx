@@ -2,6 +2,7 @@
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getPets } from "../entities/pet/api";
+import { trackButtonClick, trackEvent, trackFeatureUse } from "../shared/analytics/metrica";
 import AppLayout from "../widgets/layout/AppLayout";
 import CalendarHeaderLive from "../widgets/calendar/CalendarHeaderLive";
 import MonthCalendarLive from "../widgets/calendar/MonthCalendarLive";
@@ -66,12 +67,21 @@ export default function CalendarPageLive() {
   function handleSelectDate(date: Date) {
     setSelectedDate(date);
     setSearchParams({ date: toDateKey(date) }, { replace: true });
+    trackEvent("calendar_day_selected", {
+      source: "calendar_page",
+      date: toDateKey(date),
+    });
   }
 
   function openReminderForDate(date: Date) {
     handleSelectDate(date);
     setReminderDate(date);
     setIsCreateReminderOpen(true);
+    trackButtonClick("calendar_add_reminder");
+    trackEvent("reminder_modal_open", {
+      source: "calendar_page",
+      date: toDateKey(date),
+    });
   }
 
   const selectedDateKey = useMemo(() => toDateKey(selectedDate), [selectedDate]);
@@ -101,14 +111,22 @@ export default function CalendarPageLive() {
               <button
                 type="button"
                 className={`P-Calendar__filterChip ${filterMode === "active" ? "is-active" : ""}`}
-                onClick={() => setFilterMode("active")}
+                onClick={() => {
+                  setFilterMode("active");
+                  trackButtonClick("calendar_filter_active_pet");
+                  trackFeatureUse("calendar_filter", "change", { mode: "active" });
+                }}
               >
                 Активный питомец
               </button>
               <button
                 type="button"
                 className={`P-Calendar__filterChip ${filterMode === "all" ? "is-active" : ""}`}
-                onClick={() => setFilterMode("all")}
+                onClick={() => {
+                  setFilterMode("all");
+                  trackButtonClick("calendar_filter_all_pets");
+                  trackFeatureUse("calendar_filter", "change", { mode: "all" });
+                }}
               >
                 Все питомцы
               </button>

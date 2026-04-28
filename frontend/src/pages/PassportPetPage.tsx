@@ -17,6 +17,11 @@ import {
   ensureActivePet,
   setActivePetId,
 } from "../shared/lib/activePet";
+import {
+  trackButtonClick,
+  trackEvent,
+  trackFeatureUse,
+} from "../shared/analytics/metrica";
 import { formatHealthFeatureNotes } from "../shared/lib/healthFeatures";
 import { openPassportPdf } from "../shared/lib/passportPdf";
 import { hasPremiumAccess } from "../shared/lib/subscription";
@@ -347,7 +352,6 @@ export default function PassportPetPage() {
       <div className="P-PassportLive">
         <header className="P-PassportLive__header">
           <div>
-            <p className="P-PassportLive__eyebrow">Ветпаспорт</p>
             <h1 className="P-PassportLive__title">Ветпаспорт</h1>
           </div>
 
@@ -356,7 +360,9 @@ export default function PassportPetPage() {
               type="button"
               className="P-PassportLive__ghostAction"
               onClick={() => {
+                trackButtonClick("passport_export_pdf");
                 if (!hasExtendedPassport) {
+                  trackEvent("passport_pdf_blocked_basic_plan", { pet_id: pet.id });
                   showToast("Экспорт PDF доступен в подписке Премиум или Семейная", "error");
                   navigate("/subscriptions");
                   return;
@@ -378,6 +384,10 @@ export default function PassportPetPage() {
             <Link
               className="P-PassportLive__ghostAction"
               to={buildPassportEditPath(pet.id)}
+              onClick={() => {
+                trackButtonClick("passport_edit");
+                trackFeatureUse("pet_form", "open", { source: "passport_header" });
+              }}
             >
               Изменить
             </Link>
@@ -397,7 +407,10 @@ export default function PassportPetPage() {
                   key={item.id}
                   className={`P-PassportLive__petTab ${item.id === pet.id ? "is-active" : ""}`}
                   to={`/passport/${item.id}`}
-                  onClick={() => setActivePetId(item.id)}
+                  onClick={() => {
+                    setActivePetId(item.id);
+                    trackEvent("pet_switch", { pet_id: item.id, source: "passport" });
+                  }}
                 >
                   <span className="P-PassportLive__petTabEmoji">
                     {item.species === "cat" ? "🐱" : item.species === "dog" ? "🐶" : "🐾"}
@@ -443,7 +456,14 @@ export default function PassportPetPage() {
         <section className="P-PassportLive__card">
           <div className="P-PassportLive__sectionTop">
             <h3 className="P-PassportLive__cardTitle">Медицинская информация</h3>
-            <Link className="P-PassportLive__textLink" to={buildPassportEditPath(pet.id)}>
+            <Link
+              className="P-PassportLive__textLink"
+              to={buildPassportEditPath(pet.id)}
+              onClick={() => {
+                trackButtonClick("passport_medical_edit");
+                trackFeatureUse("pet_form", "open", { source: "passport_medical" });
+              }}
+            >
               Изменить
             </Link>
           </div>
@@ -490,15 +510,36 @@ export default function PassportPetPage() {
               className="P-PassportLive__actionChip"
               to={hasExtendedPassport ? buildHealthCheckPath(pet.id) : "/subscriptions"}
               onClick={() => {
+                trackButtonClick("passport_health_check");
                 if (!hasExtendedPassport) {
+                  trackEvent("health_check_blocked_basic_plan", { source: "passport", pet_id: pet.id });
                   showToast("Трекер здоровья доступен в подписке Премиум или Семейная", "error");
+                  return;
                 }
+
+                trackFeatureUse(
+                  hasExtendedPassport ? "health_check" : "subscriptions",
+                  "open",
+                  { source: "passport_actions", pet_id: pet.id },
+                );
               }}
             >
               Контроль здоровья
             </Link>
             {procedureLinks.map((item) => (
-              <Link key={item.to} className="P-PassportLive__actionChip" to={item.to}>
+              <Link
+                key={item.to}
+                className="P-PassportLive__actionChip"
+                to={item.to}
+                onClick={() => {
+                  trackButtonClick(`passport_action_${item.label.toLowerCase()}`);
+                  trackFeatureUse("procedure", "open", {
+                    source: "passport_actions",
+                    label: item.label,
+                    pet_id: pet.id,
+                  });
+                }}
+              >
                 {item.label}
               </Link>
             ))}

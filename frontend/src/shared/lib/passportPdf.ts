@@ -1,5 +1,6 @@
 ﻿import type { EventItem } from "@/entities/event/api";
 import type { Pet } from "@/entities/pet/api";
+import { trackEvent } from "@/shared/analytics/metrica";
 import { formatHealthFeatureNotes } from "@/shared/lib/healthFeatures";
 
 function escapeHtml(value: string) {
@@ -302,6 +303,11 @@ function buildPassportHtml(pet: Pet, events: EventItem[]) {
 }
 
 export function openPassportPdf(pet: Pet, events: EventItem[]) {
+  trackEvent("passport_pdf_exported", {
+    pet_id: pet.id,
+    events_count: events.length,
+  });
+
   const html = buildPassportHtml(pet, events);
   const iframe = document.createElement("iframe");
 

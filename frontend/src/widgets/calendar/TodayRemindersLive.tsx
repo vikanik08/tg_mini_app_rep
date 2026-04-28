@@ -13,6 +13,7 @@ import {
   buildProcedurePath,
   pickActivePet,
 } from "@/shared/lib/activePet";
+import { trackButtonClick, trackFeatureUse } from "@/shared/analytics/metrica";
 import { formatDateTimeInUserTimezone } from "@/shared/lib/dateTime";
 import { useToast } from "@/shared/ui/useToast";
 import plusIcon from "../../shared/ui/icons/plus-icon.svg";
@@ -176,7 +177,14 @@ export default function TodayRemindersLive({
                 {pet ? (
                   <div className="O-TodayReminders__petRow">
                     <span className="O-TodayReminders__petLabel">Питомец: {pet.name}</span>
-                    <Link className="O-TodayReminders__petLink" to={buildPassportPath(event.pet_id)}>
+                    <Link
+                      className="O-TodayReminders__petLink"
+                      to={buildPassportPath(event.pet_id)}
+                      onClick={() => {
+                        trackButtonClick("today_reminders_open_passport");
+                        trackFeatureUse("passport", "open", { source: "today_reminders" });
+                      }}
+                    >
                       Открыть паспорт
                     </Link>
                   </div>
@@ -190,12 +198,14 @@ export default function TodayRemindersLive({
                   <button
                     type="button"
                     className="O-TodayReminders__actionButton"
-                    onClick={() =>
+                    onClick={() => {
+                      trackButtonClick(event.is_done ? "today_reminders_uncomplete" : "today_reminders_complete");
                       toggleDoneMutation.mutate({
                         eventId: event.id,
                         isDone: event.is_done,
                         title: event.title,
-                      })}
+                      });
+                    }}
                     disabled={toggleDoneMutation.isPending || deleteMutation.isPending}
                   >
                     {event.is_done ? "Вернуть в план" : "Отметить выполненным"}
@@ -204,6 +214,10 @@ export default function TodayRemindersLive({
                   <Link
                     className="O-TodayReminders__actionButton"
                     to={`${buildProcedurePath("custom", event.pet_id)}?eventId=${event.id}&date=${dateKey}`}
+                    onClick={() => {
+                      trackButtonClick("today_reminders_edit");
+                      trackFeatureUse("reminder_edit", "open", { source: "today_reminders" });
+                    }}
                   >
                     Редактировать
                   </Link>
@@ -213,6 +227,7 @@ export default function TodayRemindersLive({
                     className="O-TodayReminders__actionButton O-TodayReminders__actionButton--danger"
                     onClick={() => {
                       if (!window.confirm("Удалить это событие?")) return;
+                      trackButtonClick("today_reminders_delete");
                       deleteMutation.mutate({
                         eventId: event.id,
                         title: event.title,
@@ -233,7 +248,11 @@ export default function TodayRemindersLive({
         <button
           type="button"
           className="O-TodayReminders__button"
-          onClick={() => onAddReminder(selectedDate)}
+          onClick={() => {
+            trackButtonClick("today_reminders_add");
+            trackFeatureUse("reminder_modal", "open", { source: "today_reminders" });
+            onAddReminder(selectedDate);
+          }}
         >
           <span className="O-TodayReminders__buttonPlus">
             <img
@@ -245,7 +264,14 @@ export default function TodayRemindersLive({
           Добавить напоминание
         </button>
       ) : (
-        <Link className="O-TodayReminders__button" to="/passport/edit">
+        <Link
+          className="O-TodayReminders__button"
+          to="/passport/edit"
+          onClick={() => {
+            trackButtonClick("today_reminders_add_pet");
+            trackFeatureUse("pet_form", "open", { source: "today_reminders" });
+          }}
+        >
           <span className="O-TodayReminders__buttonPlus">
             <img
               src={plusIcon}

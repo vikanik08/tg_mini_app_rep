@@ -1,9 +1,10 @@
-﻿import { useMemo, useState } from "react";
+﻿import { useMemo, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, Clock3, PencilLine, X } from "lucide-react";
+import { PencilLine, X } from "lucide-react";
 import { createEvent, type EventType } from "@/entities/event/api";
 import type { Pet } from "@/entities/pet/api";
 import { getApiErrorMessage } from "@/shared/api/errors";
+import { trackButtonClick, trackEvent, trackFeatureUse } from "@/shared/analytics/metrica";
 import { zonedDateTimeToUtcIso } from "@/shared/lib/dateTime";
 import { useToast } from "@/shared/ui/useToast";
 import arrowIcon from "../../shared/ui/icons/arrow-icon.svg";
@@ -26,6 +27,7 @@ type TaskOption = {
 };
 
 type RepeatPreset = "day" | "three-days" | "week" | "month" | "custom";
+type PickerElement = HTMLInputElement | HTMLSelectElement;
 
 const taskOptions: TaskOption[] = [
   { id: "feeding", label: "Питание", eventType: "other", title: "Питание", icon: "🍽️" },
@@ -69,6 +71,20 @@ function formatPetEmoji(species: Pet["species"]) {
   return "🐾";
 }
 
+function openNativePicker(element: PickerElement | null) {
+  if (!element) return;
+
+  element.focus();
+
+  if ("showPicker" in element) {
+    try {
+      element.showPicker();
+    } catch {
+      // Some browsers only allow native pickers from direct user gestures.
+    }
+  }
+}
+
 export default function ReminderCreateModal({
   open,
   selectedDate,
@@ -78,6 +94,11 @@ export default function ReminderCreateModal({
 }: ReminderCreateModalProps) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const taskSelectRef = useRef<HTMLSelectElement>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+  const timeInputRef = useRef<HTMLInputElement>(null);
+  const repeatSelectRef = useRef<HTMLSelectElement>(null);
+  const customRepeatDateRef = useRef<HTMLInputElement>(null);
   const [taskId, setTaskId] = useState(taskOptions[0].id);
   const [dateValue, setDateValue] = useState(toDateKey(selectedDate));
   const [timeValue, setTimeValue] = useState("08:00");
@@ -161,6 +182,10 @@ export default function ReminderCreateModal({
     onSuccess: async () => {
       await queryClient.invalidateQueries();
       showToast("Напоминание создано", "success");
+      trackFeatureUse("reminder", "created", {
+        task_id: selectedTask.id,
+        repeat_enabled: repeatEnabled,
+      });
       onClose();
     },
     onError: (error: unknown) => {
@@ -178,7 +203,10 @@ export default function ReminderCreateModal({
           <button
             type="button"
             className="M-ReminderModal__close"
-            onClick={onClose}
+            onClick={() => {
+              trackButtonClick("reminder_modal_close");
+              onClose();
+            }}
             aria-label="Закрыть окно"
           >
             <X size={18} />
@@ -187,12 +215,19 @@ export default function ReminderCreateModal({
 
         <label className="M-ReminderModal__field">
           <span className="M-ReminderModal__label">Тип задачи</span>
-          <div className="M-ReminderModal__selectWrap">
+          <div
+            className="M-ReminderModal__selectWrap"
+            onClick={() => openNativePicker(taskSelectRef.current)}
+          >
             <span className="M-ReminderModal__leadingIcon">{selectedTask.icon}</span>
             <select
+              ref={taskSelectRef}
               className="M-ReminderModal__select"
               value={taskId}
-              onChange={(event) => setTaskId(event.target.value)}
+              onChange={(event) => {
+                setTaskId(event.target.value);
+                trackEvent("reminder_type_selected", { task_id: event.target.value });
+              }}
             >
               {taskOptions.map((option) => (
                 <option key={option.id} value={option.id}>
@@ -222,9 +257,12 @@ export default function ReminderCreateModal({
         <div className="M-ReminderModal__row">
           <label className="M-ReminderModal__field M-ReminderModal__field--half">
             <span className="M-ReminderModal__label">Дата</span>
-            <div className="M-ReminderModal__inputWrap">
-              <CalendarDays size={18} className="M-ReminderModal__decorIcon" />
+            <div
+              className="M-ReminderModal__inputWrap"
+              onClick={() => openNativePicker(dateInputRef.current)}
+            >
               <input
+                ref={dateInputRef}
                 className="M-ReminderModal__input"
                 type="date"
                 value={dateValue}
@@ -236,9 +274,12 @@ export default function ReminderCreateModal({
 
           <label className="M-ReminderModal__field M-ReminderModal__field--time">
             <span className="M-ReminderModal__label">Время</span>
-            <div className="M-ReminderModal__inputWrap">
-              <Clock3 size={18} className="M-ReminderModal__decorIcon" />
+            <div
+              className="M-ReminderModal__inputWrap"
+              onClick={() => openNativePicker(timeInputRef.current)}
+            >
               <input
+                ref={timeInputRef}
                 className="M-ReminderModal__input"
                 type="time"
                 value={timeValue}
@@ -258,7 +299,12 @@ export default function ReminderCreateModal({
               role="switch"
               aria-checked={repeatEnabled}
               className={`M-ReminderModal__switch ${repeatEnabled ? "is-on" : ""}`}
-              onClick={() => setRepeatEnabled((current) => !current)}
+              onClick={() =>
+                setRepeatEnabled((current) => {
+                  const next = !current;
+                  trackEvent("repeat_enabled", { enabled: next });
+                  return next;
+                })}
             >
               <span className="M-ReminderModal__switchThumb" />
             </button>
@@ -269,11 +315,18 @@ export default function ReminderCreateModal({
           <div className="M-ReminderModal__repeatGrid">
             <label className="M-ReminderModal__field">
               <span className="M-ReminderModal__label">Через сколько</span>
-              <div className="M-ReminderModal__selectWrap">
+              <div
+                className="M-ReminderModal__selectWrap"
+                onClick={() => openNativePicker(repeatSelectRef.current)}
+              >
                 <select
+                  ref={repeatSelectRef}
                   className="M-ReminderModal__select"
                   value={repeatPreset}
-                  onChange={(event) => setRepeatPreset(event.target.value as RepeatPreset)}
+                  onChange={(event) => {
+                    setRepeatPreset(event.target.value as RepeatPreset);
+                    trackEvent("repeat_preset_selected", { preset: event.target.value });
+                  }}
                 >
                   {repeatOptions.map((option) => (
                     <option key={option.id} value={option.id}>
@@ -288,9 +341,12 @@ export default function ReminderCreateModal({
             {repeatPreset === "custom" ? (
               <label className="M-ReminderModal__field">
                 <span className="M-ReminderModal__label">Своя дата</span>
-                <div className="M-ReminderModal__inputWrap">
-                  <CalendarDays size={18} className="M-ReminderModal__decorIcon" />
+                <div
+                  className="M-ReminderModal__inputWrap"
+                  onClick={() => openNativePicker(customRepeatDateRef.current)}
+                >
                   <input
+                    ref={customRepeatDateRef}
                     className="M-ReminderModal__input"
                     type="date"
                     value={customRepeatDate}
@@ -325,7 +381,10 @@ export default function ReminderCreateModal({
             <select
               className="M-ReminderModal__select"
               value={selectedPetId}
-              onChange={(event) => setSelectedPetId(event.target.value)}
+              onChange={(event) => {
+                setSelectedPetId(event.target.value);
+                trackEvent("reminder_pet_selected", { pet_id: event.target.value });
+              }}
             >
               {pets.map((pet) => (
                 <option key={pet.id} value={pet.id}>
@@ -340,7 +399,10 @@ export default function ReminderCreateModal({
         <button
           type="button"
           className="M-ReminderModal__submit"
-          onClick={() => createMutation.mutate()}
+          onClick={() => {
+            trackButtonClick("reminder_modal_submit");
+            createMutation.mutate();
+          }}
           disabled={createMutation.isPending || !selectedPetId}
         >
           {createMutation.isPending ? "Создаю..." : "Создать напоминание"}

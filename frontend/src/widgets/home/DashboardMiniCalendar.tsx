@@ -2,6 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getCalendarMonth } from "@/entities/calendar/api";
+import { trackButtonClick, trackEvent, trackFeatureUse } from "@/shared/analytics/metrica";
 import arrowIcon from "../../shared/ui/icons/arrow-icon.svg";
 import plusIcon from "../../shared/ui/icons/plus-icon.svg";
 import "./mini-calendar.css";
@@ -139,6 +140,10 @@ export default function DashboardMiniCalendar({
 
   function openCalendar(date: Date) {
     setSelectedDate(date);
+    trackEvent("calendar_day_selected", {
+      source: "mini_calendar",
+      date: toDateKey(date),
+    });
     navigate(`/calendar?date=${toDateKey(date)}`);
   }
 
@@ -149,7 +154,10 @@ export default function DashboardMiniCalendar({
           <button
             className="O-MiniCalendar__arrow"
             type="button"
-            onClick={() => setCurrentMonth((value) => shiftMonth(value, -1))}
+            onClick={() => {
+              setCurrentMonth((value) => shiftMonth(value, -1));
+              trackButtonClick("mini_calendar_prev_month");
+            }}
           >
             <img
               src={arrowIcon}
@@ -165,7 +173,10 @@ export default function DashboardMiniCalendar({
           <button
             className="O-MiniCalendar__arrow"
             type="button"
-            onClick={() => setCurrentMonth((value) => shiftMonth(value, 1))}
+            onClick={() => {
+              setCurrentMonth((value) => shiftMonth(value, 1));
+              trackButtonClick("mini_calendar_next_month");
+            }}
           >
             <img
               src={arrowIcon}
@@ -178,8 +189,20 @@ export default function DashboardMiniCalendar({
         <button
           className="O-MiniCalendar__add"
           type="button"
-          onClick={() =>
-            onAddReminder ? onAddReminder(selectedDate) : openCalendar(selectedDate)}
+          onClick={() => {
+            trackButtonClick("mini_calendar_add");
+            trackFeatureUse(
+              onAddReminder ? "reminder_modal" : "calendar",
+              "open",
+              { source: "mini_calendar" },
+            );
+            if (onAddReminder) {
+              onAddReminder(selectedDate);
+              return;
+            }
+
+            openCalendar(selectedDate);
+          }}
         >
           <img
             src={plusIcon}

@@ -21,6 +21,11 @@ import {
   formatDateTimeInUserTimezone,
   zonedDateTimeToUtcIso,
 } from "../shared/lib/dateTime";
+import {
+  trackButtonClick,
+  trackEvent,
+  trackFeatureUse,
+} from "../shared/analytics/metrica";
 import { getApiErrorMessage } from "../shared/api/errors";
 import arrowIcon from "../shared/ui/icons/arrow-icon.svg";
 import { useToast } from "../shared/ui/useToast";
@@ -221,6 +226,14 @@ export default function ProcedurePetPage() {
   useEffect(() => {
     syncActivePet(pet);
   }, [pet]);
+
+  useEffect(() => {
+    trackFeatureUse("procedure", "open", {
+      type: safeType,
+      edit_mode: isEditMode,
+      reminder_mode: isReminderMode,
+    });
+  }, [safeType, isEditMode, isReminderMode]);
 
   function getBackPath() {
     if (doneDate) {
@@ -467,6 +480,10 @@ export default function ProcedurePetPage() {
                         onClick={() => {
                           setSelectedReminderPreset(preset.id);
                           setNextDate(preset.getDate(doneDate));
+                          trackEvent("procedure_next_reminder_preset_selected", {
+                            preset: preset.id,
+                            procedure_type: safeType,
+                          });
                         }}
                       >
                         {preset.label}
@@ -520,7 +537,10 @@ export default function ProcedurePetPage() {
               <button
                 type="button"
                 className="A-ProcedureSaveButton"
-                onClick={() => saveMutation.mutate()}
+                onClick={() => {
+                  trackButtonClick("procedure_save");
+                  saveMutation.mutate();
+                }}
                 disabled={saveMutation.isPending || deleteMutation.isPending || petsQuery.isLoading}
               >
                 {saveMutation.isPending
@@ -538,6 +558,7 @@ export default function ProcedurePetPage() {
                   className="A-ProcedureSecondaryButton"
                   onClick={() => {
                     if (!window.confirm("Удалить это событие?")) return;
+                    trackButtonClick("procedure_delete");
                     deleteMutation.mutate();
                   }}
                   disabled={saveMutation.isPending || deleteMutation.isPending}
