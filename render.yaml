@@ -22,6 +22,8 @@ services:
         value: false
       - key: ALLOW_DEV_LOGIN
         value: false
+      - key: RUN_NOTIFICATION_WORKER
+        value: false
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: 10080
       - key: JWT_SECRET
@@ -34,6 +36,31 @@ services:
         sync: false
       - key: CORS_ORIGINS
         value: https://tg-miniapp-sand.vercel.app
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tg-miniapp-db
+          property: connectionString
+
+  - type: cron
+    name: tg-miniapp-reminders
+    runtime: docker
+    plan: starter
+    schedule: "* * * * *"
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerCommand: sh -lc "alembic upgrade head && python -m app.scripts.process_reminders_once"
+    autoDeploy: false
+    envVars:
+      - key: APP_NAME
+        value: TG MiniApp API
+      - key: ENV
+        value: prod
+      - key: DEBUG
+        value: false
+      - key: RUN_NOTIFICATION_WORKER
+        value: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
       - key: DATABASE_URL
         fromDatabase:
           name: tg-miniapp-db

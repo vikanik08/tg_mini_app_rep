@@ -359,7 +359,7 @@ export default function PassportPetPage() {
             <button
               type="button"
               className="P-PassportLive__ghostAction"
-              onClick={() => {
+              onClick={async () => {
                 trackButtonClick("passport_export_pdf");
                 if (!hasExtendedPassport) {
                   trackEvent("passport_pdf_blocked_basic_plan", { pet_id: pet.id });
@@ -369,7 +369,7 @@ export default function PassportPetPage() {
                 }
 
                 try {
-                  openPassportPdf(pet, sortedEvents);
+                  await openPassportPdf(pet, sortedEvents);
                 } catch (error) {
                   showToast(
                     error instanceof Error ? error.message : "Не удалось открыть экспорт",

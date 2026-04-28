@@ -1,16 +1,29 @@
-﻿import type { EventItem } from "@/entities/event/api";
+import type { EventItem } from "@/entities/event/api";
 import type { Pet } from "@/entities/pet/api";
 import { trackEvent } from "@/shared/analytics/metrica";
 import { formatHealthFeatureNotes } from "@/shared/lib/healthFeatures";
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
+type PdfContent =
+  | { text: string | string[]; [key: string]: unknown }
+  | { image: string; [key: string]: unknown }
+  | { columns: unknown[]; [key: string]: unknown }
+  | { stack: unknown[]; [key: string]: unknown }
+  | { canvas: unknown[]; [key: string]: unknown };
+
+type PdfDocumentDefinition = {
+  pageSize: string;
+  pageMargins: [number, number, number, number];
+  content: PdfContent[];
+  defaultStyle?: Record<string, unknown>;
+  styles?: Record<string, Record<string, unknown>>;
+};
+
+type NavigatorWithShare = Navigator & {
+  canShare?: (data?: ShareData) => boolean;
+  share?: (data?: ShareData) => Promise<void>;
+};
+
+const PDF_FILE_PREFIX = "smartpet-vetpassport";
 
 function formatDate(value: string | null | undefined) {
   if (!value) return "Нет";
@@ -50,16 +63,121 @@ function formatEventType(type: EventItem["type"]) {
   return "Другое";
 }
 
-function infoRow(label: string, value: string) {
-  return `
-    <div class="row">
-      <span class="label">${escapeHtml(label)}</span>
-      <strong>${escapeHtml(value)}</strong>
-    </div>
-  `;
+function sanitizeFileNamePart(value: string) {
+  return value.trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "");
 }
 
-function buildPassportHtml(pet: Pet, events: EventItem[]) {
+function toDataUrl(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
+
+      reject(new Error("Не удалось прочитать изображение"));
+    };
+
+    reader.onerror = () => reject(new Error("Не удалось подготовить фото для PDF"));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function getPhotoDataUrl(photoUrl: string | null) {
+  if (!photoUrl) return null;
+
+  try {
+    const response = await fetch(photoUrl);
+    if (!response.ok) return null;
+
+    const blob = await response.blob();
+    if (!blob.type.startsWith("image/")) return null;
+
+    return await toDataUrl(blob);
+  } catch {
+    return null;
+  }
+}
+
+function buildInfoRow(label: string, value: string) {
+  return {
+    columns: [
+      { text: label, color: "#7c7190", width: "*" },
+      { text: value, bold: true, alignment: "right", width: "auto" },
+    ],
+    columnGap: 16,
+    margin: [0, 0, 0, 10] as [number, number, number, number],
+  };
+}
+
+function buildSectionCard(title: string, rows: PdfContent[]) {
+  return {
+    stack: [
+      { text: title, style: "sectionTitle", margin: [0, 0, 0, 14] as [number, number, number, number] },
+      ...rows,
+    ],
+    style: "card",
+  };
+}
+
+function buildEventsCard(events: EventItem[]) {
+  if (events.length === 0) {
+    return buildSectionCard("История процедур и лекарств", [
+      { text: "Пока нет добавленных событий.", color: "#7c7190" },
+    ]);
+  }
+
+  const eventBlocks = events.flatMap((event, index) => {
+    const block: PdfContent[] = [
+      {
+        columns: [
+          { text: event.title, bold: true, fontSize: 14, width: "*" },
+          {
+            text: event.is_done ? "Выполнено" : "Запланировано",
+            color: "#7c7190",
+            alignment: "right",
+            width: "auto",
+          },
+        ],
+        columnGap: 12,
+      },
+      { text: `Тип: ${formatEventType(event.type)}`, margin: [0, 6, 0, 0] as [number, number, number, number] },
+      { text: `Дата: ${formatDate(event.scheduled_at)}`, margin: [0, 3, 0, 0] as [number, number, number, number] },
+    ];
+
+    if (event.notes) {
+      block.push({
+        text: `Комментарий: ${event.notes}`,
+        margin: [0, 3, 0, 0] as [number, number, number, number],
+      });
+    }
+
+    if (index < events.length - 1) {
+      block.push({
+        canvas: [
+          {
+            type: "line",
+            x1: 0,
+            y1: 8,
+            x2: 480,
+            y2: 8,
+            lineWidth: 1,
+            lineColor: "#ebe1f5",
+          },
+        ],
+        margin: [0, 12, 0, 12] as [number, number, number, number],
+      });
+    }
+
+    return block;
+  });
+
+  return buildSectionCard("История процедур и лекарств", eventBlocks);
+}
+
+function buildDocumentDefinition(pet: Pet, events: EventItem[], photoDataUrl: string | null): PdfDocumentDefinition {
   const sortedEvents = [...events].sort(
     (left, right) =>
       new Date(right.scheduled_at).getTime() - new Date(left.scheduled_at).getTime(),
@@ -67,291 +185,232 @@ function buildPassportHtml(pet: Pet, events: EventItem[]) {
 
   const vaccineEvent = sortedEvents.find((event) => event.type === "vaccine");
   const healthFeatures = formatHealthFeatureNotes(pet.chronic_conditions_notes);
+  const photoBlock = photoDataUrl
+    ? {
+        image: photoDataUrl,
+        width: 92,
+        height: 92,
+        fit: [92, 92],
+        margin: [0, 0, 16, 0] as [number, number, number, number],
+      }
+    : {
+        stack: [
+          {
+            text: pet.name.slice(0, 1).toUpperCase(),
+            style: "heroInitial",
+          },
+        ],
+        width: 92,
+        height: 92,
+        fillColor: "#d9bef6",
+        margin: [0, 0, 16, 0] as [number, number, number, number],
+      };
 
-  const medicalRows = [
-    infoRow("Вес", formatWeight(pet.weight_kg)),
-    infoRow(
-      pet.sex === "female" ? "Стерилизована" : "Кастрирован",
-      pet.is_neutered ? "Да" : "Нет",
-    ),
-    infoRow(
-      "Вакцинация",
-      pet.vaccination_date ? formatDate(pet.vaccination_date) : "Нет данных",
-    ),
-    infoRow("Препарат вакцинации", vaccineEvent?.notes || "Не указан"),
-    infoRow(
-      "Обработка от паразитов",
-      pet.has_parasite_treatment
-        ? [pet.flea_treatment_date, pet.worm_treatment_date]
+  return {
+    pageSize: "A4",
+    pageMargins: [28, 28, 28, 32],
+    defaultStyle: {
+      font: "Roboto",
+      fontSize: 11,
+      color: "#2b2240",
+      lineHeight: 1.25,
+    },
+    styles: {
+      card: {
+        fillColor: "#ffffff",
+        margin: [0, 0, 0, 16],
+      },
+      eyebrow: {
+        fontSize: 10,
+        color: "#7c7190",
+      },
+      heroName: {
+        fontSize: 24,
+        bold: true,
+      },
+      heroMeta: {
+        fontSize: 13,
+        color: "#7c7190",
+      },
+      heroInitial: {
+        fontSize: 34,
+        bold: true,
+        alignment: "center",
+        margin: [0, 28, 0, 0],
+      },
+      sectionTitle: {
+        fontSize: 17,
+        bold: true,
+      },
+      brand: {
+        fontSize: 11,
+        color: "#7c7190",
+        alignment: "right",
+      },
+    },
+    content: [
+      {
+        stack: [
+          {
+            columns: [
+              photoBlock,
+              {
+                width: "*",
+                stack: [
+                  { text: "Ветпаспорт", style: "eyebrow", margin: [0, 6, 0, 6] as [number, number, number, number] },
+                  { text: pet.name, style: "heroName" },
+                  { text: `${formatSpecies(pet)} • ${formatSex(pet.sex)}`, style: "heroMeta", margin: [0, 6, 0, 0] as [number, number, number, number] },
+                ],
+              },
+            ],
+          },
+        ],
+        style: "card",
+      },
+      buildSectionCard("Данные питомца", [
+        buildInfoRow("Питомец", formatSpecies(pet)),
+        buildInfoRow("Пол", formatSex(pet.sex)),
+        buildInfoRow("Порода", pet.breed || "Не указано"),
+        buildInfoRow("Окрас", pet.color || "Не указано"),
+        buildInfoRow("Дата рождения", formatDate(pet.birthdate)),
+      ]),
+      buildSectionCard("Медицинская информация", [
+        buildInfoRow("Вес", formatWeight(pet.weight_kg)),
+        buildInfoRow(
+          pet.sex === "female" ? "Стерилизована" : "Кастрирован",
+          pet.is_neutered ? "Да" : "Нет",
+        ),
+        buildInfoRow(
+          "Вакцинация",
+          pet.vaccination_date ? formatDate(pet.vaccination_date) : "Нет данных",
+        ),
+        buildInfoRow("Препарат вакцинации", vaccineEvent?.notes || "Не указан"),
+        buildInfoRow(
+          "Обработка от паразитов",
+          pet.has_parasite_treatment
+            ? [pet.flea_treatment_date, pet.worm_treatment_date]
+                .filter(Boolean)
+                .map(formatDate)
+                .join(", ") || "Есть"
+            : "Нет",
+        ),
+        buildInfoRow(
+          "Средства от паразитов",
+          [pet.flea_treatment_product, pet.worm_treatment_product]
             .filter(Boolean)
-            .map(formatDate)
-            .join(", ") || "Есть"
-        : "Нет",
-    ),
-    infoRow(
-      "Средства от паразитов",
-      [pet.flea_treatment_product, pet.worm_treatment_product]
-        .filter(Boolean)
-        .join(", ") || "Не указаны",
-    ),
-    infoRow(
-      "Особенности здоровья",
-      pet.has_chronic_conditions ? healthFeatures.join(", ") || "Есть" : "Нет",
-    ),
-    infoRow("Операции", pet.had_surgeries ? pet.surgeries_notes || "Были" : "Нет"),
-    infoRow("Микрочип", pet.has_microchip ? pet.microchip_number || "Есть" : "Нет"),
-  ].join("");
-
-  const eventRows =
-    sortedEvents.length > 0
-      ? sortedEvents
-          .map(
-            (event) => `
-              <article class="event">
-                <div class="event-top">
-                  <h3>${escapeHtml(event.title)}</h3>
-                  <span>${escapeHtml(event.is_done ? "Выполнено" : "Запланировано")}</span>
-                </div>
-                <p><strong>Тип:</strong> ${escapeHtml(formatEventType(event.type))}</p>
-                <p><strong>Дата:</strong> ${escapeHtml(formatDate(event.scheduled_at))}</p>
-                ${event.notes ? `<p><strong>Комментарий:</strong> ${escapeHtml(event.notes)}</p>` : ""}
-              </article>
-            `,
-          )
-          .join("")
-      : `<p class="empty">Пока нет добавленных событий.</p>`;
-
-  return `
-    <!doctype html>
-    <html lang="ru">
-      <head>
-        <meta charset="utf-8" />
-        <title>Ветпаспорт — ${escapeHtml(pet.name)}</title>
-        <style>
-          :root {
-            color-scheme: light;
-          }
-          body {
-            margin: 0;
-            font-family: Inter, Arial, sans-serif;
-            background: #f3ebfc;
-            color: #291f3a;
-          }
-          .page {
-            max-width: 840px;
-            margin: 0 auto;
-            padding: 32px 28px 48px;
-          }
-          .hero,
-          .card {
-            background: #fff;
-            border-radius: 24px;
-            padding: 20px;
-            box-shadow: 0 10px 28px rgba(41, 31, 58, 0.08);
-          }
-          .hero {
-            display: grid;
-            grid-template-columns: 120px minmax(0, 1fr);
-            gap: 18px;
-            align-items: center;
-          }
-          .photo {
-            width: 120px;
-            height: 120px;
-            border-radius: 24px;
-            object-fit: cover;
-            background: #d9bef6;
-            display: grid;
-            place-items: center;
-            font-size: 42px;
-          }
-          .stack {
-            display: grid;
-            gap: 18px;
-            margin-top: 18px;
-          }
-          .brand {
-            margin-top: 18px;
-            text-align: right;
-            color: #8e79aa;
-            font-size: 12px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-          }
-          .eyebrow {
-            margin: 0 0 6px;
-            font-size: 12px;
-            color: #6f6b7f;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-          }
-          h1, h2, h3, p {
-            margin: 0;
-          }
-          h1 {
-            font-size: 30px;
-            line-height: 1.1;
-          }
-          h2 {
-            font-size: 20px;
-            line-height: 1.15;
-            margin-bottom: 14px;
-          }
-          .meta {
-            margin-top: 6px;
-            color: #6f6b7f;
-            font-size: 15px;
-          }
-          .row {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            gap: 16px;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(111, 107, 127, 0.16);
-            align-items: start;
-          }
-          .row:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-          }
-          .label {
-            color: #6f6b7f;
-          }
-          .event {
-            border: 1px solid rgba(217, 190, 246, 0.72);
-            border-radius: 18px;
-            padding: 14px 16px;
-            display: grid;
-            gap: 8px;
-            margin-bottom: 12px;
-          }
-          .event:last-child {
-            margin-bottom: 0;
-          }
-          .event-top {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            align-items: start;
-          }
-          .event-top span {
-            color: #6f6b7f;
-            font-size: 13px;
-            white-space: nowrap;
-          }
-          .empty {
-            color: #6f6b7f;
-          }
-          @media print {
-            body {
-              background: #fff;
-            }
-            .page {
-              max-width: none;
-              padding: 0;
-            }
-            .hero,
-            .card {
-              box-shadow: none;
-              border: 1px solid rgba(111, 107, 127, 0.14);
-              break-inside: avoid;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <main class="page">
-          <section class="hero">
-            ${
-              pet.photo_url
-                ? `<img class="photo" src="${escapeHtml(pet.photo_url)}" alt="${escapeHtml(pet.name)}" />`
-                : `<div class="photo">${escapeHtml(pet.name.slice(0, 1).toUpperCase())}</div>`
-            }
-            <div>
-              <p class="eyebrow">Ветпаспорт</p>
-              <h1>${escapeHtml(pet.name)}</h1>
-              <p class="meta">${escapeHtml(formatSpecies(pet))} • ${escapeHtml(formatSex(pet.sex))}</p>
-            </div>
-          </section>
-
-          <div class="stack">
-            <section class="card">
-              <h2>Данные питомца</h2>
-              ${infoRow("Питомец", formatSpecies(pet))}
-              ${infoRow("Пол", formatSex(pet.sex))}
-              ${infoRow("Порода", pet.breed || "Не указано")}
-              ${infoRow("Окрас", pet.color || "Не указано")}
-              ${infoRow("Дата рождения", formatDate(pet.birthdate))}
-            </section>
-
-            <section class="card">
-              <h2>Медицинская информация</h2>
-              ${medicalRows}
-            </section>
-
-            <section class="card">
-              <h2>История процедур и лекарств</h2>
-              ${eventRows}
-            </section>
-          </div>
-
-          <p class="brand">SmartPet</p>
-        </main>
-      </body>
-    </html>
-  `;
+            .join(", ") || "Не указаны",
+        ),
+        buildInfoRow(
+          "Особенности здоровья",
+          pet.has_chronic_conditions ? healthFeatures.join(", ") || "Есть" : "Нет",
+        ),
+        buildInfoRow("Операции", pet.had_surgeries ? pet.surgeries_notes || "Были" : "Нет"),
+        buildInfoRow("Микрочип", pet.has_microchip ? pet.microchip_number || "Есть" : "Нет"),
+      ]),
+      buildEventsCard(sortedEvents),
+      {
+        text: "SmartPet",
+        style: "brand",
+      },
+    ],
+  };
 }
 
-export function openPassportPdf(pet: Pet, events: EventItem[]) {
+async function loadPdfMake() {
+  const [pdfMakeModule, pdfFontsModule] = await Promise.all([
+    import("pdfmake/build/pdfmake"),
+    import("pdfmake/build/vfs_fonts"),
+  ]);
+
+  const pdfMake = (pdfMakeModule as { default?: Record<string, unknown> }).default ?? pdfMakeModule;
+  const vfs = (pdfFontsModule as { default?: Record<string, unknown> }).default ?? pdfFontsModule;
+  const scopedPdfMake = pdfMake as Record<string, unknown> & {
+    addVirtualFileSystem?: (virtualFs: unknown) => void;
+    vfs?: unknown;
+    createPdf: (docDefinition: PdfDocumentDefinition) => {
+      getBlob: (callback: (blob: Blob) => void) => void;
+      download: (fileName: string) => void;
+    };
+  };
+
+  if (typeof scopedPdfMake.addVirtualFileSystem === "function") {
+    scopedPdfMake.addVirtualFileSystem(vfs);
+  } else {
+    scopedPdfMake.vfs = vfs;
+  }
+
+  return scopedPdfMake;
+}
+
+function getPdfBlob(
+  pdfMake: Awaited<ReturnType<typeof loadPdfMake>>,
+  docDefinition: PdfDocumentDefinition,
+) {
+  return new Promise<Blob>((resolve, reject) => {
+    try {
+      pdfMake.createPdf(docDefinition).getBlob((blob) => resolve(blob));
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+async function trySharePdf(fileName: string, blob: Blob) {
+  const nav = navigator as NavigatorWithShare;
+  if (typeof nav.share !== "function" || typeof File === "undefined") {
+    return false;
+  }
+
+  const file = new File([blob], fileName, { type: "application/pdf" });
+  const shareData: ShareData = {
+    files: [file],
+    title: "Ветпаспорт SmartPet",
+  };
+
+  if (typeof nav.canShare === "function" && !nav.canShare(shareData)) {
+    return false;
+  }
+
+  await nav.share(shareData);
+  return true;
+}
+
+function downloadPdf(fileName: string, blob: Blob) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = fileName;
+  link.rel = "noopener";
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export async function openPassportPdf(pet: Pet, events: EventItem[]) {
+  const [pdfMake, photoDataUrl] = await Promise.all([
+    loadPdfMake(),
+    getPhotoDataUrl(pet.photo_url),
+  ]);
+  const docDefinition = buildDocumentDefinition(pet, events, photoDataUrl);
+  const blob = await getPdfBlob(pdfMake, docDefinition);
+  const safeName = sanitizeFileNamePart(pet.name) || "pet";
+  const fileName = `${PDF_FILE_PREFIX}-${safeName}.pdf`;
+
+  try {
+    const shared = await trySharePdf(fileName, blob);
+    if (!shared) {
+      downloadPdf(fileName, blob);
+    }
+  } catch {
+    downloadPdf(fileName, blob);
+  }
+
   trackEvent("passport_pdf_exported", {
     pet_id: pet.id,
     events_count: events.length,
   });
-
-  const html = buildPassportHtml(pet, events);
-  const iframe = document.createElement("iframe");
-
-  iframe.style.position = "fixed";
-  iframe.style.right = "0";
-  iframe.style.bottom = "0";
-  iframe.style.width = "0";
-  iframe.style.height = "0";
-  iframe.style.border = "0";
-  iframe.setAttribute("aria-hidden", "true");
-
-  document.body.appendChild(iframe);
-
-  const frameWindow = iframe.contentWindow;
-  if (!frameWindow) {
-    iframe.remove();
-    throw new Error("Не удалось подготовить PDF-экспорт");
-  }
-
-  frameWindow.document.open();
-  frameWindow.document.write(html);
-  frameWindow.document.close();
-
-  const cleanup = () => {
-    window.setTimeout(() => {
-      iframe.remove();
-    }, 1000);
-  };
-
-  iframe.onload = () => {
-    frameWindow.focus();
-    frameWindow.print();
-    cleanup();
-  };
-
-  window.setTimeout(() => {
-    try {
-      frameWindow.focus();
-      frameWindow.print();
-    } finally {
-      cleanup();
-    }
-  }, 250);
 }
-
-
-

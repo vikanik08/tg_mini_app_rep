@@ -30,6 +30,7 @@ class Settings(BaseSettings):
 
     cors_origins: str = ""
     allow_dev_login: bool = True
+    run_notification_worker: bool = True
 
     @property
     def cors_origins_list(self) -> list[str]:

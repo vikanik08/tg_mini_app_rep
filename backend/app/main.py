@@ -15,7 +15,7 @@ from app.services.notifications import notification_worker
 async def lifespan(app: FastAPI):
     task: asyncio.Task[None] | None = None
 
-    if settings.telegram_bot_token:
+    if settings.telegram_bot_token and settings.run_notification_worker:
         task = asyncio.create_task(notification_worker())
 
     try:
