@@ -4,7 +4,7 @@ import { RouterProvider } from "react-router-dom";
 
 import "./index.css";
 import { router } from "./app/router";
-import { initAnalytics, trackEvent } from "./shared/analytics/metrica";
+import { initAnalytics, trackEvent, trackPageView } from "./shared/analytics/metrica";
 import { initTelegram } from "./shared/telegram/init";
 import { bootstrapAuth } from "./shared/auth/bootstrap";
 import { AppProviders } from "./app/providers";
@@ -29,6 +29,9 @@ function renderApp() {
 
 function renderBootError(message: string) {
   const isTelegramInitDataMissing = message.includes("Telegram initData");
+  trackPageView("/boot-error", {
+    reason: isTelegramInitDataMissing ? "telegram_init_missing" : "bootstrap_error",
+  });
   trackEvent("boot_error", {
     telegram_init_missing: isTelegramInitDataMissing,
     message,
@@ -97,6 +100,10 @@ function renderBootError(message: string) {
 
 async function startApp() {
   initAnalytics();
+  trackPageView(`${window.location.pathname}${window.location.search}`, {
+    screen: "boot",
+    source: "startup",
+  });
   initTelegram();
   await bootstrapAuth();
   trackEvent("app_open");

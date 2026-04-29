@@ -17,6 +17,12 @@ const rawCounterId = import.meta.env.VITE_YANDEX_METRICA_ID;
 const counterId = Number.parseInt(rawCounterId ?? "", 10);
 const isEnabled = Number.isFinite(counterId) && counterId > 0;
 let isInitialized = false;
+let lastPageViewPath: string | null = null;
+
+const METRICA_SCRIPT_URLS = [
+  `https://mc.yandex.com/metrika/tag.js?id=${counterId}`,
+  `https://mc.yandex.ru/metrika/tag.js?id=${counterId}`,
+];
 
 function sanitizeParams(params?: AnalyticsParams) {
   if (!params) return undefined;
@@ -53,15 +59,28 @@ export function initAnalytics() {
     scopedWindow.ym = queuedYm;
   }
 
-  const scriptUrl = `https://mc.yandex.ru/metrika/tag.js?id=${counterId}`;
-  const hasScript = Array.from(document.scripts).some((script) => script.src === scriptUrl);
+  const hasScript = Array.from(document.scripts).some((script) =>
+    METRICA_SCRIPT_URLS.includes(script.src),
+  );
 
   if (!hasScript) {
     const script = document.createElement("script");
     const firstScript = document.scripts[0];
+    let fallbackIndex = 0;
+
+    const loadScript = () => {
+      script.src = METRICA_SCRIPT_URLS[fallbackIndex];
+    };
+
+    script.onerror = () => {
+      fallbackIndex += 1;
+      if (fallbackIndex < METRICA_SCRIPT_URLS.length) {
+        loadScript();
+      }
+    };
 
     script.async = true;
-    script.src = scriptUrl;
+    loadScript();
 
     if (firstScript?.parentNode) {
       firstScript.parentNode.insertBefore(script, firstScript);
@@ -82,6 +101,11 @@ export function initAnalytics() {
 }
 
 export function trackPageView(path: string, params?: AnalyticsParams) {
+  if (lastPageViewPath === path) {
+    return;
+  }
+
+  lastPageViewPath = path;
   const cleanedParams = sanitizeParams(params);
   callYm("hit", path, cleanedParams ? { params: cleanedParams } : undefined);
 }
