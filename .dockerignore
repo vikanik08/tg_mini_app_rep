@@ -1,0 +1,14 @@
+.git
+.gitignore
+.vercel
+frontend
+docs
+render.yaml
+docker-compose.yml
+README.md
+**/__pycache__
+**/*.pyc
+backend/.env
+backend/.env.local
+frontend/.env
+frontend/.env.local

@@ -123,3 +123,17 @@ Frontend использует:
 ## Чек-лист перед релизом
 
 - см. `docs/release-checklist.md`
+
+## Deploy: Amvera
+
+Для переноса backend на Amvera подготовлены:
+
+- `amvera.yaml`
+- `amvera/Dockerfile`
+- `docs/deploy-amvera.md`
+
+Это рассчитано на схему:
+
+- frontend остается на Vercel
+- backend переезжает на Amvera
+- PostgreSQL создается как отдельный managed project в Amvera
