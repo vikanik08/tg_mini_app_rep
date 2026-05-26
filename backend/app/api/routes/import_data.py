@@ -2,7 +2,7 @@ import os
 from urllib.parse import urlparse, urlunparse
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import MetaData, Table, create_engine, delete, inspect, insert, select, text
+from sqlalchemy import MetaData, Table, create_engine, inspect, insert, select, text
 
 from app.api.routes.admin import require_admin
 from app.core.config import settings
@@ -38,6 +38,14 @@ def _with_sslmode_require(url: str) -> str:
         return url
     query = f"{parsed.query}&sslmode=require" if parsed.query else "sslmode=require"
     return urlunparse(parsed._replace(query=query))
+
+
+def _safe_error_detail(exc: Exception) -> str:
+    message = str(exc).splitlines()[0]
+    for value in (os.getenv("IMPORT_DATABASE_URL", ""), settings.database_url):
+        if value:
+            message = message.replace(value, "[database-url]")
+    return f"{type(exc).__name__}: {message}"
 
 
 def _table_names(engine) -> list[str]:
@@ -101,18 +109,24 @@ def import_render_database(_: None = Depends(require_admin)):
     copied: dict[str, int] = {}
 
     try:
-        with source_engine.connect() as source_conn, target_engine.begin() as target_conn:
-            target_conn.execute(text(f"TRUNCATE TABLE {quoted_tables} RESTART IDENTITY CASCADE"))
+        try:
+            with source_engine.connect() as source_conn, target_engine.begin() as target_conn:
+                target_conn.execute(text(f"TRUNCATE TABLE {quoted_tables} RESTART IDENTITY CASCADE"))
 
-            for target_table in target_metadata.sorted_tables:
-                if target_table.name not in source_tables or target_table.name == "alembic_version":
-                    continue
-                copied[target_table.name] = _copy_table(
-                    source_conn,
-                    target_conn,
-                    source_tables[target_table.name],
-                    target_table,
-                )
+                for target_table in target_metadata.sorted_tables:
+                    if target_table.name not in source_tables or target_table.name == "alembic_version":
+                        continue
+                    copied[target_table.name] = _copy_table(
+                        source_conn,
+                        target_conn,
+                        source_tables[target_table.name],
+                        target_table,
+                    )
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=_safe_error_detail(exc),
+            ) from exc
     finally:
         source_engine.dispose()
         target_engine.dispose()
