@@ -76,59 +76,60 @@ def _copy_table(source_conn, target_conn, source_table: Table, target_table: Tab
 
 @router.post("/render")
 def import_render_database(_: None = Depends(require_admin)):
-    source_url = _with_sslmode_require(_require_import_enabled())
-    target_url = _normalize_postgres_url(settings.database_url)
-
-    source_engine = create_engine(source_url, pool_pre_ping=True)
-    target_engine = create_engine(target_url, pool_pre_ping=True)
-
-    source_metadata = MetaData()
-    target_metadata = MetaData()
-    source_metadata.reflect(bind=source_engine, schema="public")
-    target_metadata.reflect(bind=target_engine, schema="public")
-
-    source_tables = {
-        table.name: table
-        for table in source_metadata.tables.values()
-        if table.name != "alembic_version"
-    }
-    target_tables = {
-        table.name: table
-        for table in target_metadata.tables.values()
-        if table.name != "alembic_version"
-    }
-
-    table_names = [name for name in _table_names(target_engine) if name in source_tables]
-    if not table_names:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="No matching tables found to import",
-        )
-
-    quoted_tables = ", ".join(f'"{name}"' for name in table_names)
-    copied: dict[str, int] = {}
+    source_engine = None
+    target_engine = None
 
     try:
-        try:
-            with source_engine.connect() as source_conn, target_engine.begin() as target_conn:
-                target_conn.execute(text(f"TRUNCATE TABLE {quoted_tables} RESTART IDENTITY CASCADE"))
+        source_url = _with_sslmode_require(_require_import_enabled())
+        target_url = _normalize_postgres_url(settings.database_url)
 
-                for target_table in target_metadata.sorted_tables:
-                    if target_table.name not in source_tables or target_table.name == "alembic_version":
-                        continue
-                    copied[target_table.name] = _copy_table(
-                        source_conn,
-                        target_conn,
-                        source_tables[target_table.name],
-                        target_table,
-                    )
-        except Exception as exc:
+        source_engine = create_engine(source_url, pool_pre_ping=True)
+        target_engine = create_engine(target_url, pool_pre_ping=True)
+
+        source_metadata = MetaData()
+        target_metadata = MetaData()
+        source_metadata.reflect(bind=source_engine, schema="public")
+        target_metadata.reflect(bind=target_engine, schema="public")
+
+        source_tables = {
+            table.name: table
+            for table in source_metadata.tables.values()
+            if table.name != "alembic_version"
+        }
+
+        table_names = [name for name in _table_names(target_engine) if name in source_tables]
+        if not table_names:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=_safe_error_detail(exc),
-            ) from exc
+                status_code=status.HTTP_409_CONFLICT,
+                detail="No matching tables found to import",
+            )
+
+        quoted_tables = ", ".join(f'"{name}"' for name in table_names)
+        copied: dict[str, int] = {}
+
+        with source_engine.connect() as source_conn, target_engine.begin() as target_conn:
+            target_conn.execute(text(f"TRUNCATE TABLE {quoted_tables} RESTART IDENTITY CASCADE"))
+
+            for target_table in target_metadata.sorted_tables:
+                if target_table.name not in source_tables or target_table.name == "alembic_version":
+                    continue
+                copied[target_table.name] = _copy_table(
+                    source_conn,
+                    target_conn,
+                    source_tables[target_table.name],
+                    target_table,
+                )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=_safe_error_detail(exc),
+        ) from exc
     finally:
-        source_engine.dispose()
-        target_engine.dispose()
+        if source_engine:
+            source_engine.dispose()
+        if target_engine:
+            target_engine.dispose()
 
     return {"status": "ok", "copied": copied}
