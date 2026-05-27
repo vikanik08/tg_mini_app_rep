@@ -1,5 +1,6 @@
 import axios from "axios";
-import { devLogin } from "@/shared/auth/requests";
+import { devLogin, telegramLogin, vkLogin } from "@/shared/auth/requests";
+import { getPlatformAuthContext } from "@/shared/platform";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -18,48 +19,67 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-let devSessionRefreshPromise: Promise<string | null> | null = null;
+let sessionRefreshPromise: Promise<string | null> | null = null;
 
-async function refreshDevSession() {
-  if (!devSessionRefreshPromise) {
-    devSessionRefreshPromise = (async () => {
-      const telegramId = Number(import.meta.env.VITE_DEV_TELEGRAM_ID || "999999999");
-      const data = await devLogin(telegramId);
+function storeAuthSession(
+  data: Awaited<ReturnType<typeof devLogin | typeof telegramLogin | typeof vkLogin>>,
+) {
+  localStorage.setItem("access_token", data.access_token);
+  localStorage.setItem("current_user", JSON.stringify(data.user));
+  return data.access_token;
+}
 
-      localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("current_user", JSON.stringify(data.user));
+async function refreshSession() {
+  if (!sessionRefreshPromise) {
+    sessionRefreshPromise = (async () => {
+      const authContext = await getPlatformAuthContext();
 
-      return data.access_token;
+      if (authContext?.platform === "telegram") {
+        return storeAuthSession(await telegramLogin(authContext.initData));
+      }
+
+      if (authContext?.platform === "vk") {
+        return storeAuthSession(await vkLogin(authContext.launchParams));
+      }
+
+      if (import.meta.env.VITE_USE_DEV_LOGIN === "true") {
+        const telegramId = Number(import.meta.env.VITE_DEV_TELEGRAM_ID || "999999999");
+        return storeAuthSession(await devLogin(telegramId));
+      }
+
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("current_user");
+      return null;
     })().finally(() => {
-      devSessionRefreshPromise = null;
+      sessionRefreshPromise = null;
     });
   }
 
-  return devSessionRefreshPromise;
+  return sessionRefreshPromise;
 }
 
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config as
-      | ({ _retryDevLogin?: boolean; url?: string } & Record<string, unknown>)
+      | ({ _retryAuth?: boolean; url?: string } & Record<string, unknown>)
       | undefined;
 
-    const useDevLogin = import.meta.env.VITE_USE_DEV_LOGIN === "true";
     const isUnauthorized = error.response?.status === 401;
-    const isDevLoginRequest = typeof originalRequest?.url === "string"
-      && originalRequest.url.includes("/dev/login");
+    const isAuthRequest = typeof originalRequest?.url === "string"
+      && ["/auth/telegram", "/auth/vk", "/dev/login"].some((url) =>
+        originalRequest.url?.includes(url),
+      );
 
     if (
-      useDevLogin
-      && isUnauthorized
+      isUnauthorized
       && originalRequest
-      && !originalRequest._retryDevLogin
-      && !isDevLoginRequest
+      && !originalRequest._retryAuth
+      && !isAuthRequest
     ) {
-      originalRequest._retryDevLogin = true;
+      originalRequest._retryAuth = true;
 
-      const token = await refreshDevSession();
+      const token = await refreshSession();
       if (token) {
         originalRequest.headers = {
           ...(originalRequest.headers as Record<string, string> | undefined),
