@@ -21,10 +21,20 @@ def dev_login(
             detail="Dev login is disabled outside dev environment",
         )
 
-    user = db.query(User).filter(User.telegram_id == telegram_id).first()
+    user = (
+        db.query(User)
+        .filter(User.platform == "dev")
+        .filter(User.platform_user_id == str(telegram_id))
+        .first()
+    )
+
+    if not user:
+        user = db.query(User).filter(User.telegram_id == telegram_id).first()
 
     if not user:
         user = User(
+            platform="dev",
+            platform_user_id=str(telegram_id),
             telegram_id=telegram_id,
             first_name="Dev",
             last_name=None,
@@ -34,10 +44,22 @@ def dev_login(
         db.add(user)
         db.commit()
         db.refresh(user)
+    else:
+        user.platform = "dev"
+        user.platform_user_id = str(telegram_id)
+        user.telegram_id = telegram_id
+        if not user.first_name:
+            user.first_name = "Dev"
+        if not user.username:
+            user.username = f"dev_{telegram_id}"
+        db.commit()
+        db.refresh(user)
 
     token = create_access_token(
         {
             "sub": str(user.id),
+            "platform": user.platform,
+            "platform_user_id": user.platform_user_id,
             "telegram_id": user.telegram_id,
         }
     )

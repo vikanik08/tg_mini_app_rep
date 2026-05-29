@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
 
     telegram_bot_token: str
+    vk_app_id: str = ""
+    vk_app_secret: str = ""
     admin_secret: str = ""
 
     cors_origins: str = ""

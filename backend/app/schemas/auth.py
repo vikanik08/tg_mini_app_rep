@@ -6,15 +6,22 @@ from pydantic import BaseModel
 
 
 SubscriptionPlan = Literal["basic", "premium", "family"]
+AuthPlatform = Literal["dev", "telegram", "vk"]
 
 
 class TelegramAuthRequest(BaseModel):
     init_data: str
 
 
+class VkAuthRequest(BaseModel):
+    launch_params: str
+
+
 class UserInfoResponse(BaseModel):
     id: uuid.UUID
-    telegram_id: int
+    telegram_id: int | None
+    platform: AuthPlatform
+    platform_user_id: str
     first_name: str | None
     last_name: str | None
     username: str | None

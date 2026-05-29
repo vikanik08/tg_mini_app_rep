@@ -19,6 +19,7 @@ import {
   trackEvent,
   trackFeatureUse,
 } from "../shared/analytics/metrica";
+import { getPlatformDisplayName, getPlatformIdLabel } from "../shared/platform";
 import { formatDateTimeInUserTimezone } from "../shared/lib/dateTime";
 import "./profile-page-live.css";
 
@@ -40,7 +41,7 @@ function buildUserName(user: AuthUser | null) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ").trim();
   if (fullName) return fullName;
   if (user.username) return `@${user.username}`;
-  return `ID ${user.telegram_id}`;
+  return `ID ${user.platform_user_id ?? user.telegram_id ?? "unknown"}`;
 }
 
 function buildInitials(user: AuthUser | null) {
@@ -50,11 +51,15 @@ function buildInitials(user: AuthUser | null) {
   const initials = parts.map((item) => item![0]?.toUpperCase()).join("");
   if (initials) return initials.slice(0, 2);
   if (user.username) return user.username.slice(0, 2).toUpperCase();
-  return "TG";
+  return getPlatformDisplayName(user.platform).slice(0, 2).toUpperCase();
 }
 
-function getLoginMode() {
-  return import.meta.env.VITE_USE_DEV_LOGIN === "true" ? "Dev login" : "Telegram login";
+function getLoginMode(user: AuthUser | null) {
+  if (!user) {
+    return import.meta.env.VITE_USE_DEV_LOGIN === "true" ? "Dev login" : "Platform login";
+  }
+
+  return `${getPlatformDisplayName(user.platform)} login`;
 }
 
 function formatDate(value: string) {
@@ -188,12 +193,12 @@ export default function ProfilePageLive() {
             <p className="P-ProfilePageLive__eyebrow">Аккаунт</p>
             <h1 className="P-ProfilePageLive__title">{buildUserName(user)}</h1>
             <p className="P-ProfilePageLive__meta">
-              {user?.username ? `@${user.username}` : "Без username"} • {getLoginMode()}
+              {user?.username ? `@${user.username}` : "Без username"} • {getLoginMode(user)}
             </p>
 
             <div className="P-ProfilePageLive__pillRow">
               <span className="P-ProfilePageLive__pill">
-                Telegram ID: {user?.telegram_id ?? "неизвестно"}
+                {user ? getPlatformIdLabel(user.platform) : "ID"}: {user?.platform_user_id ?? user?.telegram_id ?? "неизвестно"}
               </span>
             </div>
 

@@ -4,6 +4,7 @@ interface TelegramWebApp {
   initData: string;
   platform?: string;
   version?: string;
+  openTelegramLink?: (url: string) => void;
 }
 
 interface TelegramGlobal {

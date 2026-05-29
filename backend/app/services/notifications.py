@@ -81,7 +81,7 @@ async def process_due_reminders() -> int:
             user = db.query(User).filter(User.id == event.user_id).first()
             pet = db.query(Pet).filter(Pet.id == event.pet_id).first()
 
-            if not user or not pet:
+            if not user or not pet or user.telegram_id is None:
                 event.reminder_sent_at = now
                 continue
 

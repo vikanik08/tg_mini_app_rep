@@ -41,3 +41,27 @@ def update_user_subscription(
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.post("/platform-users/{platform}/{platform_user_id}/subscription", response_model=UserInfoResponse)
+def update_platform_user_subscription(
+    platform: str,
+    platform_user_id: str,
+    payload: AdminSubscriptionUpdate,
+    db: Session = Depends(get_db),
+    _: None = Depends(require_admin),
+):
+    user = (
+        db.query(User)
+        .filter(User.platform == platform)
+        .filter(User.platform_user_id == platform_user_id)
+        .first()
+    )
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    user.subscription_plan = payload.plan
+    user.subscription_expires_at = payload.expires_at
+    db.commit()
+    db.refresh(user)
+    return user

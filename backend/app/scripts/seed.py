@@ -10,9 +10,16 @@ from app.models.user import User
 def run():
     db = SessionLocal()
 
-    user = db.query(User).filter(User.telegram_id == 999999999).first()
+    user = (
+        db.query(User)
+        .filter(User.platform == "dev")
+        .filter(User.platform_user_id == "999999999")
+        .first()
+    )
     if not user:
         user = User(
+            platform="dev",
+            platform_user_id="999999999",
             telegram_id=999999999,
             first_name="Alexandra",
             username="test_user",

@@ -5,8 +5,8 @@ import { RouterProvider } from "react-router-dom";
 import "./index.css";
 import { router } from "./app/router";
 import { initAnalytics, trackEvent, trackPageView } from "./shared/analytics/metrica";
-import { initTelegram } from "./shared/telegram/init";
 import { bootstrapAuth } from "./shared/auth/bootstrap";
+import { detectRuntimePlatform, getPlatformDisplayName, initPlatform } from "./shared/platform";
 import { AppProviders } from "./app/providers";
 
 const rootElement = document.getElementById("root");
@@ -29,20 +29,32 @@ function renderApp() {
 
 function renderBootError(message: string) {
   const isTelegramInitDataMissing = message.includes("Telegram initData");
+  const isVkLaunchParamsMissing = message.includes("VK launch params");
+  const runtimePlatform = detectRuntimePlatform();
+  const platformName = getPlatformDisplayName(runtimePlatform);
   trackPageView("/boot-error", {
-    reason: isTelegramInitDataMissing ? "telegram_init_missing" : "bootstrap_error",
+    reason:
+      isTelegramInitDataMissing
+        ? "telegram_init_missing"
+        : isVkLaunchParamsMissing
+          ? "vk_launch_params_missing"
+          : "bootstrap_error",
   });
   trackEvent("boot_error", {
     telegram_init_missing: isTelegramInitDataMissing,
+    vk_launch_params_missing: isVkLaunchParamsMissing,
+    runtime_platform: runtimePlatform,
     message,
   });
   const telegramWebApp = window.Telegram?.WebApp;
-  const debugInfo = isTelegramInitDataMissing
+  const debugInfo = isTelegramInitDataMissing || isVkLaunchParamsMissing
     ? [
+        `Detected platform: ${getPlatformDisplayName(runtimePlatform)}`,
         `Telegram object: ${window.Telegram ? "yes" : "no"}`,
         `WebApp object: ${telegramWebApp ? "yes" : "no"}`,
         `Platform: ${telegramWebApp?.platform || "unknown"}`,
         `Version: ${telegramWebApp?.version || "unknown"}`,
+        `VK launch params: ${window.location.search.includes("vk_") ? "yes" : "no"}`,
       ].join("\n")
     : message;
 
@@ -74,7 +86,9 @@ function renderBootError(message: string) {
           <div style={{ font: "var(--font-14)", color: "var(--color-grey-text)" }}>
             {isTelegramInitDataMissing
               ? "Открой mini app через кнопку приложения в Telegram, а не как обычную ссылку в браузере."
-              : "Скорее всего, frontend не смог подключиться к backend или авторизации."}
+              : isVkLaunchParamsMissing
+                ? `Открой mini app из ${platformName}, чтобы приложение получило launch params.`
+                : "Скорее всего, frontend не смог подключиться к backend или авторизации."}
           </div>
           <code
             style={{
@@ -90,7 +104,9 @@ function renderBootError(message: string) {
           <div style={{ font: "var(--font-12)", color: "var(--color-grey-text)" }}>
             {isTelegramInitDataMissing
               ? "Если ты уже открыла через BotFather menu button, проверь, что туда вставлена последняя Vercel-ссылка."
-              : "Проверь backend URL, CORS и переменные окружения Vercel."}
+              : isVkLaunchParamsMissing
+                ? "Проверь, что в настройках VK Mini App указан правильный URL и backend знает VK_APP_ID/VK_APP_SECRET."
+                : "Проверь backend URL, CORS и переменные окружения Vercel."}
           </div>
         </div>
       </div>
@@ -104,7 +120,7 @@ async function startApp() {
     screen: "boot",
     source: "startup",
   });
-  initTelegram();
+  await initPlatform();
   await bootstrapAuth();
   trackEvent("app_open");
   renderApp();

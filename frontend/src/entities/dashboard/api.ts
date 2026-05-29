@@ -1,4 +1,5 @@
 import { api } from "@/shared/api/client";
+import { normalizeAuthUser, type AuthUser } from "@/shared/auth/requests";
 
 export type DashboardEvent = {
   id: string;
@@ -28,21 +29,15 @@ export type DashboardPet = {
 };
 
 export type DashboardResponse = {
-  user: {
-    id: string;
-    telegram_id: number;
-    first_name: string | null;
-    last_name: string | null;
-    username: string | null;
-    timezone: string;
-    subscription_plan: "basic" | "premium" | "family";
-    subscription_expires_at: string | null;
-  };
+  user: AuthUser;
   pets: DashboardPet[];
   upcoming_events: DashboardEvent[];
 };
 
 export async function getDashboard() {
   const response = await api.get<DashboardResponse>("/dashboard");
-  return response.data;
+  return {
+    ...response.data,
+    user: normalizeAuthUser(response.data.user),
+  };
 }

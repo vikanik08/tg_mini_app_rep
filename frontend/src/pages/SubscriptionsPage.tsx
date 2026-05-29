@@ -2,6 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { Check, Shield, Sparkles } from "lucide-react";
 import { trackEvent } from "@/shared/analytics/metrica";
+import { getPlatformSupportLabel, openPlatformSupport } from "@/shared/platform/support";
 import AppLayout from "../widgets/layout/AppLayout";
 import arrowIcon from "../shared/ui/icons/arrow-icon.svg";
 import "./subscriptions-page.css";
@@ -50,29 +51,10 @@ const plans: Plan[] = [
   },
 ];
 
-type TelegramWindow = Window & {
-  Telegram?: {
-    WebApp?: {
-      openTelegramLink?: (url: string) => void;
-    };
-  };
-};
-
-function openSupportChat() {
-  const url = "https://t.me/maiiamk";
-  const telegramWindow = window as TelegramWindow;
-
-  if (telegramWindow.Telegram?.WebApp?.openTelegramLink) {
-    telegramWindow.Telegram.WebApp.openTelegramLink(url);
-    return;
-  }
-
-  window.location.href = url;
-}
-
 export default function SubscriptionsPage() {
   const navigate = useNavigate();
   const [selectedPlanId, setSelectedPlanId] = useState("premium");
+  const supportLabel = useMemo(() => getPlatformSupportLabel(), []);
 
   const selectedPlan = useMemo(
     () => plans.find((plan) => plan.id === selectedPlanId) ?? plans[1],
@@ -166,13 +148,13 @@ export default function SubscriptionsPage() {
             className="P-Subscriptions__cta"
             onClick={() => {
               trackEvent("subscription_cta_clicked", { plan: selectedPlan.id });
-              openSupportChat();
+              openPlatformSupport();
             }}
           >
             {`Оформить подписку ${selectedPlan.name}`}
           </button>
           <p className="P-Subscriptions__hint">
-            После выбора просто напишите нам тут: <strong>@maiiamk</strong>
+            После выбора просто напишите нам тут: <strong>{supportLabel}</strong>
           </p>
         </section>
       </div>

@@ -1,8 +1,9 @@
 import hashlib
 import hmac
 import json
+from base64 import b64encode
 from datetime import datetime, timedelta, timezone
-from urllib.parse import parse_qsl
+from urllib.parse import parse_qsl, urlencode
 
 import jwt
 
@@ -17,7 +18,7 @@ def create_access_token(data: dict) -> str:
 
 
 def parse_init_data(init_data: str) -> dict[str, str]:
-    return dict(parse_qsl(init_data, keep_blank_values=True))
+    return dict(parse_qsl(init_data.lstrip("?"), keep_blank_values=True))
 
 
 def verify_telegram_init_data(init_data: str) -> dict:
@@ -50,3 +51,45 @@ def verify_telegram_init_data(init_data: str) -> dict:
         raise ValueError("Missing user in init_data")
 
     return json.loads(user_raw)
+
+
+def parse_vk_launch_params(launch_params: str) -> dict[str, str]:
+    return dict(parse_qsl(launch_params.lstrip("?"), keep_blank_values=True))
+
+
+def verify_vk_launch_params(launch_params: str) -> dict[str, str]:
+    if not settings.vk_app_secret:
+        raise ValueError("VK app secret is not configured")
+
+    parsed_data = parse_vk_launch_params(launch_params)
+    received_sign = parsed_data.get("sign")
+    if not received_sign:
+        raise ValueError("Missing sign in VK launch params")
+
+    if settings.vk_app_id and parsed_data.get("vk_app_id") != settings.vk_app_id:
+        raise ValueError("Invalid VK app id in launch params")
+
+    vk_subset = sorted(
+        key for key in parsed_data if key.startswith("vk_")
+    )
+    if not vk_subset:
+        raise ValueError("Missing VK launch params")
+
+    ordered = {key: parsed_data[key] for key in vk_subset}
+
+    hash_code = b64encode(
+        hmac.new(
+            settings.vk_app_secret.encode(),
+            urlencode(ordered, doseq=True).encode(),
+            hashlib.sha256,
+        ).digest(),
+    ).decode("utf-8")
+
+    if hash_code.endswith("="):
+        hash_code = hash_code[:-1]
+
+    expected_sign = hash_code.replace("+", "-").replace("/", "_")
+    if not hmac.compare_digest(expected_sign, received_sign):
+        raise ValueError("Invalid VK launch params sign")
+
+    return parsed_data
