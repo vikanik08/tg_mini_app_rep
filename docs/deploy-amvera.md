@@ -75,6 +75,18 @@ CORS_ORIGINS=https://tg-miniapp-sand.vercel.app,https://smartpet-front-lunyc.amv
 
 Then use the new frontend domain in Telegram BotFather and VK Mini App settings.
 
+## Free Frontend Fallback On Backend Domain
+
+The Amvera Docker image also copies the built frontend into the backend container. In the default backend mode, FastAPI serves the React app from the same public backend domain.
+
+Use this URL as the mini app frontend if `vercel.app` does not open on mobile devices:
+
+```text
+https://smartpet-lunyc.amvera.io
+```
+
+The existing API routes such as `/auth/vk`, `/dashboard`, and `/health` continue to work on the same domain.
+
 ## Database Notes
 
 - Create a managed PostgreSQL project in Amvera.
