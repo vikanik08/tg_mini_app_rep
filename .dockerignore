@@ -1,7 +1,6 @@
 .git
 .gitignore
 .vercel
-frontend
 docs
 render.yaml
 docker-compose.yml
@@ -12,3 +11,6 @@ backend/.env
 backend/.env.local
 frontend/.env
 frontend/.env.local
+frontend/.env.*.local
+frontend/node_modules
+frontend/dist

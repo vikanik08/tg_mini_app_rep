@@ -22,6 +22,7 @@ The standard local Docker setup in `docker-compose.yml` stays unchanged.
 Set these variables in the Amvera backend project:
 
 ```text
+APP_ROLE=backend
 APP_NAME=TG MiniApp API
 ENV=prod
 DEBUG=false
@@ -45,6 +46,34 @@ Example:
 ```text
 CORS_ORIGINS=https://tg-miniapp-sand.vercel.app,https://miniapp.example.com
 ```
+
+## Optional Frontend On Amvera
+
+If mobile clients cannot open the Vercel domain, create a second Amvera application from the same repository and branch.
+
+Use the same root `amvera.yaml`, but set only these runtime variables for the frontend application:
+
+```text
+APP_ROLE=frontend
+```
+
+The Docker image builds the Vite frontend with:
+
+```text
+VITE_API_URL=https://smartpet-lunyc.amvera.io
+VITE_USE_DEV_LOGIN=false
+VITE_PLATFORM_TARGET=auto
+```
+
+After Amvera gives the frontend application a public domain, add that domain to the backend `CORS_ORIGINS`.
+
+Example:
+
+```text
+CORS_ORIGINS=https://tg-miniapp-sand.vercel.app,https://smartpet-front-lunyc.amvera.io
+```
+
+Then use the new frontend domain in Telegram BotFather and VK Mini App settings.
 
 ## Database Notes
 
