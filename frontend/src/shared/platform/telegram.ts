@@ -8,7 +8,13 @@ export function getTelegramInitData() {
 }
 
 export function hasTelegramContext() {
-  return Boolean(window.Telegram?.WebApp || getTelegramInitData());
+  const webApp = window.Telegram?.WebApp;
+  const platform = webApp?.platform?.toLowerCase();
+
+  return Boolean(
+    getTelegramInitData()
+      || (webApp && platform && platform !== "unknown"),
+  );
 }
 
 export async function waitForTelegramInitData() {
