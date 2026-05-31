@@ -16,6 +16,11 @@ if (!rootElement) {
 }
 
 const root = createRoot(rootElement);
+const appBuild = "amvera-platform-debug-20260531-1";
+
+function hasLaunchMarker(value: string) {
+  return /(?:^|[?&#])(?:vk_|sign=|tgWebAppData=)/.test(value);
+}
 
 function renderApp() {
   root.render(
@@ -30,31 +35,42 @@ function renderApp() {
 function renderBootError(message: string) {
   const isTelegramInitDataMissing = message.includes("Telegram initData");
   const isVkLaunchParamsMissing = message.includes("VK launch params");
+  const isPlatformLaunchParamsMissing = message.includes("Platform launch params");
   const runtimePlatform = detectRuntimePlatform();
   const platformName = getPlatformDisplayName(runtimePlatform);
+  const showLaunchDebug = isTelegramInitDataMissing
+    || isVkLaunchParamsMissing
+    || isPlatformLaunchParamsMissing;
   trackPageView("/boot-error", {
     reason:
       isTelegramInitDataMissing
         ? "telegram_init_missing"
         : isVkLaunchParamsMissing
           ? "vk_launch_params_missing"
-          : "bootstrap_error",
+          : isPlatformLaunchParamsMissing
+            ? "platform_launch_params_missing"
+            : "bootstrap_error",
   });
   trackEvent("boot_error", {
     telegram_init_missing: isTelegramInitDataMissing,
     vk_launch_params_missing: isVkLaunchParamsMissing,
+    platform_launch_params_missing: isPlatformLaunchParamsMissing,
     runtime_platform: runtimePlatform,
     message,
   });
   const telegramWebApp = window.Telegram?.WebApp;
-  const debugInfo = isTelegramInitDataMissing || isVkLaunchParamsMissing
+  const debugInfo = showLaunchDebug
     ? [
+        `Build: ${appBuild}`,
         `Detected platform: ${getPlatformDisplayName(runtimePlatform)}`,
         `Telegram object: ${window.Telegram ? "yes" : "no"}`,
         `WebApp object: ${telegramWebApp ? "yes" : "no"}`,
         `Platform: ${telegramWebApp?.platform || "unknown"}`,
         `Version: ${telegramWebApp?.version || "unknown"}`,
-        `VK launch params: ${window.location.search.includes("vk_") ? "yes" : "no"}`,
+        `Search launch params: ${hasLaunchMarker(window.location.search) ? "yes" : "no"}`,
+        `Hash launch params: ${hasLaunchMarker(window.location.hash) ? "yes" : "no"}`,
+        `Search length: ${window.location.search.length}`,
+        `Hash length: ${window.location.hash.length}`,
       ].join("\n")
     : message;
 
@@ -88,6 +104,8 @@ function renderBootError(message: string) {
               ? "Открой mini app через кнопку приложения в Telegram, а не как обычную ссылку в браузере."
               : isVkLaunchParamsMissing
                 ? `Открой mini app из ${platformName}, чтобы приложение получило launch params.`
+                : isPlatformLaunchParamsMissing
+                  ? "Открой mini app через кнопку приложения внутри Telegram или VK, а не как обычную ссылку в браузере."
                 : "Скорее всего, frontend не смог подключиться к backend или авторизации."}
           </div>
           <code
@@ -106,6 +124,8 @@ function renderBootError(message: string) {
               ? "Если ты уже открыла через BotFather menu button, проверь, что туда вставлена последняя Vercel-ссылка."
               : isVkLaunchParamsMissing
                 ? "Проверь, что в настройках VK Mini App указан правильный URL и backend знает VK_APP_ID/VK_APP_SECRET."
+                : isPlatformLaunchParamsMissing
+                  ? "Если открываешь из VK, поставь в настройках VK Mini App URL с параметром ?v=4 и полностью перезапусти VK."
                 : "Проверь backend URL, CORS и переменные окружения Vercel."}
           </div>
         </div>

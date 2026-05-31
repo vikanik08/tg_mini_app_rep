@@ -57,5 +57,9 @@ export async function bootstrapAuth() {
     throw new Error("VK launch params are missing");
   }
 
-  throw new Error("Telegram initData is missing");
+  if (platform === "telegram") {
+    throw new Error("Telegram initData is missing");
+  }
+
+  throw new Error("Platform launch params are missing");
 }

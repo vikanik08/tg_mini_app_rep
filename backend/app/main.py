@@ -70,6 +70,7 @@ for r in get_routers():
 
 
 frontend_dist = Path("/frontend/dist")
+index_headers = {"Cache-Control": "no-store, max-age=0"}
 
 if frontend_dist.exists():
     assets_dir = frontend_dist / "assets"
@@ -78,7 +79,7 @@ if frontend_dist.exists():
 
     @app.get("/")
     async def serve_frontend_root():
-        return FileResponse(frontend_dist / "index.html")
+        return FileResponse(frontend_dist / "index.html", headers=index_headers)
 
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
@@ -88,4 +89,4 @@ if frontend_dist.exists():
         if str(requested_file).startswith(str(dist_root)) and requested_file.is_file():
             return FileResponse(requested_file)
 
-        return FileResponse(frontend_dist / "index.html")
+        return FileResponse(frontend_dist / "index.html", headers=index_headers)
