@@ -90,8 +90,15 @@ async def process_due_reminders() -> int:
                     chat_id=user.telegram_id,
                     text=_build_reminder_text(event, pet, user),
                 )
+            except httpx.HTTPStatusError as exc:  # pragma: no cover - network/API failure path
+                status_code = exc.response.status_code
+                print(f"Failed to send reminder {event.id}: Telegram API status {status_code}")
+
+                if status_code in (400, 403):
+                    event.reminder_sent_at = now
+                continue
             except Exception as exc:  # pragma: no cover - network/API failure path
-                print(f"Failed to send reminder {event.id}: {exc}")
+                print(f"Failed to send reminder {event.id}: {type(exc).__name__}")
                 continue
 
             event.reminder_sent_at = datetime.now(timezone.utc)
