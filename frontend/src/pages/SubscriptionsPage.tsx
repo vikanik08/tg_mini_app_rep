@@ -60,6 +60,10 @@ export default function SubscriptionsPage() {
     () => plans.find((plan) => plan.id === selectedPlanId) ?? plans[1],
     [selectedPlanId],
   );
+  const supportMessage = useMemo(
+    () => `Здравствуйте! Хочу оформить подписку: ${selectedPlan.name}.`,
+    [selectedPlan.name],
+  );
 
   return (
     <AppLayout>
@@ -148,13 +152,13 @@ export default function SubscriptionsPage() {
             className="P-Subscriptions__cta"
             onClick={() => {
               trackEvent("subscription_cta_clicked", { plan: selectedPlan.id });
-              openPlatformSupport();
+              openPlatformSupport(supportMessage);
             }}
           >
             {`Оформить подписку ${selectedPlan.name}`}
           </button>
           <p className="P-Subscriptions__hint">
-            После выбора просто напишите нам тут: <strong>{supportLabel}</strong>
+            После выбора откроется чат: <strong>{supportLabel}</strong>
           </p>
         </section>
       </div>
