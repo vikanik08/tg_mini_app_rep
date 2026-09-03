@@ -10,6 +10,7 @@ from app.services.notifications import _send_telegram_message
 OPEN_APP_TEXT = "Открыть мини апп"
 SUPPORT_PROJECT_TEXT = "Поддержать проект"
 CONTACT_US_TEXT = "Связаться с нами"
+SUPPORT_FUND_URL = "https://tbank.ru/cf/3cgq9koLxxT"
 
 
 def _mini_app_url(path: str = "") -> str:
@@ -40,6 +41,15 @@ def _contact_inline_keyboard() -> dict[str, Any]:
     return {
         "inline_keyboard": [
             [{"text": "Открыть чат поддержки", "url": settings.telegram_support_url}],
+        ],
+    }
+
+
+def _support_project_inline_keyboard() -> dict[str, Any]:
+    return {
+        "inline_keyboard": [
+            [{"text": "Отправить донат", "url": SUPPORT_FUND_URL}],
+            [{"text": "Купить подписку", "web_app": {"url": _mini_app_url("/subscriptions")}}],
         ],
     }
 
@@ -104,8 +114,13 @@ async def handle_telegram_update(update: dict[str, Any]) -> None:
     if text == SUPPORT_PROJECT_TEXT:
         await _send_telegram_message(
             chat_id=chat_id,
-            text="Спасибо, что хотите поддержать SmartPet Helper. Откройте раздел подписки в mini app.",
-            reply_markup=_open_app_inline_keyboard("/subscriptions"),
+            text=(
+                "Спасибо, что хотите поддержать SmartPet Helper.\n\n"
+                "Деньги со сбора пойдут на развитие и поддержку приложения: "
+                "серверы, улучшение функций и стабильную работу напоминаний.\n\n"
+                "Также вы можете поддержать проект, купив подписку в mini app."
+            ),
+            reply_markup=_support_project_inline_keyboard(),
         )
         return
 
