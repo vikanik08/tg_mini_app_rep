@@ -95,6 +95,19 @@ async def _send_telegram_message(chat_id: int, text: str) -> None:
         response.raise_for_status()
 
 
+async def send_inactive_user_message(user: User) -> None:
+    if not settings.telegram_bot_token:
+        raise RuntimeError("Telegram bot token is not configured")
+
+    if user.telegram_id is None:
+        raise ValueError("User does not have Telegram ID")
+
+    await _send_telegram_message(
+        chat_id=user.telegram_id,
+        text=_build_inactive_user_text(user),
+    )
+
+
 def _get_due_events(db: Session, now: datetime, limit: int = 25) -> list[Event]:
     return (
         db.query(Event)
@@ -189,10 +202,7 @@ async def process_inactive_users() -> int:
                 continue
 
             try:
-                await _send_telegram_message(
-                    chat_id=user.telegram_id,
-                    text=_build_inactive_user_text(user),
-                )
+                await send_inactive_user_message(user)
             except httpx.HTTPStatusError as exc:  # pragma: no cover - network/API failure path
                 status_code = exc.response.status_code
                 print(
