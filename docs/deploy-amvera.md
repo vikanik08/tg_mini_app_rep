@@ -43,6 +43,8 @@ TELEGRAM_BOT_TOKEN=<telegram-bot-token>
 PUBLIC_BASE_URL=https://smartpet-lunyc.amvera.io
 TELEGRAM_MINI_APP_URL=https://smartpet-lunyc.amvera.io
 TELEGRAM_SUPPORT_URL=https://t.me/maiiamk
+RUN_TELEGRAM_BOT_POLLING=true
+TELEGRAM_BOT_POLLING_TIMEOUT_SECONDS=25
 VK_APP_ID=<vk-app-id>
 VK_APP_SECRET=<vk-protected-key>
 ADMIN_SECRET=<admin-secret>
@@ -128,19 +130,36 @@ If you later want stricter isolation, Amvera also has Cron Jobs that can run rem
 
 ## Telegram Bot Menu
 
-The backend can handle Telegram bot messages through a webhook on the same Amvera
-application. No separate paid bot service is required.
+The backend can handle Telegram bot messages through polling inside the same
+Amvera application. No separate paid bot service is required.
 
-After deploy, call this admin endpoint once to configure Telegram:
+Keep this variable enabled:
+
+```text
+RUN_TELEGRAM_BOT_POLLING=true
+TELEGRAM_BOT_POLLING_TIMEOUT_SECONDS=25
+```
+
+When polling is enabled, the backend removes the Telegram webhook on startup and
+reads button clicks through Telegram `getUpdates`. This avoids delayed webhook
+delivery on Amvera.
+
+After deploy, call this admin endpoint once if you want to force polling setup:
+
+```text
+POST https://smartpet-lunyc.amvera.io/admin/telegram/setup-polling
+Authorization: Bearer <admin-secret>
+```
+
+The old webhook setup endpoint remains available for diagnostics or rollback:
 
 ```text
 POST https://smartpet-lunyc.amvera.io/admin/telegram/setup
 Authorization: Bearer <admin-secret>
 ```
 
-It sets:
+Polling setup sets:
 
-- webhook URL: `https://smartpet-lunyc.amvera.io/telegram/webhook`
 - bot menu button: `Мини Апп`
 - slash command: `/start`
 - reply keyboard with only `Открыть мини апп`, `Поддержать проект`, `Связаться с нами`

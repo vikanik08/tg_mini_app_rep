@@ -14,6 +14,7 @@ from app.services.telegram_bot import (
     get_telegram_webhook_info,
     send_bot_menu,
     setup_telegram_bot,
+    setup_telegram_bot_polling,
 )
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -185,6 +186,24 @@ async def telegram_webhook_info(
 ):
     try:
         return await get_telegram_webhook_info()
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Telegram API returned {e.response.status_code}: {e.response.text}",
+        ) from e
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@router.post("/telegram/setup-polling")
+async def setup_telegram_polling(
+    _: None = Depends(require_admin),
+):
+    try:
+        return await setup_telegram_bot_polling()
     except httpx.HTTPStatusError as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,

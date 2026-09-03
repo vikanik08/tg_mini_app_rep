@@ -12,20 +12,26 @@ from pydantic import ValidationError
 from app.api.routes import get_routers
 from app.core.config import settings
 from app.services.notifications import notification_worker
+from app.services.telegram_bot import telegram_bot_polling_worker
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    task: asyncio.Task[None] | None = None
+    tasks: list[asyncio.Task[None]] = []
 
     if settings.telegram_bot_token and settings.run_notification_worker:
-        task = asyncio.create_task(notification_worker())
+        tasks.append(asyncio.create_task(notification_worker()))
+
+    if settings.telegram_bot_token and settings.run_telegram_bot_polling:
+        tasks.append(asyncio.create_task(telegram_bot_polling_worker()))
 
     try:
         yield
     finally:
-        if task:
+        for task in tasks:
             task.cancel()
+
+        for task in tasks:
             try:
                 await task
             except asyncio.CancelledError:

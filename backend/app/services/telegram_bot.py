@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 import httpx
@@ -43,13 +44,17 @@ def _contact_inline_keyboard() -> dict[str, Any]:
     }
 
 
-async def _telegram_api_post(method: str, payload: dict[str, Any]) -> dict[str, Any]:
+async def _telegram_api_post(
+    method: str,
+    payload: dict[str, Any],
+    timeout_seconds: int = 12,
+) -> dict[str, Any]:
     if not settings.telegram_bot_token:
         raise RuntimeError("Telegram bot token is not configured")
 
     url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/{method}"
 
-    async with httpx.AsyncClient(timeout=12) as client:
+    async with httpx.AsyncClient(timeout=timeout_seconds) as client:
         response = await client.post(url, json=payload)
         response.raise_for_status()
         return response.json()
@@ -158,3 +163,76 @@ async def setup_telegram_bot() -> dict[str, Any]:
 
 async def get_telegram_webhook_info() -> dict[str, Any]:
     return await _telegram_api_post("getWebhookInfo", {})
+
+
+async def setup_telegram_bot_polling() -> dict[str, Any]:
+    commands_response = await _telegram_api_post(
+        "setMyCommands",
+        {
+            "commands": [
+                {"command": "start", "description": "Открыть меню SmartPet"},
+            ],
+        },
+    )
+    menu_response = await _telegram_api_post(
+        "setChatMenuButton",
+        {
+            "menu_button": {
+                "type": "web_app",
+                "text": "Мини Апп",
+                "web_app": {"url": _mini_app_url()},
+            },
+        },
+    )
+    webhook_response = await _telegram_api_post(
+        "deleteWebhook",
+        {"drop_pending_updates": True},
+    )
+
+    return {
+        "commands": commands_response,
+        "menu": menu_response,
+        "delete_webhook": webhook_response,
+    }
+
+
+async def telegram_bot_polling_worker() -> None:
+    offset: int | None = None
+
+    try:
+        await setup_telegram_bot_polling()
+    except Exception as exc:  # pragma: no cover - external Telegram API path
+        print(f"Telegram bot polling setup failed: {type(exc).__name__}")
+
+    while True:
+        try:
+            polling_timeout = max(1, settings.telegram_bot_polling_timeout_seconds)
+            payload: dict[str, Any] = {
+                "timeout": polling_timeout,
+                "allowed_updates": ["message"],
+            }
+            if offset is not None:
+                payload["offset"] = offset
+
+            response = await _telegram_api_post(
+                "getUpdates",
+                payload,
+                timeout_seconds=polling_timeout + 10,
+            )
+
+            updates = response.get("result", [])
+            if not isinstance(updates, list):
+                updates = []
+
+            for update in updates:
+                update_id = update.get("update_id") if isinstance(update, dict) else None
+                if isinstance(update_id, int):
+                    offset = update_id + 1
+
+                if isinstance(update, dict):
+                    await handle_telegram_update(update)
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:  # pragma: no cover - external Telegram API path
+            print(f"Telegram bot polling error: {type(exc).__name__}")
+            await asyncio.sleep(5)

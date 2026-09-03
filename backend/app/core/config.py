@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     telegram_support_url: str = "https://t.me/maiiamk"
     telegram_webhook_url: str = ""
     telegram_webhook_secret: str = ""
+    run_telegram_bot_polling: bool = True
+    telegram_bot_polling_timeout_seconds: int = 25
     vk_app_id: str = ""
     vk_app_secret: str = ""
     admin_secret: str = ""
