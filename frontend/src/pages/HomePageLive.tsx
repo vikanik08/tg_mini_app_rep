@@ -27,7 +27,6 @@ import {
 import {
   canAddPet,
   formatSubscriptionDaysLeft,
-  formatSubscriptionStatus,
   getSubscriptionLabel,
   hasPremiumAccess,
 } from "@/shared/lib/subscription";
@@ -179,7 +178,6 @@ export default function HomePageLive() {
   const showFirstRunState = !isLoading && !isError && !activePet;
   const canCreatePet = canAddPet(pets.length, data?.user);
   const hasExtendedAccess = hasPremiumAccess(data?.user);
-  const subscriptionStatus = formatSubscriptionStatus(data?.user);
   const subscriptionLabel = getSubscriptionLabel(data?.user);
   const subscriptionDaysLeft = formatSubscriptionDaysLeft(data?.user);
 
@@ -216,17 +214,6 @@ export default function HomePageLive() {
           <div className="A-HomeGreeting">{`Привет, ${greetingName}`}</div>
 
           <div className="W-HomeHeaderActions">
-            <Link
-              className="A-SubscriptionStatusButton"
-              to="/subscriptions"
-              onClick={() => {
-                trackButtonClick("home_subscription_status");
-                trackFeatureUse("subscriptions", "open", { source: "home_header_status" });
-              }}
-            >
-              {subscriptionStatus}
-            </Link>
-
             <Link
               className="A-HeaderCircleButton"
               to="/subscriptions"
