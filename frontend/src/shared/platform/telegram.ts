@@ -11,13 +11,57 @@ function loadTelegramScript() {
   document.head.appendChild(script);
 }
 
+function safeDecode(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function normalizeParamSource(value: string) {
+  return value.replace(/^[?#]/, "").replace(/^\/+/, "");
+}
+
+function buildParamSourceCandidates(value: string) {
+  const normalized = normalizeParamSource(value);
+  const decodedOnce = safeDecode(normalized);
+  const decodedTwice = safeDecode(decodedOnce);
+
+  return Array.from(new Set([normalized, decodedOnce, decodedTwice]));
+}
+
+function looksLikeTelegramInitData(value: string) {
+  const params = new URLSearchParams(value);
+  return Boolean(params.get("hash") && params.get("user"));
+}
+
+function readTelegramInitDataFrom(value: string) {
+  for (const candidate of buildParamSourceCandidates(value)) {
+    const params = new URLSearchParams(candidate);
+    const initData = params.get("tgWebAppData");
+
+    if (initData) {
+      const decodedInitData = safeDecode(initData);
+      return looksLikeTelegramInitData(decodedInitData) ? decodedInitData : initData;
+    }
+
+    if (looksLikeTelegramInitData(candidate)) {
+      return candidate;
+    }
+  }
+
+  return "";
+}
+
 export function getTelegramInitData() {
   const fromWebApp = window.Telegram?.WebApp?.initData;
   if (fromWebApp) return fromWebApp;
 
-  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  const searchParams = new URLSearchParams(window.location.search);
-  return hashParams.get("tgWebAppData") || searchParams.get("tgWebAppData") || "";
+  return (
+    readTelegramInitDataFrom(window.location.hash)
+    || readTelegramInitDataFrom(window.location.search)
+  );
 }
 
 export function hasTelegramContext() {

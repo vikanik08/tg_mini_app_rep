@@ -145,10 +145,21 @@ It sets:
 - slash command: `/start`
 - reply keyboard with only `Открыть мини апп`, `Поддержать проект`, `Связаться с нами`
 
+The reply keyboard buttons send text to the bot. The bot then replies with an
+inline Mini App or support button. This keeps Telegram Desktop from opening the
+Mini App as a plain browser page without Web App context.
+
 To force-refresh the keyboard for a known Telegram user:
 
 ```text
 POST https://smartpet-lunyc.amvera.io/admin/users/<telegram-id>/bot-menu
+Authorization: Bearer <admin-secret>
+```
+
+To inspect Telegram webhook delivery status:
+
+```text
+GET https://smartpet-lunyc.amvera.io/admin/telegram/webhook-info
 Authorization: Bearer <admin-secret>
 ```
 

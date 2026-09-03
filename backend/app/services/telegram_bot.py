@@ -18,7 +18,7 @@ def _mini_app_url(path: str = "") -> str:
 def _main_keyboard() -> dict[str, Any]:
     return {
         "keyboard": [
-            [{"text": OPEN_APP_TEXT, "web_app": {"url": _mini_app_url()}}],
+            [{"text": OPEN_APP_TEXT}],
             [{"text": SUPPORT_PROJECT_TEXT}, {"text": CONTACT_US_TEXT}],
         ],
         "resize_keyboard": True,
@@ -31,6 +31,14 @@ def _open_app_inline_keyboard(path: str = "") -> dict[str, Any]:
     return {
         "inline_keyboard": [
             [{"text": "Открыть SmartPet", "web_app": {"url": _mini_app_url(path)}}],
+        ],
+    }
+
+
+def _contact_inline_keyboard() -> dict[str, Any]:
+    return {
+        "inline_keyboard": [
+            [{"text": "Открыть чат поддержки", "url": settings.telegram_support_url}],
         ],
     }
 
@@ -80,6 +88,14 @@ async def handle_telegram_update(update: dict[str, Any]) -> None:
         await send_bot_menu(chat_id, first_name)
         return
 
+    if text == OPEN_APP_TEXT:
+        await _send_telegram_message(
+            chat_id=chat_id,
+            text="Откройте SmartPet Helper по кнопке ниже.",
+            reply_markup=_open_app_inline_keyboard(),
+        )
+        return
+
     if text == SUPPORT_PROJECT_TEXT:
         await _send_telegram_message(
             chat_id=chat_id,
@@ -92,7 +108,7 @@ async def handle_telegram_update(update: dict[str, Any]) -> None:
         await _send_telegram_message(
             chat_id=chat_id,
             text=f"Напишите нам сюда: {settings.telegram_support_url}",
-            reply_markup=_main_keyboard(),
+            reply_markup=_contact_inline_keyboard(),
         )
         return
 
@@ -137,3 +153,7 @@ async def setup_telegram_bot() -> dict[str, Any]:
         "menu": menu_response,
         "webhook": webhook_response,
     }
+
+
+async def get_telegram_webhook_info() -> dict[str, Any]:
+    return await _telegram_api_post("getWebhookInfo", {})

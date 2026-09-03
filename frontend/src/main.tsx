@@ -17,10 +17,17 @@ if (!rootElement) {
 }
 
 const root = createRoot(rootElement);
-const appBuild = "promo-bridge-20260903-1";
+const appBuild = "telegram-hash-fix-20260903-1";
 
 function hasLaunchMarker(value: string) {
-  return /(?:^|[?&#])(?:vk_|sign=|tgWebAppData=)/.test(value);
+  const rawValue = value.replace(/^[?#]/, "");
+
+  try {
+    const decodedValue = decodeURIComponent(rawValue);
+    return /(?:^|[?&#/])(?:vk_|sign=|tgWebAppData=|hash=)/i.test(decodedValue);
+  } catch {
+    return /(?:^|[?&#/])(?:vk_|sign=|tgWebAppData=|hash=)/i.test(rawValue);
+  }
 }
 
 function renderApp() {

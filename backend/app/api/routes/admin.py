@@ -10,7 +10,11 @@ from app.models.user import User
 from app.schemas.auth import UserInfoResponse
 from app.schemas.user import AdminSubscriptionUpdate
 from app.services.notifications import send_inactive_user_message
-from app.services.telegram_bot import send_bot_menu, setup_telegram_bot
+from app.services.telegram_bot import (
+    get_telegram_webhook_info,
+    send_bot_menu,
+    setup_telegram_bot,
+)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -173,3 +177,21 @@ async def send_user_bot_menu(
         "status": "sent",
         "telegram_id": telegram_id,
     }
+
+
+@router.get("/telegram/webhook-info")
+async def telegram_webhook_info(
+    _: None = Depends(require_admin),
+):
+    try:
+        return await get_telegram_webhook_info()
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Telegram API returned {e.response.status_code}: {e.response.text}",
+        ) from e
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
