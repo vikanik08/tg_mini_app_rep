@@ -21,6 +21,7 @@ import {
 } from "../shared/analytics/metrica";
 import { getPlatformDisplayName, getPlatformIdLabel } from "../shared/platform";
 import { formatDateTimeInUserTimezone } from "../shared/lib/dateTime";
+import { formatSubscriptionStatus } from "../shared/lib/subscription";
 import "./profile-page-live.css";
 
 function readCurrentUser(): AuthUser | null {
@@ -200,6 +201,16 @@ export default function ProfilePageLive() {
               <span className="P-ProfilePageLive__pill">
                 {user ? getPlatformIdLabel(user.platform) : "ID"}: {user?.platform_user_id ?? user?.telegram_id ?? "неизвестно"}
               </span>
+              <Link
+                className="P-ProfilePageLive__pill P-ProfilePageLive__pill--subscription"
+                to="/subscriptions"
+                onClick={() => {
+                  trackButtonClick("profile_subscription_status");
+                  trackFeatureUse("subscriptions", "open", { source: "profile_status" });
+                }}
+              >
+                {formatSubscriptionStatus(user)}
+              </Link>
             </div>
 
             <label className="P-ProfilePageLive__timezoneField">

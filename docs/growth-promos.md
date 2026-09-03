@@ -46,3 +46,14 @@ INACTIVE_MESSAGE_COOLDOWN_DAYS=7
 This sends a Telegram message only to users who have opened the Mini App before,
 have a Telegram ID, and have not opened it for the configured number of days.
 The cooldown prevents repeated messages every day.
+
+Subscription expiry messages are also disabled by default. To warn Telegram users
+before their paid access ends:
+
+```text
+RUN_SUBSCRIPTION_EXPIRY_MESSAGES=true
+SUBSCRIPTION_EXPIRY_NOTICE_DAYS=3,1
+```
+
+With these values, users get one message when 3 days remain and one more message
+when 1 day remains. Messages are deduplicated per subscription end date.

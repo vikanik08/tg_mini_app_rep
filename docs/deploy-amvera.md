@@ -21,6 +21,8 @@ The standard local Docker setup in `docker-compose.yml` stays unchanged.
 
 Set these variables in the Amvera backend project:
 
+Path in the Amvera UI: backend application project -> variables and secrets -> stage `Запуск`.
+
 ```text
 APP_ROLE=backend
 APP_NAME=TG MiniApp API
@@ -28,6 +30,11 @@ ENV=prod
 DEBUG=false
 ALLOW_DEV_LOGIN=false
 RUN_NOTIFICATION_WORKER=true
+RUN_INACTIVE_USER_MESSAGES=true
+INACTIVE_USER_DAYS=3
+INACTIVE_MESSAGE_COOLDOWN_DAYS=7
+RUN_SUBSCRIPTION_EXPIRY_MESSAGES=true
+SUBSCRIPTION_EXPIRY_NOTICE_DAYS=3,1
 ACCESS_TOKEN_EXPIRE_MINUTES=10080
 JWT_SECRET=<strong-random-secret>
 JWT_ALG=HS256

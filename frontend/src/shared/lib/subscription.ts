@@ -39,6 +39,31 @@ export function hasPremiumAccess(user = readCurrentUser()) {
   return plan === "premium" || plan === "family";
 }
 
+export function getSubscriptionDaysLeft(user = readCurrentUser()) {
+  if (!user?.subscription_expires_at) return null;
+
+  const expiresAt = new Date(user.subscription_expires_at);
+  if (Number.isNaN(expiresAt.getTime())) return null;
+
+  const millisecondsLeft = expiresAt.getTime() - Date.now();
+  return Math.max(0, Math.ceil(millisecondsLeft / 86_400_000));
+}
+
+export function formatSubscriptionStatus(user = readCurrentUser()) {
+  const plan = getEffectivePlan(user);
+
+  if (plan === "basic") return "Базовый тариф";
+
+  const label = planLabels[plan];
+  const daysLeft = getSubscriptionDaysLeft(user);
+
+  if (daysLeft === null) return `${label} активна`;
+  if (daysLeft === 0) return `${label} до сегодня`;
+
+  const dayWord = daysLeft === 1 ? "день" : daysLeft < 5 ? "дня" : "дней";
+  return `${label}: осталось ${daysLeft} ${dayWord}`;
+}
+
 export function getPetLimit(user = readCurrentUser()) {
   const plan = getEffectivePlan(user);
 

@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     run_inactive_user_messages: bool = False
     inactive_user_days: int = 3
     inactive_message_cooldown_days: int = 7
+    run_subscription_expiry_messages: bool = False
+    subscription_expiry_notice_days: str = "3,1"
     promo_premium_code: str = "premium30"
     promo_premium_days: int = 30
 

@@ -79,7 +79,10 @@ export async function bootstrapAuth() {
   }
 
   const existingToken = localStorage.getItem("access_token");
-  if (existingToken) return;
+  if (existingToken) {
+    await redeemLaunchPromo();
+    return;
+  }
 
   const platform = detectRuntimePlatform();
   if (platform === "vk") {

@@ -47,6 +47,39 @@ def _build_inactive_user_text(user: User) -> str:
     )
 
 
+def _build_subscription_expiry_text(user: User, days_left: int) -> str:
+    first_name = user.first_name or "привет"
+    plan_label = "Семейная подписка" if user.subscription_plan == "family" else "Premium"
+    day_word = "дня" if 2 <= days_left <= 4 else "дней"
+
+    if days_left == 1:
+        return (
+            f"{first_name}, {plan_label} в SmartPet Helper закончится завтра.\n\n"
+            "Рекомендуем обновить подписку, чтобы сохранить расширенные напоминания, "
+            "трекер здоровья и PDF-паспорт питомца."
+        )
+
+    return (
+        f"{first_name}, {plan_label} в SmartPet Helper закончится через {days_left} {day_word}.\n\n"
+        "Рекомендуем обновить подписку заранее, чтобы уход за питомцем не прерывался."
+    )
+
+
+def _get_subscription_expiry_notice_days() -> set[int]:
+    days: set[int] = set()
+
+    for raw_value in settings.subscription_expiry_notice_days.split(","):
+        try:
+            value = int(raw_value.strip())
+        except ValueError:
+            continue
+
+        if value > 0:
+            days.add(value)
+
+    return days
+
+
 async def _send_telegram_message(chat_id: int, text: str) -> None:
     url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage"
 
@@ -161,10 +194,13 @@ async def process_inactive_users() -> int:
                     text=_build_inactive_user_text(user),
                 )
             except httpx.HTTPStatusError as exc:  # pragma: no cover - network/API failure path
+                status_code = exc.response.status_code
                 print(
                     f"Failed to send inactive user message {user.id}: "
-                    f"Telegram API status {exc.response.status_code}"
+                    f"Telegram API status {status_code}"
                 )
+                if status_code in (400, 403):
+                    user.last_inactive_message_sent_at = now
                 continue
             except Exception as exc:  # pragma: no cover - network/API failure path
                 print(f"Failed to send inactive user message {user.id}: {type(exc).__name__}")
@@ -180,11 +216,80 @@ async def process_inactive_users() -> int:
     return sent_count
 
 
+async def process_subscription_expiry_messages() -> int:
+    if not settings.telegram_bot_token or not settings.run_subscription_expiry_messages:
+        return 0
+
+    notice_days = _get_subscription_expiry_notice_days()
+    if not notice_days:
+        return 0
+
+    now = datetime.now(timezone.utc)
+    today = now.date()
+    sent_count = 0
+
+    db = SessionLocal()
+    try:
+        users = (
+            db.query(User)
+            .filter(User.platform == "telegram")
+            .filter(User.telegram_id.is_not(None))
+            .filter(User.subscription_plan.in_(("premium", "family")))
+            .filter(User.subscription_expires_at.is_not(None))
+            .limit(100)
+            .all()
+        )
+
+        for user in users:
+            expires_at = _normalize_datetime(user.subscription_expires_at)
+            if expires_at is None or expires_at <= now:
+                continue
+
+            days_left = (expires_at.date() - today).days
+            if days_left not in notice_days:
+                continue
+
+            notice_key = f"{days_left}:{expires_at.date().isoformat()}"
+            if user.last_subscription_expiry_notice_key == notice_key:
+                continue
+
+            try:
+                await _send_telegram_message(
+                    chat_id=user.telegram_id,
+                    text=_build_subscription_expiry_text(user, days_left),
+                )
+            except httpx.HTTPStatusError as exc:  # pragma: no cover - network/API failure path
+                status_code = exc.response.status_code
+                print(
+                    f"Failed to send subscription expiry message {user.id}: "
+                    f"Telegram API status {status_code}"
+                )
+                if status_code in (400, 403):
+                    user.last_subscription_expiry_notice_key = notice_key
+                continue
+            except Exception as exc:  # pragma: no cover - network/API failure path
+                print(
+                    f"Failed to send subscription expiry message {user.id}: "
+                    f"{type(exc).__name__}"
+                )
+                continue
+
+            user.last_subscription_expiry_notice_key = notice_key
+            sent_count += 1
+
+        db.commit()
+    finally:
+        db.close()
+
+    return sent_count
+
+
 async def notification_worker(interval_seconds: int = 60) -> None:
     while True:
         try:
             await process_due_reminders()
             await process_inactive_users()
+            await process_subscription_expiry_messages()
         except asyncio.CancelledError:
             raise
         except Exception as exc:  # pragma: no cover - worker safety net

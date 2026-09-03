@@ -24,7 +24,11 @@ import {
   trackEvent,
   trackFeatureUse,
 } from "@/shared/analytics/metrica";
-import { canAddPet, hasPremiumAccess } from "@/shared/lib/subscription";
+import {
+  canAddPet,
+  formatSubscriptionStatus,
+  hasPremiumAccess,
+} from "@/shared/lib/subscription";
 import AppLayout from "../widgets/layout/AppLayout";
 import DashboardPetCard from "../widgets/home/DashboardPetCard";
 import DashboardUpcomingEvents from "../widgets/home/DashboardUpcomingEvents";
@@ -173,6 +177,7 @@ export default function HomePageLive() {
   const showFirstRunState = !isLoading && !isError && !activePet;
   const canCreatePet = canAddPet(pets.length, data?.user);
   const hasExtendedAccess = hasPremiumAccess(data?.user);
+  const subscriptionStatus = formatSubscriptionStatus(data?.user);
 
   useEffect(() => {
     syncActivePet(activePet ?? null);
@@ -206,16 +211,29 @@ export default function HomePageLive() {
         <header className="W-HomeHeader">
           <div className="A-HomeGreeting">{`Привет, ${greetingName}`}</div>
 
-          <Link
-            className="A-HeaderCircleButton"
-            to="/subscriptions"
-            onClick={() => {
-              trackButtonClick("home_subscription");
-              trackFeatureUse("subscriptions", "open", { source: "home_header" });
-            }}
-          >
-            <Star size={20} fill="#F6D35B" color="#F6D35B" />
-          </Link>
+          <div className="W-HomeHeaderActions">
+            <Link
+              className="A-SubscriptionStatusButton"
+              to="/subscriptions"
+              onClick={() => {
+                trackButtonClick("home_subscription_status");
+                trackFeatureUse("subscriptions", "open", { source: "home_header_status" });
+              }}
+            >
+              {subscriptionStatus}
+            </Link>
+
+            <Link
+              className="A-HeaderCircleButton"
+              to="/subscriptions"
+              onClick={() => {
+                trackButtonClick("home_subscription");
+                trackFeatureUse("subscriptions", "open", { source: "home_header" });
+              }}
+            >
+              <Star size={20} fill="#F6D35B" color="#F6D35B" />
+            </Link>
+          </div>
         </header>
 
         <section className="W-HomeSection">

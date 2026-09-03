@@ -126,6 +126,13 @@
   background: rgba(217, 190, 246, 0.45);
   color: var(--color-text);
   font: var(--font-12);
+  text-decoration: none;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.P-ProfilePageLive__pill--subscription {
+  background: rgba(246, 211, 91, 0.32);
 }
 
 .P-ProfilePageLive__timezoneField {

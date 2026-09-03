@@ -1,6 +1,6 @@
 import { getTelegramInitData } from "@/shared/platform/telegram";
 
-const promoParamNames = ["promo", "tgWebAppStartParam", "startapp"];
+const promoParamNames = ["promo", "tgWebAppStartParam", "start_param", "startapp"];
 
 function readFromParams(value: string) {
   const params = new URLSearchParams(value.replace(/^[?#]/, ""));
