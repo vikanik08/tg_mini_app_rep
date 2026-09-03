@@ -43,6 +43,41 @@
   overflow-wrap: anywhere;
 }
 
+.A-SubscriptionSummary {
+  min-height: 82px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(246, 211, 91, 0.34), transparent 30%),
+    var(--color-white);
+  box-shadow: var(--shadow-soft);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  align-items: center;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.A-SubscriptionSummary__label,
+.A-SubscriptionSummary__meta {
+  color: var(--color-grey-text);
+  font: var(--font-12);
+}
+
+.A-SubscriptionSummary__title {
+  font: var(--font-20);
+}
+
+.A-SubscriptionSummary__meta {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  max-width: 128px;
+  text-align: right;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
 .W-HomeSection {
   display: flex;
   flex-direction: column;
@@ -254,5 +289,16 @@
   .A-SubscriptionStatusButton {
     max-width: none;
     flex: 1;
+  }
+
+  .A-SubscriptionSummary {
+    grid-template-columns: 1fr;
+  }
+
+  .A-SubscriptionSummary__meta {
+    grid-row: auto;
+    grid-column: auto;
+    max-width: none;
+    text-align: left;
   }
 }

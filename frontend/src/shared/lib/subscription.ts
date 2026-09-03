@@ -49,19 +49,52 @@ export function getSubscriptionDaysLeft(user = readCurrentUser()) {
   return Math.max(0, Math.ceil(millisecondsLeft / 86_400_000));
 }
 
-export function formatSubscriptionStatus(user = readCurrentUser()) {
+function formatDayWord(days: number) {
+  const normalizedDays = Math.abs(days);
+  const lastTwoDigits = normalizedDays % 100;
+  const lastDigit = normalizedDays % 10;
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return "дней";
+  if (lastDigit === 1) return "день";
+  if (lastDigit >= 2 && lastDigit <= 4) return "дня";
+  return "дней";
+}
+
+export function getSubscriptionLabel(user = readCurrentUser()) {
+  return planLabels[getEffectivePlan(user)];
+}
+
+export function formatSubscriptionDaysLeft(user = readCurrentUser()) {
   const plan = getEffectivePlan(user);
 
-  if (plan === "basic") return "Базовый тариф";
+  if (plan === "basic") return "Нет активной подписки";
 
-  const label = planLabels[plan];
   const daysLeft = getSubscriptionDaysLeft(user);
 
-  if (daysLeft === null) return `${label} активна`;
-  if (daysLeft === 0) return `${label} до сегодня`;
+  if (daysLeft === null) return "Активна без даты окончания";
+  if (daysLeft === 0) return "Заканчивается сегодня";
 
-  const dayWord = daysLeft === 1 ? "день" : daysLeft < 5 ? "дня" : "дней";
-  return `${label}: осталось ${daysLeft} ${dayWord}`;
+  return `Осталось ${daysLeft} ${formatDayWord(daysLeft)}`;
+}
+
+export function formatSubscriptionExpiryDate(user = readCurrentUser()) {
+  if (!user?.subscription_expires_at) return "";
+
+  const expiresAt = new Date(user.subscription_expires_at);
+  if (Number.isNaN(expiresAt.getTime())) return "";
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(expiresAt);
+}
+
+export function formatSubscriptionStatus(user = readCurrentUser()) {
+  const plan = getEffectivePlan(user);
+  if (plan === "basic") return "Базовый тариф";
+
+  return `${planLabels[plan]}: ${formatSubscriptionDaysLeft(user).toLowerCase()}`;
 }
 
 export function getPetLimit(user = readCurrentUser()) {

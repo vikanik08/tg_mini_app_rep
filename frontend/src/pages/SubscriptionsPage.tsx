@@ -1,7 +1,16 @@
 ﻿import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Check, Shield, Sparkles } from "lucide-react";
+import { getCurrentUser } from "@/entities/user/api";
 import { trackEvent } from "@/shared/analytics/metrica";
+import {
+  formatSubscriptionDaysLeft,
+  formatSubscriptionExpiryDate,
+  getEffectivePlan,
+  getSubscriptionLabel,
+  readCurrentUser,
+} from "@/shared/lib/subscription";
 import { getPlatformSupportLabel, openPlatformSupport } from "@/shared/platform/support";
 import AppLayout from "../widgets/layout/AppLayout";
 import arrowIcon from "../shared/ui/icons/arrow-icon.svg";
@@ -55,6 +64,16 @@ export default function SubscriptionsPage() {
   const navigate = useNavigate();
   const [selectedPlanId, setSelectedPlanId] = useState("premium");
   const supportLabel = useMemo(() => getPlatformSupportLabel(), []);
+  const userQuery = useQuery({
+    queryKey: ["current-user"],
+    queryFn: getCurrentUser,
+    initialData: readCurrentUser,
+  });
+  const user = userQuery.data ?? null;
+  const currentPlanId = getEffectivePlan(user);
+  const currentPlanLabel = getSubscriptionLabel(user);
+  const currentDaysLeft = formatSubscriptionDaysLeft(user);
+  const currentExpiryDate = formatSubscriptionExpiryDate(user);
 
   const selectedPlan = useMemo(
     () => plans.find((plan) => plan.id === selectedPlanId) ?? plans[1],
@@ -102,12 +121,29 @@ export default function SubscriptionsPage() {
           </div>
         </section>
 
+        <section className="P-Subscriptions__current">
+          <p className="P-Subscriptions__currentLabel">Сейчас у вас</p>
+          <div className="P-Subscriptions__currentTop">
+            <h2 className="P-Subscriptions__currentTitle">{currentPlanLabel}</h2>
+            <span className="P-Subscriptions__currentBadge">
+              {currentDaysLeft}
+            </span>
+          </div>
+          {currentExpiryDate ? (
+            <p className="P-Subscriptions__currentMeta">
+              Доступ активен до {currentExpiryDate}
+            </p>
+          ) : null}
+        </section>
+
         <section className="P-Subscriptions__plans">
           {plans.map((plan) => (
             <button
               key={plan.id}
               type="button"
-              className={`P-Subscriptions__plan ${selectedPlanId === plan.id ? "is-active" : ""}`}
+              className={`P-Subscriptions__plan ${selectedPlanId === plan.id ? "is-active" : ""} ${
+                currentPlanId === plan.id ? "is-current" : ""
+              }`}
               onClick={() => {
                 setSelectedPlanId(plan.id);
                 trackEvent("subscription_plan_selected", { plan: plan.id });
@@ -131,6 +167,12 @@ export default function SubscriptionsPage() {
                 <div className="P-Subscriptions__badge">
                   <Sparkles size={14} />
                   <span>{plan.badge}</span>
+                </div>
+              ) : null}
+
+              {currentPlanId === plan.id ? (
+                <div className="P-Subscriptions__currentPlanBadge">
+                  Текущий тариф • {currentDaysLeft}
                 </div>
               ) : null}
 

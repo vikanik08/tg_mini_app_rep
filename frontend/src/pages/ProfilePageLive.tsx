@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AppLayout from "../widgets/layout/AppLayout";
 import { getEvents } from "../entities/event/api";
 import { getPets } from "../entities/pet/api";
-import { updateCurrentUser } from "../entities/user/api";
+import { getCurrentUser, updateCurrentUser } from "../entities/user/api";
 import type { AuthUser } from "../features/auth/api";
 import {
   buildPassportEditPath,
@@ -21,7 +21,11 @@ import {
 } from "../shared/analytics/metrica";
 import { getPlatformDisplayName, getPlatformIdLabel } from "../shared/platform";
 import { formatDateTimeInUserTimezone } from "../shared/lib/dateTime";
-import { formatSubscriptionStatus } from "../shared/lib/subscription";
+import {
+  formatSubscriptionDaysLeft,
+  formatSubscriptionExpiryDate,
+  getSubscriptionLabel,
+} from "../shared/lib/subscription";
 import "./profile-page-live.css";
 
 function readCurrentUser(): AuthUser | null {
@@ -117,6 +121,11 @@ export default function ProfilePageLive() {
     queryFn: () => getEvents(),
   });
 
+  const userQuery = useQuery({
+    queryKey: ["current-user"],
+    queryFn: getCurrentUser,
+  });
+
   const pets = useMemo(() => petsQuery.data ?? [], [petsQuery.data]);
   const [selectedPetId, setSelectedPetId] = useState<string | null>(() =>
     getActivePetId(),
@@ -133,6 +142,13 @@ export default function ProfilePageLive() {
   useEffect(() => {
     syncActivePet(activePet);
   }, [activePet]);
+
+  useEffect(() => {
+    if (!userQuery.data) return;
+
+    setUser(userQuery.data);
+    localStorage.setItem("current_user", JSON.stringify(userQuery.data));
+  }, [userQuery.data]);
 
   function handleSelectPet(petId: string) {
     setSelectedPetId(petId);
@@ -183,6 +199,9 @@ export default function ProfilePageLive() {
     : "/passport/edit";
   const primaryActionLabel = activePet ? "Открыть паспорт" : "Добавить питомца";
   const isInitialLoading = petsQuery.isLoading && eventsQuery.isLoading;
+  const subscriptionLabel = getSubscriptionLabel(user);
+  const subscriptionDaysLeft = formatSubscriptionDaysLeft(user);
+  const subscriptionExpiryDate = formatSubscriptionExpiryDate(user);
 
   return (
     <AppLayout>
@@ -201,17 +220,27 @@ export default function ProfilePageLive() {
               <span className="P-ProfilePageLive__pill">
                 {user ? getPlatformIdLabel(user.platform) : "ID"}: {user?.platform_user_id ?? user?.telegram_id ?? "неизвестно"}
               </span>
-              <Link
-                className="P-ProfilePageLive__pill P-ProfilePageLive__pill--subscription"
-                to="/subscriptions"
-                onClick={() => {
-                  trackButtonClick("profile_subscription_status");
-                  trackFeatureUse("subscriptions", "open", { source: "profile_status" });
-                }}
-              >
-                {formatSubscriptionStatus(user)}
-              </Link>
             </div>
+
+            <Link
+              className="P-ProfilePageLive__subscriptionPanel"
+              to="/subscriptions"
+              onClick={() => {
+                trackButtonClick("profile_subscription_panel");
+                trackFeatureUse("subscriptions", "open", { source: "profile_panel" });
+              }}
+            >
+              <span className="P-ProfilePageLive__subscriptionLabel">
+                Текущая подписка
+              </span>
+              <span className="P-ProfilePageLive__subscriptionName">
+                {subscriptionLabel}
+              </span>
+              <span className="P-ProfilePageLive__subscriptionMeta">
+                {subscriptionDaysLeft}
+                {subscriptionExpiryDate ? ` • до ${subscriptionExpiryDate}` : ""}
+              </span>
+            </Link>
 
             <label className="P-ProfilePageLive__timezoneField">
               <span>Часовой пояс для напоминаний</span>

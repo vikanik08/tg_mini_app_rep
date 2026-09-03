@@ -26,7 +26,9 @@ import {
 } from "@/shared/analytics/metrica";
 import {
   canAddPet,
+  formatSubscriptionDaysLeft,
   formatSubscriptionStatus,
+  getSubscriptionLabel,
   hasPremiumAccess,
 } from "@/shared/lib/subscription";
 import AppLayout from "../widgets/layout/AppLayout";
@@ -178,6 +180,8 @@ export default function HomePageLive() {
   const canCreatePet = canAddPet(pets.length, data?.user);
   const hasExtendedAccess = hasPremiumAccess(data?.user);
   const subscriptionStatus = formatSubscriptionStatus(data?.user);
+  const subscriptionLabel = getSubscriptionLabel(data?.user);
+  const subscriptionDaysLeft = formatSubscriptionDaysLeft(data?.user);
 
   useEffect(() => {
     syncActivePet(activePet ?? null);
@@ -235,6 +239,19 @@ export default function HomePageLive() {
             </Link>
           </div>
         </header>
+
+        <Link
+          className="A-SubscriptionSummary"
+          to="/subscriptions"
+          onClick={() => {
+            trackButtonClick("home_subscription_summary");
+            trackFeatureUse("subscriptions", "open", { source: "home_summary" });
+          }}
+        >
+          <span className="A-SubscriptionSummary__label">Текущая подписка</span>
+          <span className="A-SubscriptionSummary__title">{subscriptionLabel}</span>
+          <span className="A-SubscriptionSummary__meta">{subscriptionDaysLeft}</span>
+        </Link>
 
         <section className="W-HomeSection">
           <div className="W-SectionTitleRow">
