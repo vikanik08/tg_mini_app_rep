@@ -10,6 +10,7 @@ export type AuthUser = {
   timezone: string;
   subscription_plan: "basic" | "premium" | "family";
   subscription_expires_at: string | null;
+  last_seen_at?: string | null;
   platform: AuthPlatform;
   platform_user_id: string | null;
 };

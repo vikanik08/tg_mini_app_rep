@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
@@ -39,6 +39,14 @@ def _build_reminder_text(event: Event, pet: Pet, user: User) -> str:
     )
 
 
+def _build_inactive_user_text(user: User) -> str:
+    first_name = user.first_name or "привет"
+    return (
+        f"{first_name}, загляните в SmartPet Helper 🐾\n\n"
+        "Проверьте ближайшие напоминания и внесите новые наблюдения о здоровье питомца."
+    )
+
+
 async def _send_telegram_message(chat_id: int, text: str) -> None:
     url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage"
 
@@ -64,6 +72,16 @@ def _get_due_events(db: Session, now: datetime, limit: int = 25) -> list[Event]:
         .limit(limit)
         .all()
     )
+
+
+def _normalize_datetime(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+
+    return value.astimezone(timezone.utc)
 
 
 async def process_due_reminders() -> int:
@@ -111,10 +129,62 @@ async def process_due_reminders() -> int:
     return sent_count
 
 
+async def process_inactive_users() -> int:
+    if not settings.telegram_bot_token or not settings.run_inactive_user_messages:
+        return 0
+
+    now = datetime.now(timezone.utc)
+    inactive_before = now - timedelta(days=settings.inactive_user_days)
+    cooldown_before = now - timedelta(days=settings.inactive_message_cooldown_days)
+    sent_count = 0
+
+    db = SessionLocal()
+    try:
+        users = (
+            db.query(User)
+            .filter(User.platform == "telegram")
+            .filter(User.telegram_id.is_not(None))
+            .filter(User.last_seen_at.is_not(None))
+            .filter(User.last_seen_at <= inactive_before)
+            .limit(25)
+            .all()
+        )
+
+        for user in users:
+            last_sent_at = _normalize_datetime(user.last_inactive_message_sent_at)
+            if last_sent_at is not None and last_sent_at > cooldown_before:
+                continue
+
+            try:
+                await _send_telegram_message(
+                    chat_id=user.telegram_id,
+                    text=_build_inactive_user_text(user),
+                )
+            except httpx.HTTPStatusError as exc:  # pragma: no cover - network/API failure path
+                print(
+                    f"Failed to send inactive user message {user.id}: "
+                    f"Telegram API status {exc.response.status_code}"
+                )
+                continue
+            except Exception as exc:  # pragma: no cover - network/API failure path
+                print(f"Failed to send inactive user message {user.id}: {type(exc).__name__}")
+                continue
+
+            user.last_inactive_message_sent_at = now
+            sent_count += 1
+
+        db.commit()
+    finally:
+        db.close()
+
+    return sent_count
+
+
 async def notification_worker(interval_seconds: int = 60) -> None:
     while True:
         try:
             await process_due_reminders()
+            await process_inactive_users()
         except asyncio.CancelledError:
             raise
         except Exception as exc:  # pragma: no cover - worker safety net

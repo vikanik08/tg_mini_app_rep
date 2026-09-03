@@ -33,6 +33,11 @@ class Settings(BaseSettings):
     cors_origins: str = ""
     allow_dev_login: bool = True
     run_notification_worker: bool = True
+    run_inactive_user_messages: bool = False
+    inactive_user_days: int = 3
+    inactive_message_cooldown_days: int = 7
+    promo_premium_code: str = "premium30"
+    promo_premium_days: int = 30
 
     @property
     def cors_origins_list(self) -> list[str]:

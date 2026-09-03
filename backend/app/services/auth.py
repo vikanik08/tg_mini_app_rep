@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from sqlalchemy.orm import Session
 
 from app.core.security import (
@@ -57,6 +59,8 @@ def _get_or_create_platform_user(
         user.first_name = first_name
         user.last_name = last_name
         user.username = username
+
+    user.last_seen_at = datetime.now(timezone.utc)
 
     db.commit()
     db.refresh(user)

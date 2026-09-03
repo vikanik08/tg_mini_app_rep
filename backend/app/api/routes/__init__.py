@@ -9,6 +9,7 @@ from app.api.routes.dev import router as dev_router
 from app.api.routes.users import router as users_router
 from app.api.routes.admin import router as admin_router
 from app.api.routes.import_data import router as import_data_router
+from app.api.routes.promos import router as promos_router
 
 def get_routers():
     return [
@@ -20,6 +21,7 @@ def get_routers():
         calendar_router,
         health_checks_router,
         users_router,
+        promos_router,
         admin_router,
         import_data_router,
         dev_router

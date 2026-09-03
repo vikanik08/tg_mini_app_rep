@@ -1,6 +1,38 @@
 import { devLogin, telegramLogin, vkLogin } from "@/shared/auth/requests";
 import { setAnalyticsUser, trackEvent } from "@/shared/analytics/metrica";
 import { detectRuntimePlatform, getPlatformAuthContext } from "@/shared/platform";
+import { redeemPromo } from "@/entities/promo/api";
+import { getLaunchPromoCode } from "@/shared/promo/promo";
+
+function storeAuthUser(data: Awaited<ReturnType<typeof devLogin | typeof telegramLogin | typeof vkLogin>>) {
+  localStorage.setItem("access_token", data.access_token);
+  localStorage.setItem("current_user", JSON.stringify(data.user));
+  setAnalyticsUser(data.user);
+}
+
+async function redeemLaunchPromo() {
+  const promoCode = getLaunchPromoCode();
+  if (!promoCode) return;
+
+  try {
+    const data = await redeemPromo(promoCode);
+    localStorage.setItem("current_user", JSON.stringify(data.user));
+    sessionStorage.setItem(
+      "promo_notice",
+      data.already_redeemed
+        ? "Промокод уже был активирован ранее."
+        : "Premium активирован бесплатно на 30 дней.",
+    );
+    trackEvent("promo_redeemed", {
+      code: data.code,
+      plan: data.plan,
+      already_redeemed: data.already_redeemed,
+    });
+  } catch (error) {
+    console.warn("Promo redemption failed", error);
+    trackEvent("promo_redeem_failed", { code: promoCode });
+  }
+}
 
 export async function bootstrapAuth() {
   const useDevLogin = import.meta.env.VITE_USE_DEV_LOGIN === "true";
@@ -11,13 +43,12 @@ export async function bootstrapAuth() {
     );
     const data = await devLogin(telegramId);
 
-    localStorage.setItem("access_token", data.access_token);
-    localStorage.setItem("current_user", JSON.stringify(data.user));
-    setAnalyticsUser(data.user);
+    storeAuthUser(data);
     trackEvent("auth_success", {
       mode: "dev",
       subscription_plan: data.user.subscription_plan,
     });
+    await redeemLaunchPromo();
     return;
   }
 
@@ -26,26 +57,24 @@ export async function bootstrapAuth() {
   if (authContext?.platform === "telegram") {
     const data = await telegramLogin(authContext.initData);
 
-    localStorage.setItem("access_token", data.access_token);
-    localStorage.setItem("current_user", JSON.stringify(data.user));
-    setAnalyticsUser(data.user);
+    storeAuthUser(data);
     trackEvent("auth_success", {
       mode: "telegram",
       subscription_plan: data.user.subscription_plan,
     });
+    await redeemLaunchPromo();
     return;
   }
 
   if (authContext?.platform === "vk") {
     const data = await vkLogin(authContext.launchParams);
 
-    localStorage.setItem("access_token", data.access_token);
-    localStorage.setItem("current_user", JSON.stringify(data.user));
-    setAnalyticsUser(data.user);
+    storeAuthUser(data);
     trackEvent("auth_success", {
       mode: "vk",
       subscription_plan: data.user.subscription_plan,
     });
+    await redeemLaunchPromo();
     return;
   }
 
