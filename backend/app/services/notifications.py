@@ -80,18 +80,23 @@ def _get_subscription_expiry_notice_days() -> set[int]:
     return days
 
 
-async def _send_telegram_message(chat_id: int, text: str) -> None:
+async def _send_telegram_message(
+    chat_id: int,
+    text: str,
+    reply_markup: dict | None = None,
+) -> None:
     url = f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+        "disable_web_page_preview": True,
+    }
+
+    if reply_markup is not None:
+        payload["reply_markup"] = reply_markup
 
     async with httpx.AsyncClient(timeout=12) as client:
-        response = await client.post(
-            url,
-            json={
-                "chat_id": chat_id,
-                "text": text,
-                "disable_web_page_preview": True,
-            },
-        )
+        response = await client.post(url, json=payload)
         response.raise_for_status()
 
 

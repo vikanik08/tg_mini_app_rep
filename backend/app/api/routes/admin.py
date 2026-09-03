@@ -10,6 +10,7 @@ from app.models.user import User
 from app.schemas.auth import UserInfoResponse
 from app.schemas.user import AdminSubscriptionUpdate
 from app.services.notifications import send_inactive_user_message
+from app.services.telegram_bot import send_bot_menu, setup_telegram_bot
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -130,3 +131,45 @@ async def send_platform_user_inactive_message(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     return await _send_manual_inactive_message(user, db)
+
+
+@router.post("/telegram/setup")
+async def setup_telegram_webhook(
+    _: None = Depends(require_admin),
+):
+    try:
+        return await setup_telegram_bot()
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Telegram API returned {e.response.status_code}: {e.response.text}",
+        ) from e
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@router.post("/users/{telegram_id}/bot-menu")
+async def send_user_bot_menu(
+    telegram_id: int,
+    db: Session = Depends(get_db),
+    _: None = Depends(require_admin),
+):
+    user = db.query(User).filter(User.telegram_id == telegram_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    try:
+        await send_bot_menu(user.telegram_id, user.first_name)
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Telegram API returned {e.response.status_code}: {e.response.text}",
+        ) from e
+
+    return {
+        "status": "sent",
+        "telegram_id": telegram_id,
+    }

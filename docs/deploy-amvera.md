@@ -40,6 +40,9 @@ JWT_SECRET=<strong-random-secret>
 JWT_ALG=HS256
 DATABASE_URL=<amvera-postgres-connection-string>
 TELEGRAM_BOT_TOKEN=<telegram-bot-token>
+PUBLIC_BASE_URL=https://smartpet-lunyc.amvera.io
+TELEGRAM_MINI_APP_URL=https://smartpet-lunyc.amvera.io
+TELEGRAM_SUPPORT_URL=https://t.me/maiiamk
 VK_APP_ID=<vk-app-id>
 VK_APP_SECRET=<vk-protected-key>
 ADMIN_SECRET=<admin-secret>
@@ -122,6 +125,32 @@ RUN_NOTIFICATION_WORKER=true
 This is the simplest replacement for the old Render setup.
 
 If you later want stricter isolation, Amvera also has Cron Jobs that can run reminder processing separately.
+
+## Telegram Bot Menu
+
+The backend can handle Telegram bot messages through a webhook on the same Amvera
+application. No separate paid bot service is required.
+
+After deploy, call this admin endpoint once to configure Telegram:
+
+```text
+POST https://smartpet-lunyc.amvera.io/admin/telegram/setup
+Authorization: Bearer <admin-secret>
+```
+
+It sets:
+
+- webhook URL: `https://smartpet-lunyc.amvera.io/telegram/webhook`
+- bot menu button: `Мини Апп`
+- slash command: `/start`
+- reply keyboard with only `Открыть мини апп`, `Поддержать проект`, `Связаться с нами`
+
+To force-refresh the keyboard for a known Telegram user:
+
+```text
+POST https://smartpet-lunyc.amvera.io/admin/users/<telegram-id>/bot-menu
+Authorization: Bearer <admin-secret>
+```
 
 ## Why A Separate Dockerfile Is Needed
 
