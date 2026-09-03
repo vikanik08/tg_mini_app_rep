@@ -1,4 +1,6 @@
-from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, status
+import asyncio
+
+from fastapi import APIRouter, Header, HTTPException, status
 
 from app.core.config import settings
 from app.services.telegram_bot import handle_telegram_update
@@ -7,10 +9,16 @@ from app.services.telegram_bot import handle_telegram_update
 router = APIRouter(prefix="/telegram", tags=["telegram"])
 
 
+def _log_task_error(task: asyncio.Task) -> None:
+    try:
+        task.result()
+    except Exception as exc:  # pragma: no cover - webhook delivery safety net
+        print(f"Telegram webhook task failed: {type(exc).__name__}")
+
+
 @router.post("/webhook")
 async def telegram_webhook(
     update: dict,
-    background_tasks: BackgroundTasks,
     x_telegram_bot_api_secret_token: str | None = Header(default=None),
 ):
     if (
@@ -22,5 +30,6 @@ async def telegram_webhook(
             detail="Invalid Telegram webhook secret",
         )
 
-    background_tasks.add_task(handle_telegram_update, update)
+    task = asyncio.create_task(handle_telegram_update(update))
+    task.add_done_callback(_log_task_error)
     return {"ok": True}
