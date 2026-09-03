@@ -123,6 +123,7 @@ async def setup_telegram_bot() -> dict[str, Any]:
     webhook_payload: dict[str, Any] = {
         "url": webhook_url,
         "allowed_updates": ["message"],
+        "drop_pending_updates": True,
     }
     if settings.telegram_webhook_secret:
         webhook_payload["secret_token"] = settings.telegram_webhook_secret
