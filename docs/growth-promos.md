@@ -24,7 +24,9 @@ https://smartpet-lunyc.amvera.io/?promo=premium30
 ```
 
 Use the Telegram link for QR campaigns, because Telegram passes `startapp` into
-the Mini App after the user opens it.
+the Mini App after the user opens it. The fallback web link redirects browser
+users to the Telegram link, because Premium can only be attached after Telegram
+auth identifies the user.
 
 ## Amvera environment variables
 

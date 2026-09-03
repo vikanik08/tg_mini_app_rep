@@ -4,10 +4,12 @@ from sqlalchemy.orm import Session
 
 from app.core.security import (
     create_access_token,
+    parse_init_data,
     verify_telegram_init_data,
     verify_vk_launch_params,
 )
 from app.models.user import User
+from app.services.promos import redeem_premium_promo
 
 
 def _issue_token(user: User) -> str:
@@ -80,6 +82,13 @@ def authenticate_telegram_user(init_data: str, db: Session):
         last_name=tg_user.get("last_name"),
         username=tg_user.get("username"),
     )
+
+    start_param = parse_init_data(init_data).get("start_param", "")
+    if start_param:
+        try:
+            user, _ = redeem_premium_promo(db, user, start_param)
+        except ValueError:
+            pass
 
     return _issue_token(user), user
 

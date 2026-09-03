@@ -8,6 +8,7 @@ import { initAnalytics, trackEvent, trackPageView } from "./shared/analytics/met
 import { bootstrapAuth } from "./shared/auth/bootstrap";
 import { detectRuntimePlatform, getPlatformDisplayName, initPlatform } from "./shared/platform";
 import { AppProviders } from "./app/providers";
+import { buildTelegramPromoLink, getLaunchPromoCode } from "./shared/promo/promo";
 
 const rootElement = document.getElementById("root");
 
@@ -16,7 +17,7 @@ if (!rootElement) {
 }
 
 const root = createRoot(rootElement);
-const appBuild = "amvera-platform-debug-20260531-1";
+const appBuild = "promo-bridge-20260903-1";
 
 function hasLaunchMarker(value: string) {
   return /(?:^|[?&#])(?:vk_|sign=|tgWebAppData=)/.test(value);
@@ -38,6 +39,9 @@ function renderBootError(message: string) {
   const isPlatformLaunchParamsMissing = message.includes("Platform launch params");
   const runtimePlatform = detectRuntimePlatform();
   const platformName = getPlatformDisplayName(runtimePlatform);
+  const promoCode = getLaunchPromoCode();
+  const telegramPromoLink = buildTelegramPromoLink(promoCode);
+  const canOpenPromoInTelegram = runtimePlatform === "browser" && Boolean(promoCode);
   const showLaunchDebug = isTelegramInitDataMissing
     || isVkLaunchParamsMissing
     || isPlatformLaunchParamsMissing;
@@ -100,7 +104,9 @@ function renderBootError(message: string) {
         >
           <div style={{ font: "var(--font-24)" }}>Приложение не запустилось</div>
           <div style={{ font: "var(--font-14)", color: "var(--color-grey-text)" }}>
-            {isTelegramInitDataMissing
+            {canOpenPromoInTelegram
+              ? "Бесплатный Premium оформляется внутри Telegram mini app. Открой ссылку через Telegram, чтобы мы смогли узнать пользователя и активировать промокод."
+              : isTelegramInitDataMissing
               ? "Открой mini app через кнопку приложения в Telegram, а не как обычную ссылку в браузере."
               : isVkLaunchParamsMissing
                 ? `Открой mini app из ${platformName}, чтобы приложение получило launch params.`
@@ -119,8 +125,28 @@ function renderBootError(message: string) {
           >
             {debugInfo}
           </code>
+          {canOpenPromoInTelegram ? (
+            <a
+              href={telegramPromoLink}
+              style={{
+                minHeight: "44px",
+                borderRadius: "999px",
+                background: "var(--color-purple)",
+                color: "var(--color-text)",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none",
+                font: "var(--font-16)",
+              }}
+            >
+              Открыть в Telegram
+            </a>
+          ) : null}
           <div style={{ font: "var(--font-12)", color: "var(--color-grey-text)" }}>
-            {isTelegramInitDataMissing
+            {canOpenPromoInTelegram
+              ? "Если Telegram не открылся автоматически, скопируй эту страницу в Telegram или используй QR с Telegram-ссылкой."
+              : isTelegramInitDataMissing
               ? "Если ты уже открыла через BotFather menu button, проверь, что туда вставлена последняя Vercel-ссылка."
               : isVkLaunchParamsMissing
                 ? "Проверь, что в настройках VK Mini App указан правильный URL и backend знает VK_APP_ID/VK_APP_SECRET."
@@ -140,6 +166,12 @@ async function startApp() {
     screen: "boot",
     source: "startup",
   });
+
+  if (detectRuntimePlatform() === "browser" && getLaunchPromoCode()) {
+    window.location.replace(buildTelegramPromoLink());
+    return;
+  }
+
   await initPlatform();
   await bootstrapAuth();
   trackEvent("app_open");

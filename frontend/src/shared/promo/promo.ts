@@ -1,6 +1,7 @@
 import { getTelegramInitData } from "@/shared/platform/telegram";
 
 const promoParamNames = ["promo", "tgWebAppStartParam", "start_param", "startapp"];
+const telegramBotUsername = "SmartPetHelper_bot";
 
 function readFromParams(value: string) {
   const params = new URLSearchParams(value.replace(/^[?#]/, ""));
@@ -21,4 +22,9 @@ export function getLaunchPromoCode() {
   if (fromTelegramInitData) return fromTelegramInitData;
 
   return readFromParams(window.location.search) || readFromParams(window.location.hash);
+}
+
+export function buildTelegramPromoLink(code = getLaunchPromoCode()) {
+  const query = code ? `?startapp=${encodeURIComponent(code)}` : "?startapp";
+  return `https://t.me/${telegramBotUsername}${query}`;
 }

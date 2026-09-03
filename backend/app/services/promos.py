@@ -35,6 +35,31 @@ def redeem_premium_promo(db: Session, user: User, code: str) -> tuple[User, bool
         .first()
     )
     if existing_redemption:
+        existing_expires_at = _as_aware_utc(existing_redemption.expires_at)
+        current_expires_at = _as_aware_utc(user.subscription_expires_at)
+        now = datetime.now(timezone.utc)
+        has_active_family = (
+            user.subscription_plan == "family"
+            and current_expires_at is not None
+            and current_expires_at > now
+        )
+
+        if (
+            existing_redemption.plan == "premium"
+            and existing_expires_at is not None
+            and existing_expires_at > now
+            and not has_active_family
+            and (
+                user.subscription_plan != "premium"
+                or current_expires_at is None
+                or current_expires_at < existing_expires_at
+            )
+        ):
+            user.subscription_plan = "premium"
+            user.subscription_expires_at = existing_expires_at
+            db.commit()
+            db.refresh(user)
+
         return user, True
 
     now = datetime.now(timezone.utc)
