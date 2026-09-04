@@ -390,7 +390,31 @@ function downloadPdf(fileName: string, blob: Blob) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export async function openPassportPdf(pet: Pet, events: EventItem[]) {
+function openPdfInWindow(fileName: string, blob: Blob, targetWindow?: Window | null) {
+  const url = URL.createObjectURL(blob);
+
+  if (targetWindow && !targetWindow.closed) {
+    targetWindow.location.href = url;
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    return true;
+  }
+
+  const openedWindow = window.open(url, "_blank");
+  if (openedWindow) {
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    return true;
+  }
+
+  URL.revokeObjectURL(url);
+  downloadPdf(fileName, blob);
+  return false;
+}
+
+export async function openPassportPdf(
+  pet: Pet,
+  events: EventItem[],
+  targetWindow?: Window | null,
+) {
   const [pdfMake, photoDataUrl] = await Promise.all([
     loadPdfMake(),
     getPhotoDataUrl(pet.photo_url),
@@ -403,10 +427,12 @@ export async function openPassportPdf(pet: Pet, events: EventItem[]) {
   try {
     const shared = await trySharePdf(fileName, blob);
     if (!shared) {
-      downloadPdf(fileName, blob);
+      openPdfInWindow(fileName, blob, targetWindow);
+    } else if (targetWindow && !targetWindow.closed) {
+      targetWindow.close();
     }
   } catch {
-    downloadPdf(fileName, blob);
+    openPdfInWindow(fileName, blob, targetWindow);
   }
 
   trackEvent("passport_pdf_exported", {

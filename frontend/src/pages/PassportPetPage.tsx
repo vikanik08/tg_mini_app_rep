@@ -216,6 +216,7 @@ export default function PassportPetPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const params = useParams();
   const petId = params.petId;
 
@@ -359,6 +360,7 @@ export default function PassportPetPage() {
             <button
               type="button"
               className="P-PassportLive__ghostAction"
+              disabled={isExportingPdf}
               onClick={async () => {
                 trackButtonClick("passport_export_pdf");
                 if (!hasExtendedPassport) {
@@ -368,17 +370,31 @@ export default function PassportPetPage() {
                   return;
                 }
 
+                const pdfWindow = window.open("", "_blank");
+                if (pdfWindow) {
+                  pdfWindow.document.write(
+                    "<!doctype html><title>SmartPet PDF</title><body style=\"font-family: sans-serif; padding: 24px;\">Готовим PDF...</body>",
+                  );
+                }
+
+                setIsExportingPdf(true);
                 try {
-                  await openPassportPdf(pet, sortedEvents);
+                  await openPassportPdf(pet, sortedEvents, pdfWindow);
+                  showToast("PDF готов", "success");
                 } catch (error) {
+                  if (pdfWindow && !pdfWindow.closed) {
+                    pdfWindow.close();
+                  }
                   showToast(
                     error instanceof Error ? error.message : "Не удалось открыть экспорт",
                     "error",
                   );
+                } finally {
+                  setIsExportingPdf(false);
                 }
               }}
             >
-              Экспорт PDF
+              {isExportingPdf ? "Готовим PDF..." : "Экспорт PDF"}
             </button>
 
             <Link

@@ -169,6 +169,7 @@ async def setup_telegram_bot() -> dict[str, Any]:
     webhook_response = await _telegram_api_post("setWebhook", webhook_payload)
 
     return {
+        "mini_app_url": _mini_app_url(),
         "webhook_url": webhook_url,
         "commands": commands_response,
         "menu": menu_response,
@@ -205,6 +206,7 @@ async def setup_telegram_bot_polling() -> dict[str, Any]:
     )
 
     return {
+        "mini_app_url": _mini_app_url(),
         "commands": commands_response,
         "menu": menu_response,
         "delete_webhook": webhook_response,
