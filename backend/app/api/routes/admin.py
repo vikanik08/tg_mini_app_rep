@@ -4,7 +4,7 @@ import httpx
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_current_user, get_db
 from app.core.config import settings
 from app.models.user import User
 from app.schemas.auth import UserInfoResponse
@@ -33,6 +33,40 @@ def require_admin(authorization: str | None = Header(default=None)) -> None:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid admin token",
         )
+
+
+def require_current_user_admin(current_user: User = Depends(get_current_user)) -> User:
+    admin_key = f"{current_user.platform}:{current_user.platform_user_id}".lower()
+    if admin_key not in settings.admin_platform_user_id_set:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Current user is not allowed to use admin tools",
+        )
+
+    return current_user
+
+
+@router.get("/me")
+def get_admin_me(current_user: User = Depends(get_current_user)):
+    admin_key = f"{current_user.platform}:{current_user.platform_user_id}".lower()
+    return {
+        "is_admin": admin_key in settings.admin_platform_user_id_set,
+        "platform": current_user.platform,
+        "platform_user_id": current_user.platform_user_id,
+    }
+
+
+@router.post("/me/subscription", response_model=UserInfoResponse)
+def update_own_subscription(
+    payload: AdminSubscriptionUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_current_user_admin),
+):
+    current_user.subscription_plan = payload.plan
+    current_user.subscription_expires_at = payload.expires_at
+    db.commit()
+    db.refresh(current_user)
+    return current_user
 
 
 @router.post("/users/{telegram_id}/subscription", response_model=UserInfoResponse)

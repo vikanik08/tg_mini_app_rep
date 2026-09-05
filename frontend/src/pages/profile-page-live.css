@@ -113,6 +113,7 @@
 
 .P-ProfilePageLive__pill,
 .P-ProfilePageLive__actionButton,
+.P-ProfilePageLive__adminLink,
 .P-ProfilePageLive__timezoneField select {
   min-height: 40px;
   padding: 0 14px;
@@ -359,6 +360,15 @@
   color: var(--color-text);
   text-decoration: none;
   cursor: pointer;
+}
+
+.P-ProfilePageLive__adminLink {
+  width: fit-content;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+  background: transparent;
+  color: var(--color-text);
+  font: var(--font-12);
+  text-decoration: none;
 }
 
 .P-ProfilePageLive__actionButton--ghost {

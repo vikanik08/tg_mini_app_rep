@@ -1,0 +1,130 @@
+.P-AdminTariffs {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.P-AdminTariffs__header {
+  display: flex;
+  align-items: center;
+}
+
+.P-AdminTariffs__back,
+.P-AdminTariffs__primaryAction {
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.P-AdminTariffs__back {
+  min-height: 40px;
+  gap: 8px;
+  color: var(--color-text);
+  font: var(--font-16);
+}
+
+.P-AdminTariffs__card {
+  background: var(--color-white);
+  border-radius: 24px;
+  box-shadow: var(--shadow-soft);
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.P-AdminTariffs__card h1,
+.P-AdminTariffs__card p {
+  margin: 0;
+}
+
+.P-AdminTariffs__card h1 {
+  color: var(--color-text);
+  font: var(--font-24);
+}
+
+.P-AdminTariffs__card p,
+.P-AdminTariffs__plan span,
+.P-AdminTariffs__field span {
+  color: var(--color-grey-text);
+  font: var(--font-14);
+}
+
+.P-AdminTariffs__eyebrow {
+  font: var(--font-12);
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.P-AdminTariffs__pill {
+  width: fit-content;
+  max-width: 100%;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(217, 190, 246, 0.45);
+  color: var(--color-text);
+  font: var(--font-12);
+  overflow-wrap: anywhere;
+}
+
+.P-AdminTariffs__plans {
+  display: grid;
+  gap: 10px;
+}
+
+.P-AdminTariffs__plan {
+  min-height: 74px;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+  border-radius: 18px;
+  background: transparent;
+  padding: 12px 14px;
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.P-AdminTariffs__plan.is-active {
+  border-color: transparent;
+  background: rgba(217, 190, 246, 0.45);
+}
+
+.P-AdminTariffs__plan strong {
+  font: var(--font-16);
+}
+
+.P-AdminTariffs__field {
+  display: grid;
+  gap: 6px;
+}
+
+.P-AdminTariffs__field input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(41, 31, 58, 0.14);
+  border-radius: 16px;
+  background: #fff;
+  color: var(--color-text);
+  padding: 0 14px;
+}
+
+.P-AdminTariffs__field input:disabled {
+  opacity: 0.56;
+}
+
+.P-AdminTariffs__primaryAction {
+  min-height: 44px;
+  border: none;
+  background: var(--color-purple);
+  color: var(--color-text);
+  font: var(--font-16);
+  cursor: pointer;
+}
+
+.P-AdminTariffs__primaryAction:disabled {
+  cursor: default;
+  opacity: 0.68;
+}

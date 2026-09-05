@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     vk_app_id: str = ""
     vk_app_secret: str = ""
     admin_secret: str = ""
+    admin_platform_user_ids: str = "telegram:2021744858,vk:284534819"
 
     cors_origins: str = ""
     allow_dev_login: bool = True
@@ -53,6 +54,14 @@ class Settings(BaseSettings):
         if not self.cors_origins:
             return []
         return [x.strip() for x in self.cors_origins.split(",") if x.strip()]
+
+    @property
+    def admin_platform_user_id_set(self) -> set[str]:
+        return {
+            value.strip().lower()
+            for value in self.admin_platform_user_ids.split(",")
+            if value.strip()
+        }
 
 
 settings = Settings()

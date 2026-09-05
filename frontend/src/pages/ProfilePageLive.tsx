@@ -67,6 +67,13 @@ function getLoginMode(user: AuthUser | null) {
   return `${getPlatformDisplayName(user.platform)} login`;
 }
 
+function isLocalAdmin(user: AuthUser | null) {
+  if (!user?.platform || !user.platform_user_id) return false;
+  return new Set(["telegram:2021744858", "vk:284534819"]).has(
+    `${user.platform}:${user.platform_user_id}`.toLowerCase(),
+  );
+}
+
 function formatDate(value: string) {
   return formatDateTimeInUserTimezone(value, {
     day: "2-digit",
@@ -241,6 +248,19 @@ export default function ProfilePageLive() {
                 {subscriptionExpiryDate ? ` • до ${subscriptionExpiryDate}` : ""}
               </span>
             </Link>
+
+            {isLocalAdmin(user) ? (
+              <Link
+                className="P-ProfilePageLive__adminLink"
+                to="/admin/tariffs"
+                onClick={() => {
+                  trackButtonClick("profile_admin_tariffs");
+                  trackFeatureUse("admin_tariffs", "open", { source: "profile" });
+                }}
+              >
+                Переключатель тарифов
+              </Link>
+            ) : null}
 
             <label className="P-ProfilePageLive__timezoneField">
               <span>Часовой пояс для напоминаний</span>
