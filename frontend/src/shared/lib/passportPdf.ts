@@ -24,6 +24,25 @@ type NavigatorWithShare = Navigator & {
 };
 
 const PDF_FILE_PREFIX = "smartpet-vetpassport";
+const PHOTO_LOAD_TIMEOUT_MS = 4_000;
+const PDF_BLOB_TIMEOUT_MS = 20_000;
+const PDF_SHARE_TIMEOUT_MS = 15_000;
+
+function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  message: string,
+) {
+  return new Promise<T>((resolve, reject) => {
+    const timeoutId = window.setTimeout(() => {
+      reject(new Error(message));
+    }, timeoutMs);
+
+    promise
+      .then(resolve, reject)
+      .finally(() => window.clearTimeout(timeoutId));
+  });
+}
 
 function formatDate(value: string | null | undefined) {
   if (!value) return "Нет";
@@ -88,8 +107,13 @@ function toDataUrl(blob: Blob) {
 async function getPhotoDataUrl(photoUrl: string | null) {
   if (!photoUrl) return null;
 
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => {
+    controller.abort();
+  }, PHOTO_LOAD_TIMEOUT_MS);
+
   try {
-    const response = await fetch(photoUrl);
+    const response = await fetch(photoUrl, { signal: controller.signal });
     if (!response.ok) return null;
 
     const blob = await response.blob();
@@ -98,6 +122,8 @@ async function getPhotoDataUrl(photoUrl: string | null) {
     return await toDataUrl(blob);
   } catch {
     return null;
+  } finally {
+    window.clearTimeout(timeoutId);
   }
 }
 
@@ -328,7 +354,7 @@ async function loadPdfMake() {
     addVirtualFileSystem?: (virtualFs: unknown) => void;
     vfs?: unknown;
     createPdf: (docDefinition: PdfDocumentDefinition) => {
-      getBlob: (callback: (blob: Blob) => void) => void;
+      getBlob: unknown;
       download: (fileName: string) => void;
     };
   };
@@ -345,14 +371,40 @@ async function loadPdfMake() {
 function getPdfBlob(
   pdfMake: Awaited<ReturnType<typeof loadPdfMake>>,
   docDefinition: PdfDocumentDefinition,
-) {
-  return new Promise<Blob>((resolve, reject) => {
-    try {
-      pdfMake.createPdf(docDefinition).getBlob((blob) => resolve(blob));
-    } catch (error) {
-      reject(error);
+): Promise<Blob> {
+  const pdfDocument = pdfMake.createPdf(docDefinition);
+  const getBlob = pdfDocument.getBlob as {
+    call: (
+      thisArg: unknown,
+      callback?: (blob: Blob) => void,
+    ) => Promise<Blob> | void;
+    length: number;
+  };
+
+  if (getBlob.length === 0) {
+    const blobPromise = getBlob.call(pdfDocument);
+    if (!blobPromise) {
+      return Promise.reject(new Error("Не удалось запустить создание PDF."));
     }
-  });
+
+    return withTimeout(
+      blobPromise,
+      PDF_BLOB_TIMEOUT_MS,
+      "PDF создается слишком долго. Попробуйте еще раз.",
+    );
+  }
+
+  return withTimeout(
+    new Promise<Blob>((resolve, reject) => {
+      try {
+        getBlob.call(pdfDocument, (blob: Blob) => resolve(blob));
+      } catch (error) {
+        reject(error);
+      }
+    }),
+    PDF_BLOB_TIMEOUT_MS,
+    "PDF создается слишком долго. Попробуйте еще раз.",
+  );
 }
 
 async function trySharePdf(fileName: string, blob: Blob) {
@@ -371,7 +423,11 @@ async function trySharePdf(fileName: string, blob: Blob) {
     return false;
   }
 
-  await nav.share(shareData);
+  await withTimeout(
+    nav.share(shareData),
+    PDF_SHARE_TIMEOUT_MS,
+    "Окно отправки PDF не открылось.",
+  );
   return true;
 }
 
