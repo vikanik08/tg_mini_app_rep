@@ -8,9 +8,14 @@ from app.services.notifications import _send_telegram_message
 
 
 OPEN_APP_TEXT = "Открыть мини апп"
+OPEN_VK_APP_TEXT = "Мини апп в VK"
 SUPPORT_PROJECT_TEXT = "Поддержать проект"
 CONTACT_US_TEXT = "Связаться с нами"
+SOCIALS_TEXT = "Наши соцсети"
 SUPPORT_FUND_URL = "https://tbank.ru/cf/3cgq9koLxxT"
+VK_MINI_APP_URL = "https://vk.ru/app54599546"
+VK_COMMUNITY_URL = "https://vk.ru/club239532031"
+TELEGRAM_CHANNEL_URL = "https://t.me/smartpet_info"
 
 
 def _mini_app_url(path: str = "") -> str:
@@ -21,7 +26,9 @@ def _main_keyboard() -> dict[str, Any]:
     return {
         "keyboard": [
             [{"text": OPEN_APP_TEXT}],
+            [{"text": OPEN_VK_APP_TEXT}],
             [{"text": SUPPORT_PROJECT_TEXT}, {"text": CONTACT_US_TEXT}],
+            [{"text": SOCIALS_TEXT}],
         ],
         "resize_keyboard": True,
         "is_persistent": True,
@@ -41,6 +48,23 @@ def _contact_inline_keyboard() -> dict[str, Any]:
     return {
         "inline_keyboard": [
             [{"text": "Открыть чат поддержки", "url": settings.telegram_support_url}],
+        ],
+    }
+
+
+def _vk_app_inline_keyboard() -> dict[str, Any]:
+    return {
+        "inline_keyboard": [
+            [{"text": "Открыть mini app в VK", "url": VK_MINI_APP_URL}],
+        ],
+    }
+
+
+def _socials_inline_keyboard() -> dict[str, Any]:
+    return {
+        "inline_keyboard": [
+            [{"text": "VK-сообщество", "url": VK_COMMUNITY_URL}],
+            [{"text": "Telegram-канал", "url": TELEGRAM_CHANNEL_URL}],
         ],
     }
 
@@ -111,6 +135,14 @@ async def handle_telegram_update(update: dict[str, Any]) -> None:
         )
         return
 
+    if text == OPEN_VK_APP_TEXT:
+        await _send_telegram_message(
+            chat_id=chat_id,
+            text="SmartPet Helper также можно открыть во VK.",
+            reply_markup=_vk_app_inline_keyboard(),
+        )
+        return
+
     if text == SUPPORT_PROJECT_TEXT:
         await _send_telegram_message(
             chat_id=chat_id,
@@ -121,6 +153,14 @@ async def handle_telegram_update(update: dict[str, Any]) -> None:
                 "Также вы можете поддержать проект, купив подписку в mini app."
             ),
             reply_markup=_support_project_inline_keyboard(),
+        )
+        return
+
+    if text == SOCIALS_TEXT:
+        await _send_telegram_message(
+            chat_id=chat_id,
+            text="Подписывайтесь на SmartPet Helper в соцсетях.",
+            reply_markup=_socials_inline_keyboard(),
         )
         return
 
