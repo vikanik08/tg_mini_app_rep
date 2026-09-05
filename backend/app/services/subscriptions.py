@@ -17,26 +17,30 @@ def get_effective_plan(user: User) -> SubscriptionPlan:
         expires_at = expires_at.replace(tzinfo=timezone.utc)
 
     if (
-        user.subscription_plan in {"premium", "family"}
+        user.subscription_plan in {"premium", "family", "breeder"}
         and expires_at is not None
         and expires_at <= datetime.now(timezone.utc)
     ):
         return "basic"
 
-    if user.subscription_plan in {"basic", "premium", "family"}:
+    if user.subscription_plan in {"basic", "premium", "family", "breeder"}:
         return user.subscription_plan
 
     return "basic"
 
 
 def has_premium_access(user: User) -> bool:
-    return get_effective_plan(user) in {"premium", "family"}
+    return get_effective_plan(user) in {"premium", "family", "breeder"}
+
+
+def has_breeder_access(user: User) -> bool:
+    return get_effective_plan(user) == "breeder"
 
 
 def get_pet_limit(user: User) -> int | None:
     plan = get_effective_plan(user)
 
-    if plan == "family":
+    if plan in {"family", "breeder"}:
         return None
     if plan == "premium":
         return 2
@@ -46,7 +50,7 @@ def get_pet_limit(user: User) -> int | None:
 def get_active_reminder_limit(user: User) -> int | None:
     plan = get_effective_plan(user)
 
-    if plan in {"premium", "family"}:
+    if plan in {"premium", "family", "breeder"}:
         return None
     return 5
 
@@ -97,4 +101,9 @@ def assert_can_create_active_reminder(
 
 def assert_can_use_health_tracker(user: User) -> None:
     if not has_premium_access(user):
-        raise PermissionError("Трекер здоровья доступен в подписке Премиум или Семейная")
+        raise PermissionError("Трекер здоровья доступен в подписке Премиум, Семейная или Заводчик")
+
+
+def assert_can_transfer_pet(user: User) -> None:
+    if not has_breeder_access(user):
+        raise PermissionError("Передача питомца доступна в тарифе Заводчик")

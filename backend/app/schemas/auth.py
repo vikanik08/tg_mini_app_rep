@@ -5,7 +5,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 
-SubscriptionPlan = Literal["basic", "premium", "family"]
+SubscriptionPlan = Literal["basic", "premium", "family", "breeder"]
 AuthPlatform = Literal["dev", "telegram", "vk"]
 
 

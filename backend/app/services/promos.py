@@ -19,6 +19,7 @@ PLAN_RANK: dict[SubscriptionPlan, int] = {
     "basic": 0,
     "premium": 1,
     "family": 2,
+    "breeder": 3,
 }
 
 
@@ -51,7 +52,7 @@ def _get_promo_offer(code: str) -> tuple[SubscriptionPlan, int] | None:
 def _has_active_subscription(user: User, now: datetime) -> bool:
     expires_at = _as_aware_utc(user.subscription_expires_at)
     return (
-        user.subscription_plan in ("premium", "family")
+        user.subscription_plan in ("premium", "family", "breeder")
         and expires_at is not None
         and expires_at > now
     )
@@ -85,7 +86,7 @@ def redeem_premium_promo(db: Session, user: User, code: str) -> tuple[User, bool
         now = datetime.now(timezone.utc)
 
         if (
-            existing_redemption.plan in ("premium", "family")
+            existing_redemption.plan in ("premium", "family", "breeder")
             and existing_expires_at is not None
             and existing_expires_at > now
             and _can_apply_plan(user, existing_redemption.plan, now)
@@ -107,7 +108,7 @@ def redeem_premium_promo(db: Session, user: User, code: str) -> tuple[User, bool
     starts_at = now
 
     if (
-        user.subscription_plan in ("premium", "family")
+        user.subscription_plan in ("premium", "family", "breeder")
         and current_expires_at is not None
         and current_expires_at > now
     ):

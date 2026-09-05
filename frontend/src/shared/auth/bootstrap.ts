@@ -10,8 +10,14 @@ function storeAuthUser(data: Awaited<ReturnType<typeof devLogin | typeof telegra
   setAnalyticsUser(data.user);
 }
 
-function formatPromoNotice(plan: "basic" | "premium" | "family", code: string) {
-  const planLabel = plan === "family" ? "Семейная подписка" : "Премиум";
+function formatPromoNotice(plan: "basic" | "premium" | "family" | "breeder", code: string) {
+  const planLabels = {
+    basic: "Базовый тариф",
+    premium: "Премиум",
+    family: "Семейная подписка",
+    breeder: "Тариф Заводчик",
+  };
+  const planLabel = planLabels[plan];
   const daysMatch = code.match(/\d+/);
   const daysText = daysMatch ? ` на ${daysMatch[0]} дней` : "";
 

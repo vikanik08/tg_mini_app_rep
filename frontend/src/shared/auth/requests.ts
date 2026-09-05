@@ -8,7 +8,7 @@ export type AuthUser = {
   last_name: string | null;
   username: string | null;
   timezone: string;
-  subscription_plan: "basic" | "premium" | "family";
+  subscription_plan: "basic" | "premium" | "family" | "breeder";
   subscription_expires_at: string | null;
   last_seen_at?: string | null;
   platform: AuthPlatform;

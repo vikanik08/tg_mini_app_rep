@@ -243,7 +243,8 @@
 }
 
 .P-PassportLive__pillRow,
-.P-PassportLive__actionRow {
+.P-PassportLive__actionRow,
+.P-PassportLive__linkStack {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -415,16 +416,31 @@
 
 .P-PassportLive__actionChip,
 .P-PassportLive__ghostAction,
-.P-PassportLive__primaryAction {
+.P-PassportLive__primaryAction,
+.P-PassportLive__linkStack a,
+.P-PassportLive__linkStack button {
   min-height: 40px;
   padding: 0 14px;
   background: var(--color-purple);
   color: var(--color-text);
 }
 
-.P-PassportLive__ghostAction {
+.P-PassportLive__ghostAction,
+.P-PassportLive__linkStack a,
+.P-PassportLive__linkStack button {
   background: transparent;
   border: 1px solid rgba(41, 31, 58, 0.14);
+}
+
+.P-PassportLive__linkStack a,
+.P-PassportLive__linkStack button {
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font: var(--font-12);
+  cursor: pointer;
 }
 
 .P-PassportLive__primaryAction {

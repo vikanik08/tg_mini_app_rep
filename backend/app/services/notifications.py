@@ -49,7 +49,12 @@ def _build_inactive_user_text(user: User) -> str:
 
 def _build_subscription_expiry_text(user: User, days_left: int) -> str:
     first_name = user.first_name or "привет"
-    plan_label = "Семейная подписка" if user.subscription_plan == "family" else "Premium"
+    plan_labels = {
+        "premium": "Premium",
+        "family": "Семейная подписка",
+        "breeder": "Тариф Заводчик",
+    }
+    plan_label = plan_labels.get(user.subscription_plan, "Подписка")
     day_word = "дня" if 2 <= days_left <= 4 else "дней"
 
     if days_left == 1:
@@ -249,7 +254,7 @@ async def process_subscription_expiry_messages() -> int:
             db.query(User)
             .filter(User.platform == "telegram")
             .filter(User.telegram_id.is_not(None))
-            .filter(User.subscription_plan.in_(("premium", "family")))
+            .filter(User.subscription_plan.in_(("premium", "family", "breeder")))
             .filter(User.subscription_expires_at.is_not(None))
             .limit(100)
             .all()

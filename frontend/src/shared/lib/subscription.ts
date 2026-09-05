@@ -6,6 +6,7 @@ export const planLabels: Record<SubscriptionPlan, string> = {
   basic: "Базовый",
   premium: "Премиум",
   family: "Семейная",
+  breeder: "Заводчик",
 };
 
 export function readCurrentUser(): AuthUser | null {
@@ -24,7 +25,9 @@ export function getEffectivePlan(user = readCurrentUser()): SubscriptionPlan {
   if (!user) return "basic";
 
   if (
-    (user.subscription_plan === "premium" || user.subscription_plan === "family")
+    (user.subscription_plan === "premium"
+      || user.subscription_plan === "family"
+      || user.subscription_plan === "breeder")
     && user.subscription_expires_at
     && new Date(user.subscription_expires_at).getTime() <= Date.now()
   ) {
@@ -36,7 +39,11 @@ export function getEffectivePlan(user = readCurrentUser()): SubscriptionPlan {
 
 export function hasPremiumAccess(user = readCurrentUser()) {
   const plan = getEffectivePlan(user);
-  return plan === "premium" || plan === "family";
+  return plan === "premium" || plan === "family" || plan === "breeder";
+}
+
+export function hasBreederAccess(user = readCurrentUser()) {
+  return getEffectivePlan(user) === "breeder";
 }
 
 export function getSubscriptionDaysLeft(user = readCurrentUser()) {
@@ -100,7 +107,7 @@ export function formatSubscriptionStatus(user = readCurrentUser()) {
 export function getPetLimit(user = readCurrentUser()) {
   const plan = getEffectivePlan(user);
 
-  if (plan === "family") return Number.POSITIVE_INFINITY;
+  if (plan === "family" || plan === "breeder") return Number.POSITIVE_INFINITY;
   if (plan === "premium") return 2;
   return 1;
 }

@@ -11,6 +11,11 @@ import {
 } from "../entities/event/api";
 import { getPetById, getPets, type Pet } from "../entities/pet/api";
 import {
+  buildPetTransferLinks,
+  createPetTransfer,
+  type PetTransfer,
+} from "../entities/petTransfer/api";
+import {
   buildPassportEditPath,
   buildHealthCheckPath,
   buildProcedurePath,
@@ -24,7 +29,7 @@ import {
 } from "../shared/analytics/metrica";
 import { formatHealthFeatureNotes } from "../shared/lib/healthFeatures";
 import { openPassportPdf } from "../shared/lib/passportPdf";
-import { hasPremiumAccess } from "../shared/lib/subscription";
+import { hasBreederAccess, hasPremiumAccess } from "../shared/lib/subscription";
 import { useToast } from "../shared/ui/useToast";
 import "./passport-page-live.css";
 
@@ -217,6 +222,7 @@ export default function PassportPetPage() {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [petTransfer, setPetTransfer] = useState<PetTransfer | null>(null);
   const params = useParams();
   const petId = params.petId;
 
@@ -267,6 +273,23 @@ export default function PassportPetPage() {
   );
   const surgeryDetails = pet?.surgeries_notes ? [pet.surgeries_notes] : [];
   const hasExtendedPassport = hasPremiumAccess();
+  const hasBreederPassport = hasBreederAccess();
+  const petTransferLinks = useMemo(
+    () => (petTransfer ? buildPetTransferLinks(petTransfer.token) : null),
+    [petTransfer],
+  );
+  const createTransferMutation = useMutation({
+    mutationFn: async () => createPetTransfer(pet!.id),
+    onSuccess: (transfer) => {
+      setPetTransfer(transfer);
+      trackEvent("pet_transfer_created", { pet_id: transfer.pet_id });
+      showToast("Ссылка передачи готова", "success");
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Не удалось создать ссылку передачи";
+      showToast(message, "error");
+    },
+  });
   const toggleDoneMutation = useMutation({
     mutationFn: async ({
       eventId,
@@ -365,7 +388,7 @@ export default function PassportPetPage() {
                 trackButtonClick("passport_export_pdf");
                 if (!hasExtendedPassport) {
                   trackEvent("passport_pdf_blocked_basic_plan", { pet_id: pet.id });
-                  showToast("Экспорт PDF доступен в подписке Премиум или Семейная", "error");
+                  showToast("Экспорт PDF доступен в подписке Премиум, Семейная или Заводчик", "error");
                   navigate("/subscriptions");
                   return;
                 }
@@ -407,6 +430,24 @@ export default function PassportPetPage() {
             >
               Изменить
             </Link>
+
+            <button
+              type="button"
+              className="P-PassportLive__ghostAction"
+              disabled={createTransferMutation.isPending}
+              onClick={() => {
+                trackButtonClick("passport_transfer_pet");
+                if (!hasBreederPassport) {
+                  showToast("Передача питомца доступна в тарифе Заводчик", "error");
+                  navigate("/subscriptions");
+                  return;
+                }
+
+                createTransferMutation.mutate();
+              }}
+            >
+              {createTransferMutation.isPending ? "Готовим ссылку..." : "Передать"}
+            </button>
           </div>
         </header>
 
@@ -460,6 +501,32 @@ export default function PassportPetPage() {
             </p>
           </div>
         </section>
+
+        {petTransfer && petTransferLinks ? (
+          <section className="P-PassportLive__card">
+            <div className="P-PassportLive__sectionTop">
+              <h3 className="P-PassportLive__cardTitle">Передача питомца</h3>
+              <span className="P-PassportLive__counter">14 дней</span>
+            </div>
+            <p className="P-PassportLive__stateText">
+              Отправьте ссылку новому владельцу. После принятия {pet.name} переедет в его
+              аккаунт вместе с напоминаниями и историей здоровья.
+            </p>
+            <div className="P-PassportLive__linkStack">
+              <a href={petTransferLinks.telegram}>Открыть через Telegram</a>
+              <a href={petTransferLinks.vk}>Открыть через VK</a>
+              <button
+                type="button"
+                onClick={() => {
+                  void navigator.clipboard?.writeText(petTransferLinks.web);
+                  showToast("Ссылка скопирована", "success");
+                }}
+              >
+                Скопировать обычную ссылку
+              </button>
+            </div>
+          </section>
+        ) : null}
 
         <section className="P-PassportLive__card">
           <InfoRow label="Питомец" value={formatSpecies(pet)} />
@@ -529,7 +596,7 @@ export default function PassportPetPage() {
                 trackButtonClick("passport_health_check");
                 if (!hasExtendedPassport) {
                   trackEvent("health_check_blocked_basic_plan", { source: "passport", pet_id: pet.id });
-                  showToast("Трекер здоровья доступен в подписке Премиум или Семейная", "error");
+                  showToast("Трекер здоровья доступен в подписке Премиум, Семейная или Заводчик", "error");
                   return;
                 }
 

@@ -8,7 +8,7 @@ import { initAnalytics, trackEvent, trackPageView } from "./shared/analytics/met
 import { bootstrapAuth } from "./shared/auth/bootstrap";
 import { detectRuntimePlatform, getPlatformDisplayName, initPlatform } from "./shared/platform";
 import { AppProviders } from "./app/providers";
-import { buildTelegramPromoLink, getLaunchPromoCode } from "./shared/promo/promo";
+import { buildTelegramPromoLink, getLaunchPromoCode, getLaunchTransferToken } from "./shared/promo/promo";
 
 const rootElement = document.getElementById("root");
 
@@ -181,6 +181,10 @@ async function startApp() {
 
   await initPlatform();
   await bootstrapAuth();
+  const transferToken = getLaunchTransferToken();
+  if (transferToken && window.location.pathname !== `/transfer/${transferToken}`) {
+    window.history.replaceState(null, "", `/transfer/${encodeURIComponent(transferToken)}`);
+  }
   trackEvent("app_open");
   renderApp();
 }

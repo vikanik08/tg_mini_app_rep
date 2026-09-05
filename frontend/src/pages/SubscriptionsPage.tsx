@@ -58,6 +58,17 @@ const plans: Plan[] = [
       "Трекер здоровья",
     ],
   },
+  {
+    id: "breeder",
+    name: "Заводчик",
+    price: "Для питомников",
+    features: [
+      "Неограниченное количество питомцев",
+      "Передача паспорта новому владельцу по ссылке",
+      "Сохранение напоминаний и истории здоровья при передаче",
+      "Расширенная версия вет паспорта и PDF-экспорт",
+    ],
+  },
 ];
 
 export default function SubscriptionsPage() {
@@ -152,7 +163,13 @@ export default function SubscriptionsPage() {
               <div className="P-Subscriptions__planTop">
                 <div>
                   <div className="P-Subscriptions__planName">
-                    {plan.id === "premium" ? "👑 " : plan.id === "family" ? "👨‍👩‍👧 " : ""}
+                    {plan.id === "premium"
+                      ? "👑 "
+                      : plan.id === "family"
+                        ? "👨‍👩‍👧 "
+                        : plan.id === "breeder"
+                          ? "🏡 "
+                          : ""}
                     {plan.name}
                   </div>
                   <div className="P-Subscriptions__planPrice">{plan.price}</div>

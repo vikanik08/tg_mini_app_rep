@@ -390,7 +390,7 @@ export default function HealthCheckPage() {
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!hasExtendedAccess) {
-        throw new Error("Трекер здоровья доступен в подписке Премиум или Семейная");
+        throw new Error("Трекер здоровья доступен в подписке Премиум, Семейная или Заводчик");
       }
 
       if (!pet?.id) {
@@ -459,7 +459,7 @@ export default function HealthCheckPage() {
           <section className="P-HealthCheck__state">
             <h1>Контроль здоровья</h1>
             <p>
-              Трекер здоровья доступен в подписке Премиум или Семейная.
+              Трекер здоровья доступен в подписке Премиум, Семейная или Заводчик.
               После оформления здесь можно будет вести регулярные проверки питомца.
             </p>
             <Link to="/subscriptions">Оформить подписку</Link>

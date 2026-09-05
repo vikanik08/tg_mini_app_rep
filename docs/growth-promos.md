@@ -81,3 +81,35 @@ SUBSCRIPTION_EXPIRY_NOTICE_DAYS=3,1
 
 With these values, users get one message when 3 days remain and one more message
 when 1 day remains. Messages are deduplicated per subscription end date.
+
+## Breeder plan and pet transfer
+
+The `breeder` plan unlocks breeder tools inside the same user account. It has
+all family-plan limits plus pet transfer by invite link.
+
+Admin subscription update example:
+
+```powershell
+$body = @{
+  plan = "breeder"
+  expires_at = "2026-12-31T00:00:00Z"
+} | ConvertTo-Json -Compress
+
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "https://smartpet-lunyc.amvera.io/admin/platform-users/telegram/USER_ID/subscription" `
+  -Headers @{ Authorization = "Bearer ADMIN_SECRET" } `
+  -ContentType "application/json" `
+  -Body $body
+```
+
+After a breeder creates a transfer from the pet passport, the app generates:
+
+```text
+https://t.me/SmartPetHelper_bot?startapp=transfer_TOKEN
+https://vk.ru/app54599546#transfer=TOKEN
+https://smartpet-lunyc.amvera.io/transfer/TOKEN
+```
+
+The invite is valid for 14 days. When the new owner accepts it, the pet,
+reminders, and health-check history move to the new owner account.
