@@ -1,4 +1,5 @@
 import asyncio
+import random
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -105,6 +106,46 @@ async def _send_telegram_message(
         response.raise_for_status()
 
 
+async def _send_vk_group_message(
+    user_id: str,
+    text: str,
+) -> None:
+    if not settings.vk_group_access_token:
+        raise RuntimeError("VK group access token is not configured")
+
+    payload = {
+        "user_id": user_id,
+        "message": text,
+        "random_id": random.randint(1, 2_147_483_647),
+        "group_id": settings.vk_group_id,
+        "access_token": settings.vk_group_access_token,
+        "v": settings.vk_api_version,
+    }
+
+    async with httpx.AsyncClient(timeout=12) as client:
+        response = await client.post("https://api.vk.com/method/messages.send", data=payload)
+        response.raise_for_status()
+
+    data = response.json()
+    if "error" in data:
+        error = data["error"]
+        error_code = error.get("error_code", "unknown")
+        error_message = error.get("error_msg", "VK API error")
+        raise RuntimeError(f"VK API error {error_code}: {error_message}")
+
+
+async def _send_reminder_to_user(user: User, text: str) -> None:
+    if user.platform == "telegram" and user.telegram_id is not None:
+        await _send_telegram_message(chat_id=user.telegram_id, text=text)
+        return
+
+    if user.platform == "vk" and user.vk_messages_allowed_at is not None:
+        await _send_vk_group_message(user_id=user.platform_user_id, text=text)
+        return
+
+    raise ValueError("User does not have an enabled reminder channel")
+
+
 async def send_inactive_user_message(user: User) -> None:
     if not settings.telegram_bot_token:
         raise RuntimeError("Telegram bot token is not configured")
@@ -141,7 +182,7 @@ def _normalize_datetime(value: datetime | None) -> datetime | None:
 
 
 async def process_due_reminders() -> int:
-    if not settings.telegram_bot_token:
+    if not settings.telegram_bot_token and not settings.vk_group_access_token:
         return 0
 
     sent_count = 0
@@ -155,21 +196,29 @@ async def process_due_reminders() -> int:
             user = db.query(User).filter(User.id == event.user_id).first()
             pet = db.query(Pet).filter(Pet.id == event.pet_id).first()
 
-            if not user or not pet or user.telegram_id is None:
+            if not user or not pet:
                 event.reminder_sent_at = now
                 continue
 
             try:
-                await _send_telegram_message(
-                    chat_id=user.telegram_id,
-                    text=_build_reminder_text(event, pet, user),
-                )
+                await _send_reminder_to_user(user, _build_reminder_text(event, pet, user))
             except httpx.HTTPStatusError as exc:  # pragma: no cover - network/API failure path
                 status_code = exc.response.status_code
-                print(f"Failed to send reminder {event.id}: Telegram API status {status_code}")
+                print(f"Failed to send reminder {event.id}: HTTP status {status_code}")
 
                 if status_code in (400, 403):
                     event.reminder_sent_at = now
+                continue
+            except RuntimeError as exc:  # pragma: no cover - network/API failure path
+                error_text = str(exc)
+                print(f"Failed to send reminder {event.id}: {error_text}")
+                if user.platform == "vk" and ("901" in error_text or "can't send" in error_text.lower()):
+                    user.vk_messages_allowed_at = None
+                    event.reminder_sent_at = now
+                continue
+            except ValueError as exc:
+                print(f"Skipped reminder {event.id}: {exc}")
+                event.reminder_sent_at = now
                 continue
             except Exception as exc:  # pragma: no cover - network/API failure path
                 print(f"Failed to send reminder {event.id}: {type(exc).__name__}")

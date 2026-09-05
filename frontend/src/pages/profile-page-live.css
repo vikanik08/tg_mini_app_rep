@@ -114,6 +114,7 @@
 .P-ProfilePageLive__pill,
 .P-ProfilePageLive__actionButton,
 .P-ProfilePageLive__adminLink,
+.P-ProfilePageLive__vkMessagesButton,
 .P-ProfilePageLive__timezoneField select {
   min-height: 40px;
   padding: 0 14px;
@@ -369,6 +370,21 @@
   color: var(--color-text);
   font: var(--font-12);
   text-decoration: none;
+}
+
+.P-ProfilePageLive__vkMessagesButton {
+  width: fit-content;
+  max-width: 100%;
+  border: none;
+  background: var(--color-purple);
+  color: var(--color-text);
+  font: var(--font-12);
+  cursor: pointer;
+}
+
+.P-ProfilePageLive__vkMessagesButton:disabled {
+  cursor: default;
+  opacity: 0.72;
 }
 
 .P-ProfilePageLive__actionButton--ghost {

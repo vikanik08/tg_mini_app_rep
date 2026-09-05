@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AppLayout from "../widgets/layout/AppLayout";
 import { getEvents } from "../entities/event/api";
 import { getPets } from "../entities/pet/api";
-import { getCurrentUser, updateCurrentUser } from "../entities/user/api";
+import { getCurrentUser, updateCurrentUser, updateVkMessages } from "../entities/user/api";
 import type { AuthUser } from "../features/auth/api";
 import {
   buildPassportEditPath,
@@ -20,6 +20,7 @@ import {
   trackFeatureUse,
 } from "../shared/analytics/metrica";
 import { getPlatformDisplayName, getPlatformIdLabel } from "../shared/platform";
+import { allowVkCommunityMessages } from "../shared/platform/vk";
 import { formatDateTimeInUserTimezone } from "../shared/lib/dateTime";
 import {
   formatSubscriptionDaysLeft,
@@ -27,6 +28,7 @@ import {
   getSubscriptionLabel,
 } from "../shared/lib/subscription";
 import "./profile-page-live.css";
+import { useToast } from "../shared/ui/useToast";
 
 function readCurrentUser(): AuthUser | null {
   const raw = localStorage.getItem("current_user");
@@ -106,6 +108,7 @@ const timezoneOptions = [
 
 export default function ProfilePageLive() {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [user, setUser] = useState<AuthUser | null>(() => readCurrentUser());
   const [filterMode, setFilterMode] = useState<"active" | "all">("active");
 
@@ -115,6 +118,24 @@ export default function ProfilePageLive() {
       setUser(updatedUser);
       localStorage.setItem("current_user", JSON.stringify(updatedUser));
       await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+
+  const updateVkMessagesMutation = useMutation({
+    mutationFn: async () => {
+      await allowVkCommunityMessages();
+      return updateVkMessages({ enabled: true });
+    },
+    onSuccess: async (updatedUser) => {
+      setUser(updatedUser);
+      localStorage.setItem("current_user", JSON.stringify(updatedUser));
+      await queryClient.invalidateQueries({ queryKey: ["current-user"] });
+      showToast("Напоминания во VK подключены", "success");
+      trackEvent("vk_messages_enabled");
+    },
+    onError: () => {
+      showToast("Не удалось подключить сообщения VK", "error");
+      trackEvent("vk_messages_enable_failed");
     },
   });
 
@@ -209,6 +230,7 @@ export default function ProfilePageLive() {
   const subscriptionLabel = getSubscriptionLabel(user);
   const subscriptionDaysLeft = formatSubscriptionDaysLeft(user);
   const subscriptionExpiryDate = formatSubscriptionExpiryDate(user);
+  const isVkMessagesEnabled = Boolean(user?.vk_messages_allowed_at);
 
   return (
     <AppLayout>
@@ -260,6 +282,24 @@ export default function ProfilePageLive() {
               >
                 Переключатель тарифов
               </Link>
+            ) : null}
+
+            {user?.platform === "vk" ? (
+              <button
+                type="button"
+                className="P-ProfilePageLive__vkMessagesButton"
+                disabled={updateVkMessagesMutation.isPending || isVkMessagesEnabled}
+                onClick={() => {
+                  trackButtonClick("profile_vk_messages");
+                  updateVkMessagesMutation.mutate();
+                }}
+              >
+                {isVkMessagesEnabled
+                  ? "Напоминания во VK подключены"
+                  : updateVkMessagesMutation.isPending
+                    ? "Подключаем VK..."
+                    : "Получать напоминания во VK"}
+              </button>
             ) : null}
 
             <label className="P-ProfilePageLive__timezoneField">

@@ -113,3 +113,26 @@ https://smartpet-lunyc.amvera.io/transfer/TOKEN
 
 The invite is valid for 14 days. When the new owner accepts it, the pet,
 reminders, and health-check history move to the new owner account.
+
+## VK community reminder messages
+
+VK reminder messages are sent through the SmartPet VK community. A VK user must
+open the Mini App and press the profile button that allows messages from the
+community. After that, due reminders can be delivered with `messages.send`.
+
+Backend Amvera variables:
+
+```text
+VK_GROUP_ID=239532031
+VK_GROUP_ACCESS_TOKEN=community_access_token
+VK_API_VERSION=5.199
+```
+
+Frontend Vercel variable, optional because the app defaults to the same group:
+
+```text
+VITE_VK_GROUP_ID=239532031
+```
+
+The group token should be generated in the VK community settings. It must allow
+the community to send messages. Do not put the group token into frontend/Vercel.

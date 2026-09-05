@@ -61,6 +61,17 @@ export async function initVkPlatform() {
   }
 }
 
+export async function allowVkCommunityMessages() {
+  const groupId = Number(import.meta.env.VITE_VK_GROUP_ID || "239532031");
+  if (!groupId) {
+    throw new Error("VK group ID is not configured");
+  }
+
+  await bridge.send("VKWebAppAllowMessagesFromGroup", {
+    group_id: groupId,
+  });
+}
+
 export function openVkExternalLink(url: string) {
   const openedWindow = window.open(url, "_blank", "noopener,noreferrer");
   if (!openedWindow) {

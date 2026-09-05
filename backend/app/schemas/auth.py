@@ -29,6 +29,7 @@ class UserInfoResponse(BaseModel):
     subscription_plan: SubscriptionPlan
     subscription_expires_at: datetime | None
     last_seen_at: datetime | None = None
+    vk_messages_allowed_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 

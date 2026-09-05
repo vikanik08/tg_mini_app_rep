@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     telegram_bot_polling_timeout_seconds: int = 25
     vk_app_id: str = ""
     vk_app_secret: str = ""
+    vk_group_id: int = 239532031
+    vk_group_access_token: str = ""
+    vk_api_version: str = "5.199"
     admin_secret: str = ""
     admin_platform_user_ids: str = "telegram:2021744858,vk:284534819"
 

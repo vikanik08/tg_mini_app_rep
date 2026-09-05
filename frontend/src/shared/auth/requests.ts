@@ -11,6 +11,7 @@ export type AuthUser = {
   subscription_plan: "basic" | "premium" | "family" | "breeder";
   subscription_expires_at: string | null;
   last_seen_at?: string | null;
+  vk_messages_allowed_at?: string | null;
   platform: AuthPlatform;
   platform_user_id: string | null;
 };

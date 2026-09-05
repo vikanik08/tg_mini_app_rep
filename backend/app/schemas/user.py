@@ -12,3 +12,7 @@ class UserUpdate(BaseModel):
 class AdminSubscriptionUpdate(BaseModel):
     plan: SubscriptionPlan
     expires_at: datetime | None = None
+
+
+class VkMessagesUpdate(BaseModel):
+    enabled: bool
