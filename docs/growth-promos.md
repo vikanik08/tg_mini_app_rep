@@ -1,32 +1,51 @@
 # Growth promos and reactivation
 
-## Free Premium promo link
+## Free promo links
 
-Default promo code:
+Available promo codes:
 
 ```text
 premium30
+premium7
+family30
+family7
 ```
 
-The backend gives the authenticated user `premium` for 30 days after redeeming
-this code. Each user can redeem the code only once.
+The backend gives the authenticated user the matching subscription after
+redeeming a code. Each user can redeem each code only once.
 
-Recommended Telegram Mini App link for QR:
+Recommended Telegram Mini App links for QR:
 
 ```text
 https://t.me/SmartPetHelper_bot?startapp=premium30
+https://t.me/SmartPetHelper_bot?startapp=premium7
+https://t.me/SmartPetHelper_bot?startapp=family30
+https://t.me/SmartPetHelper_bot?startapp=family7
 ```
 
-Fallback web link:
+VK Mini App links:
+
+```text
+https://vk.ru/app54599546#promo=premium30
+https://vk.ru/app54599546#promo=premium7
+https://vk.ru/app54599546#promo=family30
+https://vk.ru/app54599546#promo=family7
+```
+
+Fallback web links:
 
 ```text
 https://smartpet-lunyc.amvera.io/?promo=premium30
+https://smartpet-lunyc.amvera.io/?promo=premium7
+https://smartpet-lunyc.amvera.io/?promo=family30
+https://smartpet-lunyc.amvera.io/?promo=family7
 ```
 
 Use the Telegram link for QR campaigns, because Telegram passes `startapp` into
-the Mini App after the user opens it. The fallback web link redirects browser
-users to the Telegram link, because Premium can only be attached after Telegram
-auth identifies the user.
+the Mini App after the user opens it. Use the VK link for VK campaigns; VK keeps
+the hash part after `app54599546`, and the Mini App reads `promo` from it after
+VK auth identifies the user. The fallback web links redirect browser users to
+the Telegram link.
 
 ## Amvera environment variables
 
@@ -36,6 +55,9 @@ Optional promo settings:
 PROMO_PREMIUM_CODE=premium30
 PROMO_PREMIUM_DAYS=30
 ```
+
+These settings are kept for compatibility with the original `premium30` promo.
+The fixed promo codes above work without additional Amvera variables.
 
 Inactive user messages are disabled by default. To enable Telegram reactivation:
 

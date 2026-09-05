@@ -10,6 +10,14 @@ function storeAuthUser(data: Awaited<ReturnType<typeof devLogin | typeof telegra
   setAnalyticsUser(data.user);
 }
 
+function formatPromoNotice(plan: "basic" | "premium" | "family", code: string) {
+  const planLabel = plan === "family" ? "Семейная подписка" : "Премиум";
+  const daysMatch = code.match(/\d+/);
+  const daysText = daysMatch ? ` на ${daysMatch[0]} дней` : "";
+
+  return `${planLabel} активирована бесплатно${daysText}.`;
+}
+
 async function redeemLaunchPromo() {
   const promoCode = getLaunchPromoCode();
   if (!promoCode) return;
@@ -21,7 +29,7 @@ async function redeemLaunchPromo() {
       "promo_notice",
       data.already_redeemed
         ? "Промокод уже был активирован ранее."
-        : "Premium активирован бесплатно на 30 дней.",
+        : formatPromoNotice(data.plan, data.code),
     );
     trackEvent("promo_redeemed", {
       code: data.code,
