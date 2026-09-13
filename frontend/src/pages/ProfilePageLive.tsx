@@ -10,6 +10,7 @@ import {
   updateCurrentUser,
   updateVkMessages,
 } from "../entities/user/api";
+import { getApiErrorMessage } from "../shared/api/errors";
 import type { AuthUser } from "../features/auth/api";
 import {
   buildPassportEditPath,
@@ -111,6 +112,11 @@ const timezoneOptions = [
   { value: "UTC", label: "UTC" },
 ];
 
+type VkMessagesEnableResult = {
+  user: AuthUser;
+  bridgeAllowed: boolean;
+};
+
 export default function ProfilePageLive() {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -128,19 +134,36 @@ export default function ProfilePageLive() {
 
   const updateVkMessagesMutation = useMutation({
     mutationFn: async () => {
-      await allowVkCommunityMessages();
-      return updateVkMessages({ enabled: true });
+      let bridgeAllowed = true;
+
+      try {
+        await allowVkCommunityMessages();
+      } catch (error) {
+        bridgeAllowed = false;
+        trackEvent("vk_messages_bridge_failed", {
+          message: error instanceof Error ? error.message : "unknown",
+        });
+      }
+
+      const updatedUser = await updateVkMessages({ enabled: true });
+      return { user: updatedUser, bridgeAllowed } satisfies VkMessagesEnableResult;
     },
-    onSuccess: async (updatedUser) => {
+    onSuccess: async ({ user: updatedUser, bridgeAllowed }) => {
       setUser(updatedUser);
       localStorage.setItem("current_user", JSON.stringify(updatedUser));
       await queryClient.invalidateQueries({ queryKey: ["current-user"] });
-      showToast("Напоминания во VK подключены", "success");
-      trackEvent("vk_messages_enabled");
+      showToast(
+        bridgeAllowed
+          ? "Напоминания во VK подключены"
+          : "Сохранили подключение. Нажмите «Отправить тест VK», чтобы проверить iPhone.",
+        bridgeAllowed ? "success" : "info",
+      );
+      trackEvent("vk_messages_enabled", { bridge_allowed: bridgeAllowed });
     },
-    onError: () => {
-      showToast("Не удалось подключить сообщения VK", "error");
-      trackEvent("vk_messages_enable_failed");
+    onError: (error) => {
+      const message = getApiErrorMessage(error, "Не удалось подключить сообщения VK");
+      showToast(message, "error");
+      trackEvent("vk_messages_enable_failed", { message });
     },
   });
 

@@ -67,8 +67,12 @@ export async function allowVkCommunityMessages() {
     throw new Error("VK group ID is not configured");
   }
 
+  const launchParams = getVkLaunchParams();
+  const userId = launchParams.vk_user_id ? String(launchParams.vk_user_id) : "";
+
   await bridge.send("VKWebAppAllowMessagesFromGroup", {
     group_id: groupId,
+    key: userId ? `smartpet_${userId}` : "smartpet",
   });
 }
 
