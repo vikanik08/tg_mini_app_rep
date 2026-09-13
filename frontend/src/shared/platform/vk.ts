@@ -70,10 +70,14 @@ export async function allowVkCommunityMessages() {
   const launchParams = getVkLaunchParams();
   const userId = launchParams.vk_user_id ? String(launchParams.vk_user_id) : "";
 
-  await bridge.send("VKWebAppAllowMessagesFromGroup", {
+  const response = await bridge.send("VKWebAppAllowMessagesFromGroup", {
     group_id: groupId,
     key: userId ? `smartpet_${userId}` : "smartpet",
   });
+
+  if (!response.result) {
+    throw new Error("VK не подтвердил разрешение на сообщения");
+  }
 }
 
 export function openVkExternalLink(url: string) {

@@ -112,11 +112,6 @@ const timezoneOptions = [
   { value: "UTC", label: "UTC" },
 ];
 
-type VkMessagesEnableResult = {
-  user: AuthUser;
-  bridgeAllowed: boolean;
-};
-
 export default function ProfilePageLive() {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -134,31 +129,25 @@ export default function ProfilePageLive() {
 
   const updateVkMessagesMutation = useMutation({
     mutationFn: async () => {
-      let bridgeAllowed = true;
-
       try {
         await allowVkCommunityMessages();
       } catch (error) {
-        bridgeAllowed = false;
         trackEvent("vk_messages_bridge_failed", {
           message: error instanceof Error ? error.message : "unknown",
         });
+        throw new Error(
+          "VK не выдал разрешение на сообщения. Откройте сообщество SmartPet во VK, разрешите сообщения от сообщества и попробуйте снова.",
+        );
       }
 
-      const updatedUser = await updateVkMessages({ enabled: true });
-      return { user: updatedUser, bridgeAllowed } satisfies VkMessagesEnableResult;
+      return updateVkMessages({ enabled: true });
     },
-    onSuccess: async ({ user: updatedUser, bridgeAllowed }) => {
+    onSuccess: async (updatedUser) => {
       setUser(updatedUser);
       localStorage.setItem("current_user", JSON.stringify(updatedUser));
       await queryClient.invalidateQueries({ queryKey: ["current-user"] });
-      showToast(
-        bridgeAllowed
-          ? "Напоминания во VK подключены"
-          : "Сохранили подключение. Нажмите «Отправить тест VK», чтобы проверить iPhone.",
-        bridgeAllowed ? "success" : "info",
-      );
-      trackEvent("vk_messages_enabled", { bridge_allowed: bridgeAllowed });
+      showToast("Напоминания во VK подключены", "success");
+      trackEvent("vk_messages_enabled");
     },
     onError: (error) => {
       const message = getApiErrorMessage(error, "Не удалось подключить сообщения VK");
