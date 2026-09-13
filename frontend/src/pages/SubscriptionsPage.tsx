@@ -75,7 +75,6 @@ export default function SubscriptionsPage() {
   const navigate = useNavigate();
   const [selectedPlanId, setSelectedPlanId] = useState("premium");
   const didTrackScreenOpen = useRef(false);
-  const supportLabel = useMemo(() => getPlatformSupportLabel(), []);
   const userQuery = useQuery({
     queryKey: ["current-user"],
     queryFn: getCurrentUser,
@@ -86,6 +85,11 @@ export default function SubscriptionsPage() {
   const currentPlanLabel = getSubscriptionLabel(user);
   const currentDaysLeft = formatSubscriptionDaysLeft(user);
   const currentExpiryDate = formatSubscriptionExpiryDate(user);
+  const supportPlatform = user?.platform;
+  const supportLabel = useMemo(
+    () => getPlatformSupportLabel(supportPlatform),
+    [supportPlatform],
+  );
 
   const selectedPlan = useMemo(
     () => plans.find((plan) => plan.id === selectedPlanId) ?? plans[1],
@@ -219,7 +223,7 @@ export default function SubscriptionsPage() {
             className="P-Subscriptions__cta"
             onClick={() => {
               trackEvent("subscription_cta_clicked", { plan: selectedPlan.id });
-              openPlatformSupport(supportMessage);
+              openPlatformSupport(supportMessage, supportPlatform);
             }}
           >
             {`Оформить подписку ${selectedPlan.name}`}

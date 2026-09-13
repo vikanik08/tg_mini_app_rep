@@ -1,8 +1,18 @@
 import { detectRuntimePlatform, openPlatformExternalLink } from "@/shared/platform";
+import type { AuthPlatform, RuntimePlatform } from "@/shared/platform/types";
 
 const vkSupportHandle = "maiiamk";
+type SupportPlatform = AuthPlatform | RuntimePlatform;
 
-function readSupportUrl(platform: ReturnType<typeof detectRuntimePlatform>) {
+function resolveSupportPlatform(platform?: SupportPlatform) {
+  if (platform === "vk" || platform === "telegram") {
+    return platform;
+  }
+
+  return detectRuntimePlatform();
+}
+
+function readSupportUrl(platform: RuntimePlatform | "telegram" | "vk") {
   if (platform === "vk" && import.meta.env.VITE_SUPPORT_URL_VK) {
     return import.meta.env.VITE_SUPPORT_URL_VK;
   }
@@ -12,13 +22,13 @@ function readSupportUrl(platform: ReturnType<typeof detectRuntimePlatform>) {
   }
 
   if (platform === "vk") {
-    return `https://vk.ru/${vkSupportHandle}`;
+    return `https://vk.me/${vkSupportHandle}`;
   }
 
   return import.meta.env.VITE_SUPPORT_URL || "https://t.me/maiiamk";
 }
 
-function readSupportLabel(platform: ReturnType<typeof detectRuntimePlatform>) {
+function readSupportLabel(platform: RuntimePlatform | "telegram" | "vk") {
   if (platform === "vk" && import.meta.env.VITE_SUPPORT_LABEL_VK) {
     return import.meta.env.VITE_SUPPORT_LABEL_VK;
   }
@@ -28,20 +38,10 @@ function readSupportLabel(platform: ReturnType<typeof detectRuntimePlatform>) {
   }
 
   if (platform === "vk") {
-    return `vk.ru/${vkSupportHandle}`;
+    return `VK @${vkSupportHandle}`;
   }
 
   return import.meta.env.VITE_SUPPORT_LABEL || "@maiiamk";
-}
-
-function buildVkChatUrl(message?: string) {
-  const params = new URLSearchParams({ sel: vkSupportHandle });
-
-  if (message) {
-    params.set("msg", message);
-  }
-
-  return `https://vk.ru/im?${params.toString()}`;
 }
 
 function copySupportMessage(message?: string) {
@@ -52,20 +52,20 @@ function copySupportMessage(message?: string) {
   });
 }
 
-export function getPlatformSupportUrl() {
-  return readSupportUrl(detectRuntimePlatform());
+export function getPlatformSupportUrl(platform?: SupportPlatform) {
+  return readSupportUrl(resolveSupportPlatform(platform));
 }
 
-export function getPlatformSupportLabel() {
-  return readSupportLabel(detectRuntimePlatform());
+export function getPlatformSupportLabel(platform?: SupportPlatform) {
+  return readSupportLabel(resolveSupportPlatform(platform));
 }
 
-export function openPlatformSupport(message?: string) {
-  const platform = detectRuntimePlatform();
+export function openPlatformSupport(message?: string, platformOverride?: SupportPlatform) {
+  const platform = resolveSupportPlatform(platformOverride);
 
   if (platform === "vk") {
     copySupportMessage(message);
-    openPlatformExternalLink(buildVkChatUrl(message));
+    openPlatformExternalLink(getPlatformSupportUrl("vk"));
     return;
   }
 
