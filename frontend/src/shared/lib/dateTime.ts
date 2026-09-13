@@ -7,7 +7,7 @@ type DateTimeParts = {
 };
 
 function readCurrentUserTimezone() {
-  const fallback = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  const fallback = "Europe/Moscow";
   const raw = localStorage.getItem("current_user");
 
   if (!raw) return fallback;

@@ -39,7 +39,7 @@ def dev_login(
             first_name="Dev",
             last_name=None,
             username=f"dev_{telegram_id}",
-            timezone="UTC",
+            timezone="Europe/Moscow",
         )
         db.add(user)
         db.commit()

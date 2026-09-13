@@ -23,7 +23,7 @@ def run():
             telegram_id=999999999,
             first_name="Alexandra",
             username="test_user",
-            timezone="UTC",
+            timezone="Europe/Moscow",
         )
         db.add(user)
         db.commit()

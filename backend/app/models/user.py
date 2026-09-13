@@ -22,7 +22,7 @@ class User(Base):
     last_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     username: Mapped[str | None] = mapped_column(String(128), nullable=True)
 
-    timezone: Mapped[str] = mapped_column(String(64), default="UTC", nullable=False)
+    timezone: Mapped[str] = mapped_column(String(64), default="Europe/Moscow", nullable=False)
     subscription_plan: Mapped[str] = mapped_column(String(32), default="basic", nullable=False)
     subscription_expires_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),

@@ -15,9 +15,9 @@ from app.models.user import User
 
 def _safe_timezone(value: str | None) -> ZoneInfo:
     try:
-        return ZoneInfo(value or "UTC")
+        return ZoneInfo(value or "Europe/Moscow")
     except ZoneInfoNotFoundError:
-        return ZoneInfo("UTC")
+        return ZoneInfo("Europe/Moscow")
 
 
 def _format_local_time(value: datetime, timezone_name: str | None) -> str:

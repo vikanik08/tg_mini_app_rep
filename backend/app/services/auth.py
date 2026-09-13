@@ -51,7 +51,7 @@ def _get_or_create_platform_user(
             first_name=first_name,
             last_name=last_name,
             username=username,
-            timezone="UTC",
+            timezone="Europe/Moscow",
         )
         db.add(user)
     else:
