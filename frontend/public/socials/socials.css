@@ -1,0 +1,24 @@
+body { background: #f3eff7; }
+main { isolation: isolate; padding: max(28px, env(safe-area-inset-top)) 28px max(24px, env(safe-area-inset-bottom)); }
+main::before { content: ""; position: absolute; z-index: -1; inset: 154px 20px 28px; border-radius: 38px; background: #e8def4; box-shadow: inset 0 1px 2px #ffffff80, 0 18px 44px #75618e08; }
+header strong { font-size: 21px; font-weight: 600; }
+header span { color: #cfc2e3; }
+.profile { width: 108px; height: 108px; margin: 49px auto 14px; background: #e8def4; box-shadow: inset 0 1px 3px #ffffff60; }
+.profile img { width: 62px; height: 62px; object-fit: contain; }
+h1 { font-size: 25px; font-weight: 500; margin-bottom: 8px; }
+p { font-size: 14px; max-width: 250px; margin-bottom: 22px; color: #8b7d9e; }
+.links { gap: 14px; }
+.links a { min-width: 0; min-height: 122px; padding: 16px 7px; gap: 8px; border-radius: 18px; border: 1px solid #ffffffc9; background: #fcf9fd; box-shadow: 0 9px 19px #80679713, 0 2px 5px #80679709, inset 0 1px 0 #fff; transition: transform 220ms ease, box-shadow 220ms ease, background 220ms ease; animation: arrive 650ms both; font-size: 13px; }
+.links a:nth-child(2) { animation-delay: 60ms; }
+.links a:nth-child(3) { animation-delay: 120ms; }
+.links a:nth-child(4) { animation-delay: 180ms; }
+.links img { width: 42px; height: 42px; object-fit: contain; transition: transform 220ms ease; }
+.links small { font-size: 11px; line-height: 1.4; color: #796b88; }
+@media (hover: hover) { .links a:hover { transform: translateY(-3px); box-shadow: 0 13px 25px #80679721; } .links a:hover img { transform: scale(1.05); } }
+.links a:active { transform: scale(.97); background: #f4eef9; }
+.cat { height: 195px; margin-top: -14px; }
+footer { position: relative; font-size: 11px; color: #796b88; padding: 6px; }
+@keyframes arrive { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+@media (max-height: 740px) { .profile { width: 88px; height: 88px; margin-top: 30px; } main::before { top: 127px; } .links a { min-height: 108px; } .cat { height: 160px; } }
+@media (min-width: 600px) { main { margin: 20px auto; min-height: 820px; } }
+@media (prefers-reduced-motion: reduce) { .links a, .links img { animation: none; transition: none; } }
