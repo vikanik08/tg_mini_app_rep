@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#eee9f5">
+<title>SmartPet — всегда рядом</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eee9f5;color:#30294e;font-family:Arial,sans-serif;letter-spacing:0}main{position:relative;max-width:440px;min-height:100svh;margin:auto;padding: max(24px,env(safe-area-inset-top)) 24px 24px;overflow:hidden}header{display:flex;justify-content:space-between;align-items:center}header strong{font-size:24px}header span{color:#9a88c4;font-size:24px}.profile{width:76px;height:76px;margin:28px auto 16px;background:#e3dcf0;border-radius:50%;display:grid;place-items:center;color:#b3a6cb}.profile svg{width:44px;height:44px}h1{font-size:28px;text-align:center;margin:0 0 10px}p{text-align:center;font-size:15px;line-height:1.5;color:#766c8d;margin:0 auto 24px;max-width:290px}.links{display:grid;grid-template-columns:1fr 1fr;gap:12px;position:relative;z-index:2}a{min-height:112px;border:1px solid #fff;border-radius:8px;background:#fbf9fddd;box-shadow:0 6px 16px #51426c0b;text-decoration:none;color:inherit;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:9px;padding:14px 8px;font-size:14px;text-align:center}a:focus-visible,button:focus-visible{outline:3px solid #8262be;outline-offset:3px}a:hover{background:white}a b{font-size:28px;color:#297ed2}a small{font-size:12px;color:#817493}.cat{height:235px;position:relative;margin:-4px -5px 0;pointer-events:none}.cat img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:350px;max-width:100%;clip-path:ellipse(32% 21% at 52% 65%);margin-bottom:-30px}.cat video{width:100%;height:100%;object-fit:contain;position:absolute;inset:0}footer{text-align:center;color:#8c809f;font-size:12px;padding:12px}#intro{position:fixed;inset:0;background:#eee9f5;z-index:5}#intro[hidden]{display:none}#intro video{width:100%;height:100%;object-fit:cover}button{position:absolute;right:20px;top:24px;background:#fff;border:0;border-radius:8px;padding:12px;font:inherit;color:#30294e}@media(max-height:740px){.profile{margin-top:16px;width:60px;height:60px}.cat{height:185px}a{min-height:100px}p{margin-bottom:18px}}@media(min-width:600px){main{margin:24px auto;min-height:740px}}
+</style>
+<main>
+<header><strong>SmartPet</strong><span aria-hidden="true">✦</span></header>
+<div class="profile" aria-hidden="true"><svg viewBox="0 0 48 48" fill="currentColor"><circle cx="24" cy="15" r="9"/><path d="M6 42c0-20 36-20 36 0z"/></svg></div>
+<h1>Всегда рядом</h1>
+<p>Забота о питомце начинается с маленьких привычек.</p>
+<nav class="links" aria-label="Ссылки SmartPet">
+<a href="https://t.me/SmartPetHelper_bot?startapp" data-destination="telegram_app"><b aria-hidden="true">↗</b><span>Мини-апп Telegram</span><small>Напоминания и здоровье</small></a>
+<a href="https://vk.ru/app54599546" data-destination="vk_app"><b aria-hidden="true">VK</b><span>Мини-апп VK</span><small>Всё о вашем питомце</small></a>
+<a href="https://t.me/smartpet_info" data-destination="telegram_channel"><b aria-hidden="true">↗</b><span>Telegram-канал</span><small>Новости SmartPet</small></a>
+<a href="https://vk.ru/club239532031" data-destination="vk_community"><b aria-hidden="true">VK</b><span>Сообщество VK</span><small>Будем на связи</small></a>
+</nav>
+<div class="cat"><img src="/socials/placeholder.png" alt="Спящая кошка"><video id="idle" muted playsinline loop hidden></video></div>
+<footer>С любовью к вашим питомцам</footer>
+</main>
+<div id="intro" hidden><video muted playsinline></video><button type="button">Пропустить</button></div>
+<script>
+// Set these URLs when the two final video files are available.
+const media={intro:null,idle:null};
+window.ym=window.ym||function(){(window.ym.a=window.ym.a||[]).push(arguments)};window.ym.l=Date.now();
+const tag=document.createElement('script');tag.async=true;tag.src='https://mc.yandex.ru/metrika/tag.js?id=112520314';document.head.append(tag);
+ym(112520314,'init',{clickmap:true,trackLinks:true,accurateTrackBounce:true});
+document.querySelectorAll('[data-destination]').forEach(link=>link.addEventListener('click',()=>ym(112520314,'reachGoal','socials_link_clicked',{destination:link.dataset.destination})));
+const intro=document.querySelector('#intro'),introVideo=intro.querySelector('video'),idle=document.querySelector('#idle');
+let timer;function finish(){clearTimeout(timer);intro.hidden=true;introVideo.pause();}
+intro.querySelector('button').onclick=finish;introVideo.onended=finish;introVideo.onerror=finish;
+if(media.idle){idle.src=media.idle;idle.onplaying=()=>{idle.hidden=false;document.querySelector('.cat img').hidden=true};idle.onerror=()=>{idle.hidden=true;document.querySelector('.cat img').hidden=false};idle.play().catch(()=>{});}
+if(media.intro&&!matchMedia('(prefers-reduced-motion: reduce)').matches){introVideo.src=media.intro;intro.hidden=false;timer=setTimeout(finish,10000);introVideo.play().catch(finish);}
+</script>
+</html>

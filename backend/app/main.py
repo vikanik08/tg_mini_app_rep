@@ -89,6 +89,8 @@ if frontend_dist.exists():
 
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
+        if full_path.rstrip("/") == "socials":
+            return FileResponse(frontend_dist / "socials/index.html", headers=index_headers)
         requested_file = (frontend_dist / full_path).resolve()
         dist_root = frontend_dist.resolve()
 
