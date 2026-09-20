@@ -22,3 +22,21 @@ footer { position: relative; font-size: 11px; color: #796b88; padding: 6px; }
 @media (max-height: 740px) { .profile { width: 88px; height: 88px; margin-top: 30px; } main::before { top: 127px; } .links a { min-height: 108px; } .cat { height: 160px; } }
 @media (min-width: 600px) { main { margin: 20px auto; min-height: 820px; } }
 @media (prefers-reduced-motion: reduce) { .links a, .links img { animation: none; transition: none; } }
+
+/* Compact profile-style layout for the public links page. */
+body { background: #ece2fb; }
+main { padding: max(22px, env(safe-area-inset-top)) 28px max(36px, env(safe-area-inset-bottom)); }
+main::before { inset: 54px 16px 24px; border: 1px solid #ffffffb8; border-radius: 30px; background: #f8f5fddd; box-shadow: 0 12px 32px #b899e733, inset 0 1px 3px #fff; }
+header { position: absolute; top: 75px; right: 32px; }
+header strong { display: none; }
+header span { color: #ded0f2; }
+.profile { width: 72px; height: 72px; margin: 0 auto 20px; background: #f8f5fd; border: 1px solid #ffffffb8; box-shadow: 0 5px 15px #b899e71a, inset 0 1px 3px #fff; }
+.profile img { width: 40px; height: 40px; }
+h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+p { font-size: 15px; max-width: 270px; margin-bottom: 30px; color: #827098; }
+.links { gap: 18px; max-width: 282px; margin: auto; }
+.links a { aspect-ratio: 1; min-height: 0; padding: 10px 5px; font-size: 12px; font-weight: 600; box-shadow: 0 8px 23px #ba9bec38, inset 0 1px 2px #fff; }
+.links img { width: 68px; height: 68px; }
+.links small { display: none; }
+.cat { height: 220px; margin-top: 0; }
+@media (max-height: 740px) { .cat { height: 160px; } }
