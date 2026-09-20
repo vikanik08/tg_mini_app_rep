@@ -18,6 +18,7 @@ p { font-size: 14px; max-width: 250px; margin-bottom: 22px; color: #8b7d9e; }
 .links a:active { transform: scale(.97); background: #f4eef9; }
 .cat { height: 195px; margin-top: -14px; }
 footer { position: relative; font-size: 11px; color: #796b88; padding: 6px; }
+.footer-brand { display: block; margin-bottom: 7px; font-size: 24px; line-height: 1.2; font-weight: 700; color: #30294e; }
 @keyframes arrive { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
 @media (max-height: 740px) { .profile { width: 88px; height: 88px; margin-top: 30px; } main::before { top: 127px; } .links a { min-height: 108px; } .cat { height: 160px; } }
 @media (min-width: 600px) { main { margin: 20px auto; min-height: 820px; } }
