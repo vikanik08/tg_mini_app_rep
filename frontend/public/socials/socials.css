@@ -33,6 +33,7 @@ header strong { display: none; }
 header span { color: #ded0f2; }
 .profile { width: 72px; height: 72px; margin: 0 auto 20px; background: #f8f5fd; border: 1px solid #ffffffb8; box-shadow: 0 5px 15px #b899e71a, inset 0 1px 3px #fff; }
 .profile img { width: 40px; height: 40px; }
+.profile-icon { display: block; width: 40px; height: 40px; background-color: var(--profile-icon-color, #b9a6d2); -webkit-mask: url('/socials/person-icon.svg') center / contain no-repeat; mask: url('/socials/person-icon.svg') center / contain no-repeat; }
 h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
 p { font-size: 15px; max-width: 270px; margin-bottom: 30px; color: #827098; }
 .links { gap: 18px; max-width: 282px; margin: auto; }
@@ -40,4 +41,10 @@ p { font-size: 15px; max-width: 270px; margin-bottom: 30px; color: #827098; }
 .links img { width: 68px; height: 68px; }
 .links small { display: none; }
 .cat { height: 220px; margin-top: 0; }
+.cat img { inset: 0; width: 100%; height: 100%; max-width: 100%; object-fit: contain; transform: none; clip-path: none; margin: 0; }
+.links a { position: relative; isolation: isolate; -webkit-tap-highlight-color: transparent; }
+.links a::before { content: ""; position: absolute; inset: -12px; z-index: -1; border-radius: 30px; background: #bca9ec; filter: blur(15px); opacity: 0; pointer-events: none; transition: opacity 220ms ease; }
+.links a:active { background: #faf7ff; box-shadow: 0 0 16px #cab8ee66, 0 8px 24px #afa4db44, inset 0 1px 3px #fff; }
+.links a:active::before { opacity: .45; }
+@media (prefers-reduced-motion: reduce) { .links a::before { transition: none; } }
 @media (max-height: 740px) { .cat { height: 160px; } }
