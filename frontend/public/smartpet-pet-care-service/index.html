@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <base href="/smartpet-pet-care-service/" />
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
+    <title>СмартПет — сервис по уходу за питомцами</title>
+
+    <meta name="title" content="SmartPet — сервис по уходу за питомцами" />
+
+    <meta
+      name="description"
+      content="SmartPet помогает следить за здоровьем питомца: календарь ухода, дневник здоровья, напоминания о прививках и визитах к ветеринару. Всё в одном сервисе."
+    />
+
+    <meta
+      name="keywords"
+      content="здоровье питомца, уход за питомцем, календарь прививок, ветеринарный дневник, здоровье кошки, здоровье собаки, сервис для владельцев животных, SmartPet"
+    />
+
+    <meta name="robots" content="index, follow" />
+
+    <meta name="author" content="SmartPet" />
+
+    <meta name="theme-color" content="#8f7bc5" />
+
+    <link rel="canonical" href="./" />
+
+    <!-- Open Graph / Facebook -->
+
+    <meta property="og:type" content="website" />
+
+    <meta property="og:url" content="./" />
+
+    <meta
+      property="og:title"
+      content="СмартПет — сервис по уходу за питомцами"
+    />
+
+    <meta
+      property="og:description"
+      content="Следите за здоровьем питомца системно: календарь ухода, ветеринарный паспорт, дневник наблюдений и умные напоминания."
+    />
+
+    <meta property="og:image" content="./img/meta-img/main-page.jpg" />
+
+    <meta property="og:site_name" content="SmartPet" />
+
+    <meta property="og:locale" content="ru_RU" />
+
+    <!-- Twitter -->
+
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta
+      name="twitter:title"
+      content="SmartPet — сервис мониторинга здоровья питомца"
+    />
+
+    <meta
+      name="twitter:description"
+      content="Календарь ухода, дневник здоровья и напоминания о прививках — всё для заботы о питомце."
+    />
+
+    <meta name="twitter:image" content="./img/meta-img/main-page.jpg" />
+
+    <!-- Structured Data -->
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "SmartPet",
+        "url": "./",
+        "description": "Сервис мониторинга здоровья питомца: календарь ухода, ветеринарный паспорт, дневник наблюдений и напоминания.",
+        "inLanguage": "ru"
+      }
+    </script>
+
+    <!-- Fonts -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons -->
+
+    <link rel="icon" href="./img/brand.svg" type="image/svg+xml" />
+
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./img/meta-img/favicon.png"
+    />
+
+    <!-- CSS -->
+
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./brand.css" />
+  </head>
+  <body class="page">
+    <site-header></site-header>
+
+    <main class="page__content">
+      <section class="hero page__section" id="hero">
+        <div class="page__container hero__container">
+          <div class="hero__content">
+            <div class="hero__text-block">
+              <h1 class="hero__title">
+                <span class="hero__title-line">ЗАБОТА,</span>
+                <span class="hero__title-line">КОТОРУЮ</span>
+                <span class="hero__title-line hero__title-line--accent"
+                  >ЗАСЛУЖИВАЕТ</span
+                >
+                <span class="hero__title-line hero__title-line--accent"
+                  >ВАШ ПИТОМЕЦ</span
+                >
+              </h1>
+              <div class="hero__info">
+                <p class="hero__description">
+                  СмартПет помогает следить за здоровьем питомца системно:
+                  хранить важные данные, планировать уход и вовремя замечать
+                  изменения.
+                </p>
+
+                <div class="hero__actions">
+                  <a class="button button--primary hero__button" href="#cta">
+                    Начать дневник питомца
+                  </a>
+                  <a
+                    class="button button--secondary hero__button"
+                    href="#features"
+                  >
+                    Смотреть возможности
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero__visual">
+              <div class="hero__card hero__card--cat">
+                <div class="hero__emoji">🐱</div>
+              </div>
+              <div class="hero__card hero__card--dog">
+                <div class="hero__emoji">🐶</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="importance page__section" id="importance">
+        <div class="page__container importance__container">
+          <div class="section-head section-head--center">
+            <div class="section-head__badge-wrap">
+              <span class="section-head__badge-line"></span>
+              <span class="section-head__badge-number">02</span>
+              <span class="section-head__badge-line"></span>
+            </div>
+
+            <h2 class="section-head__title section-head__title--big">
+              Почему это важно
+            </h2>
+
+            <p class="section-head__text">
+              Здоровье питомца зависит от регулярного ухода и внимательности
+              владельца.
+            </p>
+            <p class="section-head__subtext">Но на практике владельцы часто:</p>
+          </div>
+
+          <div class="importance__list">
+            <article class="importance-card">
+              <div class="importance-card__icon">!</div>
+              <p class="importance-card__text">
+                забывают о прививках и обработках
+              </p>
+            </article>
+
+            <article class="importance-card">
+              <div class="importance-card__icon">!</div>
+              <p class="importance-card__text">
+                не отслеживают изменения в поведении питомца
+              </p>
+            </article>
+
+            <article class="importance-card">
+              <div class="importance-card__icon">!</div>
+              <p class="importance-card__text">не ведут историю здоровья</p>
+            </article>
+
+            <article class="importance-card">
+              <div class="importance-card__icon">!</div>
+              <p class="importance-card__text">
+                не могут точно рассказать ветеринару, что происходило с животным
+              </p>
+            </article>
+          </div>
+
+          <div class="importance__result">
+            <p class="importance__result-text">
+              В результате многие симптомы остаются незамеченными.
+            </p>
+            <p class="importance__result-strong">
+              СмартПет помогает системно следить за здоровьем питомца.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="about page__section" id="about">
+        <div class="page__container about__container">
+          <div class="section-head section-head--center">
+            <div class="section-head__badge-wrap">
+              <span class="section-head__badge-line"></span>
+              <span class="section-head__badge-number">03</span>
+              <span class="section-head__badge-line"></span>
+            </div>
+
+            <h2 class="section-head__title section-head__title--big">
+              Что такое<br />
+              СмартПет
+            </h2>
+
+            <p class="section-head__text">
+              СмартПет — это сервис мониторинга здоровья питомца.
+            </p>
+            <p class="section-head__subtext">
+              Он объединяет всё важное в одном месте:
+            </p>
+          </div>
+
+          <div class="about__features">
+            <article class="about-feature">
+              <div class="about-feature__icon">🗓️</div>
+              <h3 class="about-feature__title">календарь ухода</h3>
+            </article>
+
+            <article class="about-feature">
+              <div class="about-feature__icon">📄</div>
+              <h3 class="about-feature__title">онлайн ветпаспорт</h3>
+            </article>
+
+            <article class="about-feature">
+              <div class="about-feature__icon">📖</div>
+              <h3 class="about-feature__title">дневник здоровья</h3>
+            </article>
+
+            <article class="about-feature">
+              <div class="about-feature__icon">🔔</div>
+              <h3 class="about-feature__title">напоминания</h3>
+            </article>
+
+            <article class="about-feature">
+              <div class="about-feature__icon">🩺</div>
+              <h3 class="about-feature__title">данные для ветеринара</h3>
+            </article>
+          </div>
+
+          <p class="about__bottom-text">
+            Сервис помогает заботиться о питомце регулярно и ничего не забывать.
+          </p>
+        </div>
+      </section>
+
+      <section class="features page__section" id="features">
+        <div class="page__container features__container">
+          <div class="section-head section-head--left">
+            <div
+              class="section-head__badge-wrap section-head__badge-wrap--left"
+            >
+              <span class="section-head__badge-line"></span>
+              <span class="section-head__badge-number">04</span>
+            </div>
+            <h2 class="section-head__title section-head__title--big">
+              Наши возможности
+            </h2>
+          </div>
+
+          <div class="features__list">
+            <article class="feature-card">
+              <div class="feature-card__icon">🗓️</div>
+              <h3 class="feature-card__title">Календарь ухода</h3>
+              <p class="feature-card__text">
+                Планируйте прививки, обработки, визиты к ветеринару.
+              </p>
+              <span class="feature-card__line"></span>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-card__icon">📋</div>
+              <h3 class="feature-card__title">Онлайн ветпаспорт</h3>
+              <p class="feature-card__text">
+                Храните всю медицинскую информацию о питомце.
+              </p>
+              <span class="feature-card__line"></span>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-card__icon">💚</div>
+              <h3 class="feature-card__title">Дневник здоровья</h3>
+              <p class="feature-card__text">
+                Фиксируйте изменения в состоянии и поведении.
+              </p>
+              <span class="feature-card__line"></span>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-card__icon">🔔</div>
+              <h3 class="feature-card__title">Умные напоминания</h3>
+              <p class="feature-card__text">
+                СмартПет напомнит о важных событиях.
+              </p>
+              <span class="feature-card__line"></span>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-card__icon">🧑‍⚕️</div>
+              <h3 class="feature-card__title">Отчёт для врача</h3>
+              <p class="feature-card__text">
+                Показывайте историю ветеринару быстро и удобно.
+              </p>
+              <span class="feature-card__line"></span>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-card__icon">✓</div>
+              <h3 class="feature-card__title">Контроль состояния</h3>
+              <p class="feature-card__text">Ежемесячный чек-лист наблюдения.</p>
+              <span class="feature-card__line"></span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="steps page__section" id="steps">
+        <div class="page__container steps__container">
+          <div class="section-head section-head--center">
+            <div class="section-head__badge-wrap">
+              <span class="section-head__badge-line"></span>
+              <span class="section-head__badge-number">05</span>
+              <span class="section-head__badge-line"></span>
+            </div>
+            <h2 class="section-head__title section-head__title--big">
+              Как это работает?
+            </h2>
+          </div>
+
+          <div class="step step--reverse">
+            <div class="step__content">
+              <div class="step__number">1</div>
+              <h3 class="step__title">Добавьте питомца</h3>
+              <p class="step__text">
+                Заполните профиль: имя, дата рождения, порода, особенности
+                здоровья.
+              </p>
+            </div>
+
+            <div class="step__visual">
+              <div class="step__screen step__screen--soft">
+                <span class="step__emoji">🐕</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__visual">
+              <div class="step__panel">
+                <div class="step__panel-row">
+                  <span class="step__panel-name">Прививка</span>
+                  <span class="step__panel-date">15 мая</span>
+                </div>
+                <div class="step__panel-row">
+                  <span class="step__panel-name">Обработка</span>
+                  <span class="step__panel-date">22 мая</span>
+                </div>
+                <div class="step__panel-row">
+                  <span class="step__panel-name">Ветеринар</span>
+                  <span class="step__panel-date">30 мая</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="step__content">
+              <div class="step__number step__number--primary">2</div>
+              <h3 class="step__title">Планируйте уход</h3>
+              <p class="step__text">
+                Добавляйте события: прививки, обработки, визиты к врачу.
+                СмартПет напомнит о них.
+              </p>
+            </div>
+          </div>
+
+          <div class="step step--reverse">
+            <div class="step__content">
+              <div class="step__number">3</div>
+              <h3 class="step__title">Следите за здоровьем</h3>
+              <p class="step__text">
+                Ведите дневник наблюдений и показывайте историю ветеринару.
+              </p>
+            </div>
+
+            <div class="step__visual">
+              <div class="step__graph-card">
+                <div class="progress">
+                  <div class="progress__head">
+                    <span class="progress__name">Аппетит</span>
+                    <span class="progress__value">90%</span>
+                  </div>
+                  <div class="progress__track">
+                    <span class="progress__bar progress__bar--first"></span>
+                  </div>
+                </div>
+
+                <div class="progress">
+                  <div class="progress__head">
+                    <span class="progress__name">Активность</span>
+                    <span class="progress__value">75%</span>
+                  </div>
+                  <div class="progress__track">
+                    <span class="progress__bar progress__bar--second"></span>
+                  </div>
+                </div>
+
+                <div class="progress">
+                  <div class="progress__head">
+                    <span class="progress__name">Настроение</span>
+                    <span class="progress__value">95%</span>
+                  </div>
+                  <div class="progress__track">
+                    <span class="progress__bar progress__bar--third"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="state-box">
+            <h3 class="state-box__title">Контроль состояния питомца</h3>
+            <p class="state-box__text">
+              Раз в месяц сервис предлагает пройти короткий чек-лист наблюдения.
+            </p>
+
+            <div class="state-box__grid">
+              <div class="state-box__item">✓ сколько раз питомец ел</div>
+              <div class="state-box__item">✓ сколько раз ходил в туалет</div>
+              <div class="state-box__item">✓ уровень активности</div>
+              <div class="state-box__item">✓ изменения в поведении</div>
+            </div>
+
+            <p class="state-box__bottom">
+              На основе этих данных формируется статистика.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="care page__section" id="care">
+        <div class="page__container care__container">
+          <div class="section-head section-head--left">
+            <div
+              class="section-head__badge-wrap section-head__badge-wrap--left"
+            >
+              <span class="section-head__badge-line"></span>
+              <span class="section-head__badge-number">06</span>
+            </div>
+            <h2 class="section-head__title section-head__title--big">
+              Забота, которую<br />
+              заслуживает<br />
+              ваш <span class="section-head__title-accent">питомец!</span>
+            </h2>
+          </div>
+
+          <div class="care__cards">
+            <article class="care-card">
+              <div class="care-card__icon">🏥</div>
+              <h3 class="care-card__title">Медицинский подход</h3>
+              <p class="care-card__text">
+                Разработан с учетом реальных потребностей ветеринарной практики.
+              </p>
+            </article>
+
+            <article class="care-card">
+              <div class="care-card__icon">📊</div>
+              <h3 class="care-card__title">Системный контроль</h3>
+              <p class="care-card__text">
+                Вся история ухода и состояния питомца в одном месте.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="audience page__section" id="audience">
+        <div class="page__container audience__container">
+          <div class="section-head section-head--center">
+            <div class="section-head__badge-wrap">
+              <span class="section-head__badge-line"></span>
+              <span class="section-head__badge-number">07</span>
+              <span class="section-head__badge-line"></span>
+            </div>
+
+            <h2 class="section-head__title section-head__title--big">
+              Для кого подходит СмартПет
+            </h2>
+
+            <p class="section-head__text">
+              Сервис создан для владельцев животных, которые хотят заботиться о
+              здоровье питомца.
+            </p>
+          </div>
+          <div class="audience__list">
+            <div class="audience__item">
+              <span class="audience__icon">♡</span>
+              <p class="audience__text">новых владельцев кошек и собак</p>
+            </div>
+
+            <div class="audience__item">
+              <span class="audience__icon">♡</span>
+              <p class="audience__text">владельцев нескольких питомцев</p>
+            </div>
+
+            <div class="audience__item">
+              <span class="audience__icon">♡</span>
+              <p class="audience__text">
+                людей, которые регулярно посещают ветеринара
+              </p>
+            </div>
+
+            <div class="audience__item">
+              <span class="audience__icon">♡</span>
+              <p class="audience__text">
+                тех, кто хочет системно следить за здоровьем животного
+              </p>
+            </div>
+          </div>
+
+          <div class="audience__note">
+            Цель сервиса — помочь питомцам жить долгой и счастливой жизнью.
+          </div>
+        </div>
+      </section>
+
+      <section class="benefits page__section" id="benefits">
+        <div class="page__container benefits__container">
+          <div class="section-head section-head--center">
+            <div class="section-head__badge-wrap">
+              <span class="section-head__badge-line"></span>
+              <span class="section-head__badge-number">08</span>
+              <span class="section-head__badge-line"></span>
+            </div>
+
+            <h2 class="section-head__title section-head__title--big">
+              Почему пользователи выбирают СмартПет
+            </h2>
+          </div>
+
+          <div class="benefits__list">
+            <article class="benefit-card">
+              <div class="benefit-card__icon benefit-card__icon--violet">♥</div>
+              <h3 class="benefit-card__title">Медицинский подход</h3>
+              <p class="benefit-card__text">
+                Сервис разработан с учетом реальных потребностей ветеринарной
+                практики.
+              </p>
+            </article>
+
+            <article class="benefit-card">
+              <div class="benefit-card__icon benefit-card__icon--pink">♥</div>
+              <h3 class="benefit-card__title benefit-card__title--accent">
+                Системный контроль здоровья
+              </h3>
+              <p class="benefit-card__text">
+                Вы видите историю ухода и состояния питомца.
+              </p>
+            </article>
+
+            <article class="benefit-card">
+              <div class="benefit-card__icon benefit-card__icon--violet">♥</div>
+              <h3 class="benefit-card__title">Всё в одном месте</h3>
+              <p class="benefit-card__text">
+                Не нужно хранить данные в разных приложениях.
+              </p>
+            </article>
+
+            <article class="benefit-card">
+              <div class="benefit-card__icon benefit-card__icon--pink">♥</div>
+              <h3 class="benefit-card__title benefit-card__title--accent">
+                Работает в Telegram
+              </h3>
+              <p class="benefit-card__text">
+                Быстрый доступ без установки отдельных приложений.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="telegram page__section" id="telegram">
+        <div class="page__container telegram__container">
+          <div class="telegram__box">
+            <h2 class="telegram__title">Всё в Telegram</h2>
+            <p class="telegram__text">
+              Не нужно устанавливать отдельное приложение
+            </p>
+
+            <div class="telegram__chips">
+              <a
+                class="telegram__chip"
+                href="#"
+                aria-label="Mini App"
+                data-label="Мини Апп"
+                >📱 Mini App</a
+              >
+              <a
+                class="telegram__chip"
+                href="http://t.me/SmartPetHelper_bot"
+                aria-label="Telegram Bot"
+                data-label="Телеграм бот"
+                >🤖 Telegram Bot</a
+              >
+              <a
+                class="telegram__chip"
+                href="http://t.me/smartpet_info"
+                aria-label="Telegram Канал"
+                data-label="Телеграм канал"
+                >📣 Telegram Канал</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="faq page__section" id="faq">
+        <div class="page__container faq__container">
+          <div class="section-head section-head--left">
+            <h2 class="section-head__title section-head__title--big">
+              Есть вопросы?
+            </h2>
+          </div>
+
+          <div class="faq__list">
+            <article class="faq-item is-open">
+              <button class="faq-item__button" type="button">
+                <span class="faq-item__question"
+                  >Зачем вести дневник здоровья питомца?</span
+                >
+                <span class="faq-item__icon">⌄</span>
+              </button>
+              <div class="faq-item__content">
+                <p class="faq-item__answer">
+                  Чтобы замечать изменения в состоянии, фиксировать симптомы,
+                  аппетит, активность и быстро показывать историю ветеринару.
+                </p>
+              </div>
+            </article>
+
+            <article class="faq-item">
+              <button class="faq-item__button" type="button">
+                <span class="faq-item__question"
+                  >Можно ли использовать сервис для нескольких питомцев?</span
+                >
+                <span class="faq-item__icon">⌄</span>
+              </button>
+              <div class="faq-item__content">
+                <p class="faq-item__answer">
+                  Да. Можно вести несколько профилей и хранить отдельную историю
+                  ухода и наблюдений для каждого питомца.
+                </p>
+              </div>
+            </article>
+
+            <article class="faq-item">
+              <button class="faq-item__button" type="button">
+                <span class="faq-item__question"
+                  >Подходит ли сервис для кошек и собак?</span
+                >
+                <span class="faq-item__icon">⌄</span>
+              </button>
+              <div class="faq-item__content">
+                <p class="faq-item__answer">
+                  Да. Сервис ориентирован на владельцев кошек и собак.
+                </p>
+              </div>
+            </article>
+
+            <article class="faq-item">
+              <button class="faq-item__button" type="button">
+                <span class="faq-item__question">Это бесплатно?</span>
+                <span class="faq-item__icon">⌄</span>
+              </button>
+              <div class="faq-item__content">
+                <p class="faq-item__answer">
+                  Блок легко редактируется. Здесь можно поставить актуальные
+                  условия запуска.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta page__section" id="cta">
+        <div class="page__container cta__container">
+          <div class="cta__icon-wrap">
+            <span class="cta__icon">♥</span>
+          </div>
+
+          <h2 class="cta__title">
+            Начните
+            <span class="cta__accent">заботиться</span> <br />
+            уже сегодня!
+          </h2>
+
+          <p class="cta__text">
+            Добавьте питомца и начните вести историю его здоровья
+          </p>
+
+          <a class="button button--primary cta__button" href="#">
+            → Открыть СмартПет
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <site-footer></site-footer>
+
+    <script>
+      window.__YANDEX_METRIKA_COUNTER_ID__ = 12345678;
+    </script>
+
+    <script src="./script.js"></script>
+    <script src="./analytics.js"></script>
+  </body>
+</html>

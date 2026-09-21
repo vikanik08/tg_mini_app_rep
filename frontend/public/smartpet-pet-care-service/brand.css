@@ -1,0 +1,23 @@
+:root {
+  --color-bg: #eadef7;
+  --color-bg-soft: #eadef7;
+  --color-surface: #fcf7fb;
+  --color-surface-soft: #fcf7fb;
+  --color-primary: #d9bef6;
+  --color-primary-dark: #291f3a;
+  --color-primary-soft: #d9bef6;
+  --color-accent: #9661e0;
+  --color-accent-soft: #eadef7;
+  --color-text: #291f3a;
+  --color-text-soft: #6f6b7f;
+  --color-shadow: rgba(41, 31, 58, .08);
+}
+.page { background: var(--color-bg); }
+.header__logo, .footer__logo { display: flex; align-items: center; gap: 12px; }
+.brand-logo { width: 48px; height: 48px; flex: 0 0 48px; object-fit: contain; }
+.button--primary { background: var(--color-primary); color: var(--color-text); }
+.footer { background: var(--color-surface); color: var(--color-text); }
+.footer__description, .footer__link, .footer__bottom { color: var(--color-text-soft); }
+.footer__line { background: var(--color-primary); }
+.header__logo-text, .footer__logo { color: var(--color-text); }
+.button--primary:hover { background: #cba6ef; color: var(--color-text); }

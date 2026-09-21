@@ -19,6 +19,9 @@ class SpaHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self) -> None:
         requested_path = self.path.split("?", 1)[0]
+        if requested_path.rstrip("/") == "/smartpet-pet-care-service":
+            self.path = "/smartpet-pet-care-service/index.html"
+            return super().do_GET()
         if requested_path in ("/socials", "/socials/"):
             self.path = "/socials/index.html"
             return super().do_GET()
