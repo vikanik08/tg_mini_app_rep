@@ -16,9 +16,10 @@ class SiteHeader extends HTMLElement {
           </nav>
 
           <div class="header__socials" aria-label="Ссылки">
-            <a class="header__social" href="#" aria-label="Mini App" data-label="Мини Апп">📱</a>
-            <a class="header__social" href="#" aria-label="Bot" data-label="Телеграм бот">🤖</a>
-            <a class="header__social" href="#" aria-label="Канал" data-label="Телеграм канал">📣</a>
+            <a class="header__social" href="https://t.me/SmartPetHelper_bot?startapp" aria-label="Мини-апп Telegram" data-label="Мини-апп Telegram">TG</a>
+            <a class="header__social" href="https://vk.ru/app54599546" aria-label="Мини-апп VK" data-label="Мини-апп VK">VK</a>
+            <a class="header__social" href="https://t.me/smartpet_info" aria-label="Telegram-канал" data-label="Telegram-канал">↗</a>
+            <a class="header__social" href="https://vk.ru/club239532031" aria-label="Сообщество VK" data-label="Сообщество VK">VK</a>
           </div>
         </div>
       </header>
