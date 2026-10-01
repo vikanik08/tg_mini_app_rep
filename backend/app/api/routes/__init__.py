@@ -12,6 +12,7 @@ from app.api.routes.import_data import router as import_data_router
 from app.api.routes.promos import router as promos_router
 from app.api.routes.telegram import router as telegram_router
 from app.api.routes.pet_transfers import router as pet_transfers_router
+from app.api.routes.account_copies import router as account_copies_router
 
 def get_routers():
     return [
@@ -25,6 +26,7 @@ def get_routers():
         users_router,
         promos_router,
         pet_transfers_router,
+        account_copies_router,
         telegram_router,
         admin_router,
         import_data_router,
