@@ -31,14 +31,6 @@ function normalizePrefixedToken(value: string, prefix: string) {
   return value.startsWith(prefix) ? value.slice(prefix.length) : value;
 }
 
-function normalizeTransferToken(value: string) {
-  return normalizePrefixedToken(value, transferPrefix);
-}
-
-function normalizeAccountCopyToken(value: string) {
-  return normalizePrefixedToken(value, accountCopyPrefix);
-}
-
 function normalizeHashValue(value: string) {
   return value.replace(/^#/, "");
 }
