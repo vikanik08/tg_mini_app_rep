@@ -668,6 +668,16 @@ export default function ProfilePageLive() {
             >
               Открыть календарь
             </Link>
+            <Link
+              className="P-ProfilePageLive__actionButton P-ProfilePageLive__actionButton--ghost"
+              to="/account-copy"
+              onClick={() => {
+                trackButtonClick("profile_account_copy");
+                trackFeatureUse("account_copy", "open", { source: "profile_actions" });
+              }}
+            >
+              Скопировать данные между VK и Telegram
+            </Link>
             <button
               type="button"
               className="P-ProfilePageLive__actionButton P-ProfilePageLive__actionButton--ghost"
