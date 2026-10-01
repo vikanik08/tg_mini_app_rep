@@ -8,12 +8,16 @@ import { bootstrapAuth } from "./shared/auth/bootstrap";
 import { detectRuntimePlatform, getPlatformDisplayName, initPlatform } from "./shared/platform";
 import { AppProviders } from "./app/providers";
 import {
+  buildTelegramAccountCopyLink,
   buildTelegramPromoLink,
   buildTelegramTransferLink,
+  buildVkAccountCopyLink,
   buildVkPromoLink,
   buildVkTransferLink,
+  consumeLaunchAccountCopyToken,
   consumeLaunchTransferToken,
   getLaunchPromoCode,
+  rememberLaunchAccountCopyToken,
   rememberLaunchTransferToken,
 } from "./shared/promo/promo";
 
@@ -345,6 +349,86 @@ function renderTransferOpenOptions(token: string) {
   );
 }
 
+function renderAccountCopyOpenOptions(token: string) {
+  const telegramLink = buildTelegramAccountCopyLink(token);
+  const vkLink = buildVkAccountCopyLink(token);
+
+  trackPageView("/account-copy-open-options", {
+    screen: "account_copy_open_options",
+    source: "browser",
+  });
+
+  root.render(
+    <StrictMode>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "grid",
+          placeItems: "center",
+          padding: "24px",
+          background: "var(--color-bg)",
+          color: "var(--color-text)",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "430px",
+            background: "var(--color-white)",
+            borderRadius: "24px",
+            padding: "24px",
+            boxShadow: "var(--shadow-soft)",
+            display: "grid",
+            gap: "14px",
+          }}
+        >
+          <div style={{ font: "var(--font-24)" }}>Копирование данных</div>
+          <div style={{ font: "var(--font-14)", color: "var(--color-grey-text)" }}>
+            Откройте ссылку в мини-приложении другой платформы. Например, если
+            ссылка создана во VK, откройте её в Telegram. Исходные данные не
+            удалятся.
+          </div>
+          <a
+            href={telegramLink}
+            style={{
+              minHeight: "44px",
+              borderRadius: "999px",
+              background: "var(--color-purple)",
+              color: "var(--color-text)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textDecoration: "none",
+              font: "var(--font-16)",
+            }}
+          >
+            Открыть в Telegram
+          </a>
+          <a
+            href={vkLink}
+            style={{
+              minHeight: "44px",
+              borderRadius: "999px",
+              border: "1px solid rgba(41, 31, 58, 0.14)",
+              color: "var(--color-text)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textDecoration: "none",
+              font: "var(--font-16)",
+            }}
+          >
+            Открыть во VK
+          </a>
+          <div style={{ font: "var(--font-12)", color: "var(--color-grey-text)" }}>
+            Ссылка одноразовая. Копирование доступно на любом тарифе.
+          </div>
+        </div>
+      </div>
+    </StrictMode>,
+  );
+}
+
 async function startApp() {
   initAnalytics();
   trackPageView(`${window.location.pathname}${window.location.search}${window.location.hash}`, {
@@ -353,6 +437,13 @@ async function startApp() {
   });
 
   const runtimePlatform = detectRuntimePlatform();
+  const launchAccountCopyToken = rememberLaunchAccountCopyToken();
+
+  if (runtimePlatform === "browser" && launchAccountCopyToken) {
+    renderAccountCopyOpenOptions(launchAccountCopyToken);
+    return;
+  }
+
   const launchTransferToken = rememberLaunchTransferToken();
 
   if (runtimePlatform === "browser" && launchTransferToken) {
@@ -368,6 +459,17 @@ async function startApp() {
 
   await initPlatform();
   await bootstrapAuth();
+  const accountCopyToken = consumeLaunchAccountCopyToken();
+  if (
+    accountCopyToken
+    && window.location.pathname !== `/account-copy/${accountCopyToken}`
+  ) {
+    window.history.replaceState(
+      null,
+      "",
+      `/account-copy/${encodeURIComponent(accountCopyToken)}`,
+    );
+  }
   const transferToken = consumeLaunchTransferToken();
   if (transferToken && window.location.pathname !== `/transfer/${transferToken}`) {
     window.history.replaceState(null, "", `/transfer/${encodeURIComponent(transferToken)}`);
