@@ -16,10 +16,18 @@ class SiteHeader extends HTMLElement {
           </nav>
 
           <div class="header__socials" aria-label="Ссылки">
-            <a class="header__social" href="https://t.me/SmartPetHelper_bot?startapp" aria-label="Мини-апп Telegram" data-label="Мини-апп Telegram">TG</a>
-            <a class="header__social" href="https://vk.ru/app54599546" aria-label="Мини-апп VK" data-label="Мини-апп VK">VK</a>
-            <a class="header__social" href="https://t.me/smartpet_info" aria-label="Telegram-канал" data-label="Telegram-канал">↗</a>
-            <a class="header__social" href="https://vk.ru/club239532031" aria-label="Сообщество VK" data-label="Сообщество VK">VK</a>
+            <a class="header__social" href="https://t.me/SmartPetHelper_bot?startapp" aria-label="Мини-апп Telegram" data-label="Мини-апп Telegram">
+              <img src="/socials/miniapp-tg.png" alt="">
+            </a>
+            <a class="header__social" href="https://vk.ru/app54599546" aria-label="Мини-апп VK" data-label="Мини-апп VK">
+              <img src="/socials/miniapp-vk.png" alt="">
+            </a>
+            <a class="header__social" href="https://t.me/smartpet_info" aria-label="Telegram-канал" data-label="Telegram-канал">
+              <img src="/socials/telegram-icon.png?v=20260921-2" alt="">
+            </a>
+            <a class="header__social" href="https://vk.ru/club239532031" aria-label="Сообщество VK" data-label="Сообщество VK">
+              <img src="/socials/vk-icon.png?v=20260921-2" alt="">
+            </a>
           </div>
         </div>
       </header>
@@ -99,6 +107,21 @@ customElements.define("site-header", SiteHeader);
 customElements.define("site-footer", SiteFooter);
 
 document.addEventListener("DOMContentLoaded", () => {
+  const platformModal = document.querySelector("#smartpet-platform-modal");
+  const platformModalClose = platformModal?.querySelector(".platform-modal__close");
+
+  document.querySelectorAll(".js-smartpet-open").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      platformModal?.showModal();
+    });
+  });
+
+  platformModalClose?.addEventListener("click", () => platformModal.close());
+  platformModal?.addEventListener("click", (event) => {
+    if (event.target === platformModal) platformModal.close();
+  });
+
   const animateItems = document.querySelectorAll(
     ".hero__text-block, .hero__visual, .importance-card, .importance__result, .about-feature, .feature-card, .step, .state-box, .care-card, .audience__item, .audience__note, .benefit-card, .telegram__box, .faq-item, .cta__container",
   );
