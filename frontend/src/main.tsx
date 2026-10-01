@@ -28,7 +28,7 @@ if (!rootElement) {
 }
 
 const root = createRoot(rootElement);
-const appBuild = "transfer-router-fix-20260907-1";
+const appBuild = "account-copy-20261001-1";
 
 function hasLaunchMarker(value: string) {
   const rawValue = value.replace(/^[?#]/, "");
