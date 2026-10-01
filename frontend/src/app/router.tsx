@@ -9,6 +9,7 @@ import ProcedurePage from "../pages/ProcedurePetPage";
 import SubscriptionsPage from "../pages/SubscriptionsPage";
 import HealthCheckPage from "../pages/HealthCheckPage";
 import PetTransferPage from "../pages/PetTransferPage";
+import AccountCopyPage from "../pages/AccountCopyPage";
 import AdminTariffsPage from "../pages/AdminTariffsPage";
 
 export const router = createBrowserRouter([
@@ -23,5 +24,7 @@ export const router = createBrowserRouter([
   { path: "/procedure/:type/:petId", element: <ProcedurePage /> },
   { path: "/health-check/:petId", element: <HealthCheckPage /> },
   { path: "/transfer/:token", element: <PetTransferPage /> },
+  { path: "/account-copy", element: <AccountCopyPage /> },
+  { path: "/account-copy/:token", element: <AccountCopyPage /> },
   { path: "/admin/tariffs", element: <AdminTariffsPage /> },
 ]);
