@@ -1,7 +1,7 @@
 """add account copies
 
 Revision ID: 1c2d3e4f5a6b
-Revises: f4c8a2b6d9e1
+Revises: aa1b2c3d4e5f
 Create Date: 2026-10-01 12:00:00.000000
 
 """
@@ -12,7 +12,7 @@ from alembic import op
 
 
 revision: str = "1c2d3e4f5a6b"
-down_revision: str | None = "f4c8a2b6d9e1"
+down_revision: str | None = "aa1b2c3d4e5f"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
