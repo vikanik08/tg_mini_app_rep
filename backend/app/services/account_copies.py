@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
 from app.models.account_copy import AccountCopy
@@ -156,9 +157,19 @@ def accept_account_copy(db: Session, user: User, token: str) -> AccountCopy:
 
     already_copied = (
         db.query(AccountCopy)
-        .filter(AccountCopy.from_user_id == account_copy.from_user_id)
-        .filter(AccountCopy.to_user_id == user.id)
         .filter(AccountCopy.status == "accepted")
+        .filter(
+            or_(
+                and_(
+                    AccountCopy.from_user_id == account_copy.from_user_id,
+                    AccountCopy.to_user_id == user.id,
+                ),
+                and_(
+                    AccountCopy.from_user_id == user.id,
+                    AccountCopy.to_user_id == account_copy.from_user_id,
+                ),
+            )
+        )
         .first()
     )
     if already_copied:
