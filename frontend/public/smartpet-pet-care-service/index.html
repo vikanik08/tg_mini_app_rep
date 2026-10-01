@@ -104,7 +104,7 @@
     <!-- CSS -->
 
     <link rel="stylesheet" href="./style.css" />
-    <link rel="stylesheet" href="./brand.css?v=20261001-1" />
+    <link rel="stylesheet" href="./brand.css?v=20261001-2" />
   </head>
   <body class="page">
     <site-header></site-header>
@@ -132,7 +132,11 @@
                 </p>
 
                 <div class="hero__actions">
-                  <a class="button button--primary hero__button" href="#cta">
+                  <a
+                    class="button button--primary hero__button js-smartpet-open"
+                    href="#"
+                    role="button"
+                  >
                     Начать дневник питомца
                   </a>
                   <a
@@ -724,7 +728,11 @@
             Добавьте питомца и начните вести историю его здоровья
           </p>
 
-          <a class="button button--primary cta__button" href="#">
+          <a
+            class="button button--primary cta__button js-smartpet-open"
+            href="#"
+            role="button"
+          >
             → Открыть СмартПет
           </a>
         </div>
@@ -733,11 +741,45 @@
 
     <site-footer></site-footer>
 
+    <dialog class="platform-modal" id="smartpet-platform-modal" aria-labelledby="platform-modal-title">
+      <div class="platform-modal__panel">
+        <button class="platform-modal__close" type="button" aria-label="Закрыть">×</button>
+        <p class="platform-modal__eyebrow">Попробуйте СмартПет</p>
+        <h2 class="platform-modal__title" id="platform-modal-title">
+          7 дней Premium бесплатно
+        </h2>
+        <p class="platform-modal__text">
+          Выберите удобную площадку, без скачивания
+        </p>
+        <div class="platform-modal__choices">
+          <a
+            class="platform-modal__choice"
+            href="https://t.me/SmartPetHelper_bot?startapp=premium7"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src="/socials/miniapp-tg.png" alt="" />
+            <span>Мини-апп Telegram</span>
+          </a>
+          <a
+            class="platform-modal__choice"
+            href="https://vk.ru/app54599546#promo=premium7"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src="/socials/miniapp-vk.png" alt="" />
+            <span>Мини-апп VK</span>
+          </a>
+        </div>
+      </div>
+    </dialog>
+
+
     <script>
       window.__YANDEX_METRIKA_COUNTER_ID__ = 12345678;
     </script>
 
-    <script src="./script.js?v=20260930-1"></script>
+    <script src="./script.js?v=20261001-2"></script>
     <script src="./analytics.js"></script>
   </body>
 </html>
