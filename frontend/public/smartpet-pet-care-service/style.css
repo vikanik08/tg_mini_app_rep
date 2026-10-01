@@ -11,11 +11,11 @@
   --color-surface: #ffffff;
   --color-surface-soft: #f7f4fb;
   --color-primary: #8f7bc5;
-  --color-primary-dark: #2f2348;
+  --color-primary-dark: #291f3a;
   --color-primary-soft: #d7c3f6;
-  --color-accent: #ef4a87;
-  --color-accent-soft: #fbe1ec;
-  --color-text: #35284d;
+  --color-accent: #f6d35b;
+  --color-accent-soft: #fff4bf;
+  --color-text: #291f3a;
   --color-text-soft: #716886;
   --color-white: #ffffff;
   --color-shadow: rgba(82, 55, 133, 0.12);
@@ -144,7 +144,7 @@ section {
     ),
     radial-gradient(
       circle at 90% 8%,
-      rgba(239, 74, 135, 0.06) 0%,
+      rgba(246, 211, 91, 0.06) 0%,
       transparent 12%
     ),
     linear-gradient(180deg, #f2edf5 0%, #f3eef7 100%);
@@ -758,7 +758,7 @@ section {
   background: var(--color-accent);
   color: var(--color-white);
   font: var(--font-step-number);
-  box-shadow: 0 1vw 2vw rgba(239, 74, 135, 0.22);
+  box-shadow: 0 1vw 2vw rgba(246, 211, 91, 0.22);
   transition: transform var(--transition-base);
 }
 
@@ -1047,7 +1047,7 @@ section {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(239, 74, 135, 0.14);
+  background: rgba(246, 211, 91, 0.14);
   color: var(--color-accent);
   font-size: 1.6vw;
 }
@@ -1118,7 +1118,7 @@ section {
 }
 
 .benefit-card__icon--pink {
-  background: rgba(239, 74, 135, 0.14);
+  background: rgba(246, 211, 91, 0.14);
   color: var(--color-accent);
 }
 
