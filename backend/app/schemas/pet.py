@@ -1,10 +1,15 @@
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
 from app.models.enums import PetSex, PetSpecies
+
+
+ReproductiveStatus = Literal["none", "castration", "sterilization"]
+VaccinationType = Literal["rabies", "complex", "complex_and_rabies", "other"]
 
 
 class PetBase(BaseModel):
@@ -18,8 +23,11 @@ class PetBase(BaseModel):
     breed: str | None = Field(default=None, max_length=128)
     color: str | None = Field(default=None, max_length=128)
     is_neutered: bool = False
+    reproductive_status: ReproductiveStatus = "none"
     is_vaccinated: bool = False
     vaccination_date: date | None = None
+    vaccination_type: VaccinationType | None = None
+    vaccination_product: str | None = Field(default=None, max_length=128)
     has_parasite_treatment: bool = False
     flea_treatment_date: date | None = None
     worm_treatment_date: date | None = None
@@ -48,8 +56,11 @@ class PetUpdate(BaseModel):
     breed: str | None = Field(default=None, max_length=128)
     color: str | None = Field(default=None, max_length=128)
     is_neutered: bool | None = None
+    reproductive_status: ReproductiveStatus | None = None
     is_vaccinated: bool | None = None
     vaccination_date: date | None = None
+    vaccination_type: VaccinationType | None = None
+    vaccination_product: str | None = Field(default=None, max_length=128)
     has_parasite_treatment: bool | None = None
     flea_treatment_date: date | None = None
     worm_treatment_date: date | None = None

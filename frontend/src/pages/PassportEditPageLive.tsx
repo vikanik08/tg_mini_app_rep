@@ -133,7 +133,7 @@ export default function PassportEditPageLive() {
         <section className="P-PassportEditLive__card">
           <div className="P-PassportEditLive__grid">
             <label className="P-PassportEditLive__field">
-              <span>Имя</span>
+              <span>Имя питомца</span>
               <input
                 type="text"
                 value={form.name}

@@ -255,7 +255,7 @@ export default function ProfilePageLive() {
   const activePassportEditPath = activePet
     ? buildPassportEditPath(activePet.id)
     : "/passport/edit";
-  const primaryActionLabel = activePet ? "Открыть паспорт" : "Добавить питомца";
+  const primaryActionLabel = activePet ? "Открыть ветпаспорт" : "Добавить питомца";
   const isInitialLoading = petsQuery.isLoading && eventsQuery.isLoading;
   const subscriptionLabel = getSubscriptionLabel(user);
   const subscriptionDaysLeft = formatSubscriptionDaysLeft(user);
@@ -635,7 +635,7 @@ export default function ProfilePageLive() {
                     trackFeatureUse("passport", "open", { source: "profile_empty_upcoming" });
                   }}
                 >
-                  Перейти в паспорт
+                  Перейти в ветпаспорт
                 </Link>
               </div>
             </div>

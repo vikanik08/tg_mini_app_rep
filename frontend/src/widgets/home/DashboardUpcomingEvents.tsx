@@ -92,7 +92,7 @@ export default function DashboardUpcomingEvents({
           <div className="M-EventRow__content">
             <div className="M-EventRow__title">Событий пока нет</div>
             <div className="M-EventRow__meta">
-              Добавьте первое напоминание для питомца из календаря или паспорта.
+              Добавьте первое напоминание для питомца из календаря или ветпаспорта.
             </div>
           </div>
         </div>
@@ -165,7 +165,7 @@ export default function DashboardUpcomingEvents({
             <div className="M-EventRow__petRow">
               <span className="M-EventRow__petName">Питомец: {event.petName}</span>
               <Link className="M-EventRow__petLink" to={event.passportPath}>
-                Открыть паспорт
+                Открыть ветпаспорт
               </Link>
             </div>
           </div>

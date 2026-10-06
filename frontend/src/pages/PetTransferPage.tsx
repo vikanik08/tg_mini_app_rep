@@ -158,8 +158,8 @@ export default function PetTransferPage() {
             <h1>{transfer.pet_name}</h1>
             <p>
               {transfer.from_user_name
-                ? `${transfer.from_user_name} передает вам паспорт питомца.`
-                : "Вам передают паспорт питомца."}
+                ? `${transfer.from_user_name} передает вам ветпаспорт питомца.`
+                : "Вам передают ветпаспорт питомца."}
             </p>
             <div className="P-PetTransfer__notice">
               После принятия питомец, его напоминания и записи здоровья появятся в вашем аккаунте.

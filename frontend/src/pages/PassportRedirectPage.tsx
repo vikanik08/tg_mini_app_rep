@@ -19,7 +19,7 @@ export default function PassportRedirectPage() {
       <AppLayout>
         <div className="P-PassportLive">
           <section className="P-PassportLive__stateCard">
-            <h1 className="P-PassportLive__title">Паспорт питомца</h1>
+            <h1 className="P-PassportLive__title">Ветпаспорт питомца</h1>
             <p className="P-PassportLive__stateText">Загружаю питомца...</p>
           </section>
         </div>

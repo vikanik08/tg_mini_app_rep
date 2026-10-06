@@ -47,8 +47,15 @@ class Pet(Base):
     breed: Mapped[str | None] = mapped_column(String(128), nullable=True)
     color: Mapped[str | None] = mapped_column(String(128), nullable=True)
     is_neutered: Mapped[bool] = mapped_column(default=False, nullable=False)
+    reproductive_status: Mapped[str] = mapped_column(
+        String(24),
+        default="none",
+        nullable=False,
+    )
     is_vaccinated: Mapped[bool] = mapped_column(default=False, nullable=False)
     vaccination_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    vaccination_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    vaccination_product: Mapped[str | None] = mapped_column(String(128), nullable=True)
     has_parasite_treatment: Mapped[bool] = mapped_column(default=False, nullable=False)
     flea_treatment_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     worm_treatment_date: Mapped[date | None] = mapped_column(Date, nullable=True)

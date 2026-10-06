@@ -185,7 +185,7 @@ export default function TodayRemindersLive({
                         trackFeatureUse("passport", "open", { source: "today_reminders" });
                       }}
                     >
-                      Открыть паспорт
+                      Открыть ветпаспорт
                     </Link>
                   </div>
                 ) : null}

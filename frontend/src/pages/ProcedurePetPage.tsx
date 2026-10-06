@@ -250,7 +250,7 @@ export default function ProcedurePetPage() {
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!pet?.id) {
-        throw new Error("Сначала создай питомца в паспорте");
+        throw new Error("Сначала создай питомца в ветпаспорте");
       }
 
       if (!title.trim()) {
@@ -386,7 +386,7 @@ export default function ProcedurePetPage() {
               Сначала создай питомца, чтобы привязать к нему событие.
             </p>
             <Link className="A-ProcedureSaveButton" to="/passport/edit">
-              Открыть паспорт
+              Открыть ветпаспорт
             </Link>
           </section>
         ) : isEditMode && eventQuery.isLoading ? (

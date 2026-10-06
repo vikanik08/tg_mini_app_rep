@@ -62,6 +62,28 @@ function formatSex(sex: Pet["sex"]) {
   return "Не указан";
 }
 
+function formatReproductiveStatus(pet: Pet) {
+  const status =
+    pet.reproductive_status ??
+    (pet.is_neutered
+      ? pet.sex === "female"
+        ? "sterilization"
+        : "castration"
+      : "none");
+
+  if (status === "castration") return "Кастрация";
+  if (status === "sterilization") return "Стерилизация";
+  return "Не проводилась";
+}
+
+function formatVaccinationType(type: Pet["vaccination_type"]) {
+  if (type === "complex") return "Комплексная";
+  if (type === "rabies") return "От бешенства";
+  if (type === "complex_and_rabies") return "Комплексная + от бешенства";
+  if (type === "other") return "Другая";
+  return "Вид не указан";
+}
+
 function formatAgeCompact(birthdate: string | null) {
   if (!birthdate) return "Возраст не указан";
 
@@ -576,13 +598,22 @@ export default function PassportPetPage() {
           <InfoRow label="Вес" value={getDisplayWeight(pet.weight_kg)} />
 
           <MedicalBullet
-            title={pet.sex === "female" ? "Стерилизована" : "Кастрирован"}
-            value={pet.is_neutered ? "Да" : "Нет"}
+            title="Репродуктивная операция"
+            value={formatReproductiveStatus(pet)}
           />
           <MedicalBullet
-            title="Вакцинация"
-            value={latestVaccine ? formatDate(latestVaccine) : "Нет данных"}
+            title="Последняя вакцинация"
+            value={
+              pet.is_vaccinated
+                ? `${formatVaccinationType(pet.vaccination_type)} · ${
+                    latestVaccine ? formatDate(latestVaccine) : "дата не указана"
+                  }`
+                : "Нет данных"
+            }
           />
+          {pet.is_vaccinated && pet.vaccination_product ? (
+            <MedicalBullet title="Препарат вакцинации" value={pet.vaccination_product} />
+          ) : null}
           <MedicalBullet
             title="Обработка от паразитов"
             value={latestParasiteTreatment ? formatDate(latestParasiteTreatment) : "Нет данных"}

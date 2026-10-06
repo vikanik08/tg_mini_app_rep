@@ -69,6 +69,28 @@ function formatSex(sex: Pet["sex"]) {
   return "Не указан";
 }
 
+function formatReproductiveStatus(pet: Pet) {
+  const status =
+    pet.reproductive_status ??
+    (pet.is_neutered
+      ? pet.sex === "female"
+        ? "sterilization"
+        : "castration"
+      : "none");
+
+  if (status === "castration") return "Кастрация";
+  if (status === "sterilization") return "Стерилизация";
+  return "Не проводилась";
+}
+
+function formatVaccinationType(type: Pet["vaccination_type"]) {
+  if (type === "complex") return "Комплексная";
+  if (type === "rabies") return "От бешенства";
+  if (type === "complex_and_rabies") return "Комплексная + от бешенства";
+  if (type === "other") return "Другая";
+  return "Вид не указан";
+}
+
 function formatWeight(weight: string | null) {
   if (!weight) return "Нет";
   return `${String(weight).replace(".", ",")} кг`;
@@ -302,15 +324,19 @@ function buildDocumentDefinition(pet: Pet, events: EventItem[], photoDataUrl: st
       ]),
       buildSectionCard("Медицинская информация", [
         buildInfoRow("Вес", formatWeight(pet.weight_kg)),
+        buildInfoRow("Репродуктивная операция", formatReproductiveStatus(pet)),
         buildInfoRow(
-          pet.sex === "female" ? "Стерилизована" : "Кастрирован",
-          pet.is_neutered ? "Да" : "Нет",
+          "Последняя вакцинация",
+          pet.is_vaccinated
+            ? `${formatVaccinationType(pet.vaccination_type)} · ${
+                pet.vaccination_date ? formatDate(pet.vaccination_date) : "дата не указана"
+              }`
+            : "Нет данных",
         ),
         buildInfoRow(
-          "Вакцинация",
-          pet.vaccination_date ? formatDate(pet.vaccination_date) : "Нет данных",
+          "Препарат вакцинации",
+          pet.vaccination_product || vaccineEvent?.notes || "Не указан",
         ),
-        buildInfoRow("Препарат вакцинации", vaccineEvent?.notes || "Не указан"),
         buildInfoRow(
           "Обработка от паразитов",
           pet.has_parasite_treatment

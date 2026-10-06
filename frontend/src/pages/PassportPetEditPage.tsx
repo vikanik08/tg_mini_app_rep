@@ -9,6 +9,8 @@ import {
   updatePet,
   type CreatePetPayload,
   type Pet,
+  type ReproductiveStatus,
+  type VaccinationType,
 } from "../entities/pet/api";
 import {
   buildPassportPath,
@@ -32,8 +34,10 @@ type PassportFormState = {
   species_label: string;
   breed: string;
   color: string;
-  is_neutered: boolean;
+  reproductive_status: ReproductiveStatus;
   is_vaccinated: boolean;
+  vaccination_type: VaccinationType | "";
+  vaccination_product: string;
   vaccination_date: string;
   has_parasite_treatment: boolean;
   flea_treatment_date: string;
@@ -264,8 +268,10 @@ const initialFormState: PassportFormState = {
   species_label: "",
   breed: "",
   color: "",
-  is_neutered: false,
+  reproductive_status: "none",
   is_vaccinated: false,
+  vaccination_type: "",
+  vaccination_product: "",
   vaccination_date: "",
   has_parasite_treatment: false,
   flea_treatment_date: "",
@@ -316,8 +322,16 @@ function mapPetToForm(pet: Pet | null): PassportFormState {
     species_label: pet.species_label ?? "",
     breed: pet.breed ?? "",
     color: pet.color ?? "",
-    is_neutered: pet.is_neutered,
+    reproductive_status:
+      pet.reproductive_status ??
+      (pet.is_neutered
+        ? pet.sex === "female"
+          ? "sterilization"
+          : "castration"
+        : "none"),
     is_vaccinated: pet.is_vaccinated,
+    vaccination_type: pet.vaccination_type ?? "",
+    vaccination_product: pet.vaccination_product ?? "",
     vaccination_date: pet.vaccination_date ?? "",
     has_parasite_treatment: pet.has_parasite_treatment,
     flea_treatment_date: pet.flea_treatment_date ?? "",
@@ -347,8 +361,15 @@ function buildPayload(form: PassportFormState): CreatePetPayload {
         : null,
     breed: form.breed.trim() || null,
     color: form.color.trim() || null,
-    is_neutered: form.is_neutered,
+    is_neutered: form.reproductive_status !== "none",
+    reproductive_status: form.reproductive_status,
     is_vaccinated: form.is_vaccinated,
+    vaccination_type:
+      form.is_vaccinated && form.vaccination_type ? form.vaccination_type : null,
+    vaccination_product:
+      form.is_vaccinated && form.vaccination_product.trim()
+        ? form.vaccination_product.trim()
+        : null,
     vaccination_date: form.is_vaccinated && form.vaccination_date ? form.vaccination_date : null,
     has_parasite_treatment: form.has_parasite_treatment,
     flea_treatment_date:
@@ -573,6 +594,7 @@ export default function PassportPetEditPage() {
   const [isReadingPhoto, setIsReadingPhoto] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
   const [isHealthModalOpen, setIsHealthModalOpen] = useState(false);
+  const [isReproductiveInfoOpen, setIsReproductiveInfoOpen] = useState(false);
   const [healthFeaturesDraft, setHealthFeaturesDraft] = useState<string[]>([]);
 
   useEffect(() => {
@@ -590,7 +612,10 @@ export default function PassportPetEditPage() {
     () => parseHealthFeatures(form.chronic_conditions_notes),
     [form.chronic_conditions_notes],
   );
-  const showVaccinationWarning = showValidation && form.is_vaccinated && !form.vaccination_date;
+  const showVaccinationWarning =
+    showValidation &&
+    form.is_vaccinated &&
+    (!form.vaccination_type || !form.vaccination_date);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -748,6 +773,13 @@ export default function PassportPetEditPage() {
   function handleSave() {
     setShowValidation(true);
 
+    if (form.is_vaccinated && !form.vaccination_type) {
+      const message = "Укажите вид последней вакцинации перед сохранением";
+      setErrorText(message);
+      showToast(message, "error");
+      return;
+    }
+
     if (form.is_vaccinated && !form.vaccination_date) {
       const message = "Для вакцинации нужно заполнить дату перед сохранением";
       setErrorText(message);
@@ -819,12 +851,12 @@ export default function PassportPetEditPage() {
           <h2 className="P-PassportEditLive__sectionLabel">Личная информация</h2>
 
           <label className="P-PassportEditLive__field P-PassportEditLive__field--pill">
-            <span>Имя</span>
+            <span>Имя питомца</span>
             <input
               type="text"
               value={form.name}
               onChange={(event) => updateField("name", event.target.value)}
-              placeholder="Имя"
+              placeholder="Имя питомца"
             />
           </label>
 
@@ -945,11 +977,64 @@ export default function PassportPetEditPage() {
             />
           </label>
 
-          <ToggleField
-            label="Кастрация"
-            checked={form.is_neutered}
-            onChange={(checked) => updateField("is_neutered", checked)}
-          />
+          <div className="P-PassportEditLive__operationBlock">
+            <div className="P-PassportEditLive__operationHeader">
+              <span>Кастрация/стерилизация</span>
+              <button
+                type="button"
+                className="P-PassportEditLive__infoButton"
+                aria-label="Чем отличаются кастрация и стерилизация"
+                aria-expanded={isReproductiveInfoOpen}
+                onClick={() => setIsReproductiveInfoOpen((current) => !current)}
+              >
+                ?
+              </button>
+            </div>
+
+            {isReproductiveInfoOpen ? (
+              <div className="P-PassportEditLive__infoNote">
+                <p>
+                  <strong>Кастрация</strong> — удаление половых желёз, после которого
+                  снижается выработка половых гормонов.
+                </p>
+                <p>
+                  <strong>Стерилизация</strong> — исключение возможности размножения без
+                  удаления половых желёз; гормональный фон обычно сохраняется.
+                </p>
+                <p>Точный вид проведённой операции можно уточнить в ветклинике.</p>
+              </div>
+            ) : null}
+
+            <div className="P-PassportEditLive__choiceCard">
+              <label className="P-PassportEditLive__choiceRow">
+                <input
+                  type="radio"
+                  name="reproductive-status"
+                  checked={form.reproductive_status === "none"}
+                  onChange={() => updateField("reproductive_status", "none")}
+                />
+                <span>Не проводилась</span>
+              </label>
+              <label className="P-PassportEditLive__choiceRow">
+                <input
+                  type="radio"
+                  name="reproductive-status"
+                  checked={form.reproductive_status === "castration"}
+                  onChange={() => updateField("reproductive_status", "castration")}
+                />
+                <span>Кастрация</span>
+              </label>
+              <label className="P-PassportEditLive__choiceRow">
+                <input
+                  type="radio"
+                  name="reproductive-status"
+                  checked={form.reproductive_status === "sterilization"}
+                  onChange={() => updateField("reproductive_status", "sterilization")}
+                />
+                <span>Стерилизация</span>
+              </label>
+            </div>
+          </div>
 
           <ToggleField
             label="Обработки от паразитов"
@@ -1002,26 +1087,84 @@ export default function PassportPetEditPage() {
           ) : null}
 
           <ToggleField
-            label="Вакцинация"
+            label="Вакцинация сделана"
             checked={form.is_vaccinated}
-            onChange={(checked) => updateField("is_vaccinated", checked)}
+            onChange={(checked) => {
+              updateField("is_vaccinated", checked);
+              if (!checked) {
+                updateField("vaccination_type", "");
+                updateField("vaccination_product", "");
+                updateField("vaccination_date", "");
+              }
+            }}
             tone={showVaccinationWarning ? "warning" : "default"}
             helper={
               showVaccinationWarning
-                ? "кажется вы забыли заполнить дату вакцинации перед сохранением"
+                ? "Укажите вид и дату последней вакцинации перед сохранением"
                 : undefined
             }
           />
 
           {form.is_vaccinated ? (
-            <label className="P-PassportEditLive__field P-PassportEditLive__field--pill">
-              <span>Дата вакцинации</span>
-              <input
-                type="date"
-                value={form.vaccination_date}
-                onChange={(event) => updateField("vaccination_date", event.target.value)}
-              />
-            </label>
+            <div className="P-PassportEditLive__stack">
+              <div className="P-PassportEditLive__choiceCard">
+                <label className="P-PassportEditLive__choiceRow">
+                  <input
+                    type="radio"
+                    name="vaccination-type"
+                    checked={form.vaccination_type === "complex"}
+                    onChange={() => updateField("vaccination_type", "complex")}
+                  />
+                  <span>Комплексная вакцинация</span>
+                </label>
+                <label className="P-PassportEditLive__choiceRow">
+                  <input
+                    type="radio"
+                    name="vaccination-type"
+                    checked={form.vaccination_type === "rabies"}
+                    onChange={() => updateField("vaccination_type", "rabies")}
+                  />
+                  <span>Вакцинация от бешенства</span>
+                </label>
+                <label className="P-PassportEditLive__choiceRow">
+                  <input
+                    type="radio"
+                    name="vaccination-type"
+                    checked={form.vaccination_type === "complex_and_rabies"}
+                    onChange={() => updateField("vaccination_type", "complex_and_rabies")}
+                  />
+                  <span>Комплексная + от бешенства</span>
+                </label>
+                <label className="P-PassportEditLive__choiceRow">
+                  <input
+                    type="radio"
+                    name="vaccination-type"
+                    checked={form.vaccination_type === "other"}
+                    onChange={() => updateField("vaccination_type", "other")}
+                  />
+                  <span>Другая вакцинация</span>
+                </label>
+              </div>
+
+              <label className="P-PassportEditLive__field P-PassportEditLive__field--pill">
+                <span>Дата последней вакцинации</span>
+                <input
+                  type="date"
+                  value={form.vaccination_date}
+                  onChange={(event) => updateField("vaccination_date", event.target.value)}
+                />
+              </label>
+
+              <label className="P-PassportEditLive__field P-PassportEditLive__field--pill">
+                <span>Препарат вакцинации</span>
+                <input
+                  type="text"
+                  value={form.vaccination_product}
+                  onChange={(event) => updateField("vaccination_product", event.target.value)}
+                  placeholder="Например, Nobivac"
+                />
+              </label>
+            </div>
           ) : null}
 
           <ToggleField
@@ -1076,7 +1219,7 @@ export default function PassportPetEditPage() {
             label="Были ли операции?"
             checked={form.had_surgeries}
             onChange={(checked) => updateField("had_surgeries", checked)}
-            helper={form.had_surgeries ? "Кроме стерилизации" : undefined}
+            helper={form.had_surgeries ? "Кроме кастрации и стерилизации" : undefined}
           />
 
           {form.had_surgeries ? (

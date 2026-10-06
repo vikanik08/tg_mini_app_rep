@@ -313,7 +313,7 @@ export default function HomePageLive() {
               <p className="A-FirstRunCard__eyebrow">Первый запуск</p>
               <h3 className="A-FirstRunCard__title">Добавь первого питомца</h3>
               <p className="A-FirstRunCard__text">
-                После этого на главной появятся паспорт, ближайшие события и
+                После этого на главной появятся ветпаспорт, ближайшие события и
                 напоминания по календарю.
               </p>
 

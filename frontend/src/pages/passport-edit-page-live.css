@@ -113,6 +113,58 @@
   box-shadow: var(--shadow-soft);
 }
 
+.P-PassportEditLive__operationBlock {
+  display: grid;
+  gap: 10px;
+}
+
+.P-PassportEditLive__operationHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
+  color: var(--color-text);
+  font: var(--font-20);
+}
+
+.P-PassportEditLive__infoButton {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  flex-shrink: 0;
+  border: 1px solid rgba(41, 31, 58, 0.18);
+  border-radius: 50%;
+  background: rgba(217, 190, 246, 0.28);
+  color: var(--color-text);
+  font: var(--font-16);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.P-PassportEditLive__infoButton:focus-visible {
+  outline: 3px solid rgba(201, 169, 240, 0.45);
+  outline-offset: 2px;
+}
+
+.P-PassportEditLive__infoNote {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #fff7d7;
+  color: var(--color-text);
+  box-shadow: inset 0 0 0 1px rgba(235, 205, 120, 0.36);
+}
+
+.P-PassportEditLive__infoNote p {
+  margin: 0;
+  font: var(--font-12);
+  line-height: 1.45;
+}
+
+.P-PassportEditLive__infoNote p + p {
+  margin-top: 8px;
+}
+
 .P-PassportEditLive__field {
   display: grid;
   gap: 4px;

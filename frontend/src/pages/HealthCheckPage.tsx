@@ -501,7 +501,7 @@ export default function HealthCheckPage() {
               активность и заметки владельца сохранятся в истории здоровья.
             </p>
           </div>
-          <Link to={buildPassportEditPath(pet.id)}>Паспорт {pet.name}</Link>
+          <Link to={buildPassportEditPath(pet.id)}>Ветпаспорт {pet.name}</Link>
         </section>
 
         <section className="P-HealthCheck__why">

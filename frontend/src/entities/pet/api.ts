@@ -1,6 +1,9 @@
 import { api } from "@/shared/api/client";
 import { trackEvent } from "@/shared/analytics/metrica";
 
+export type ReproductiveStatus = "none" | "castration" | "sterilization";
+export type VaccinationType = "rabies" | "complex" | "complex_and_rabies" | "other";
+
 export type Pet = {
   id: string;
   user_id: string;
@@ -14,7 +17,10 @@ export type Pet = {
   breed: string | null;
   color: string | null;
   is_neutered: boolean;
+  reproductive_status: ReproductiveStatus;
   is_vaccinated: boolean;
+  vaccination_type: VaccinationType | null;
+  vaccination_product: string | null;
   vaccination_date: string | null;
   has_parasite_treatment: boolean;
   flea_treatment_date: string | null;
@@ -41,7 +47,10 @@ export type CreatePetPayload = {
   breed?: string | null;
   color?: string | null;
   is_neutered?: boolean;
+  reproductive_status?: ReproductiveStatus;
   is_vaccinated?: boolean;
+  vaccination_type?: VaccinationType | null;
+  vaccination_product?: string | null;
   vaccination_date?: string | null;
   has_parasite_treatment?: boolean;
   flea_treatment_date?: string | null;

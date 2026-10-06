@@ -62,7 +62,7 @@ def _build_subscription_expiry_text(user: User, days_left: int) -> str:
         return (
             f"{first_name}, {plan_label} в SmartPet Helper закончится завтра.\n\n"
             "Рекомендуем обновить подписку, чтобы сохранить расширенные напоминания, "
-            "трекер здоровья и PDF-паспорт питомца."
+            "трекер здоровья и PDF-ветпаспорт питомца."
         )
 
     return (
