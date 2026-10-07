@@ -69,9 +69,18 @@ function readTelegramStartParam() {
   return "";
 }
 
-function readAttributionFromTelegramStartParam() {
-  const startParam = readTelegramStartParam();
-  const parts = startParam.split("__");
+function readVkRef() {
+  for (const source of [window.location.search, window.location.hash]) {
+    const params = readParamsFrom(source);
+    const value = params.get("vk_ref") || params.get("ref");
+    if (value) return value;
+  }
+
+  return "";
+}
+
+function readStructuredAttribution(launchValue: string): AnalyticsParams {
+  const parts = launchValue.split("__");
 
   if (parts[0]?.startsWith("utm_") && parts.length >= 4) {
     return {
@@ -98,7 +107,8 @@ function readAttributionFromTelegramStartParam() {
 }
 
 function readAttributionFromLocation() {
-  const attribution: AnalyticsParams = readAttributionFromTelegramStartParam();
+  const launchValue = readTelegramStartParam() || readVkRef();
+  const attribution: AnalyticsParams = readStructuredAttribution(launchValue);
 
   for (const source of [window.location.search, window.location.hash]) {
     const params = readParamsFrom(source);
