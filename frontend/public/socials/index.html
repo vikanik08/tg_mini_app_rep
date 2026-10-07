@@ -28,10 +28,43 @@
 <script>
 // Set these URLs when the two final video files are available.
 const media={intro:null,idle:null};
+const utmNames=['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
+const searchParams=new URLSearchParams(window.location.search);
+const attribution=Object.fromEntries(
+  utmNames
+    .map(name=>[name,searchParams.get(name)])
+    .filter(([,value])=>Boolean(value))
+);
+const hasAttribution=Object.keys(attribution).length>0;
+
+function launchPart(value,maxLength,fallback){
+  const normalized=(value||fallback)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g,'_')
+    .replace(/^_+|_+$/g,'');
+  return (normalized||fallback).slice(0,maxLength);
+}
+
+if(hasAttribution){
+  const launchPayload=[
+    'promo_premium7',
+    launchPart(attribution.utm_source,14,'unknown'),
+    launchPart(attribution.utm_medium,10,'link'),
+    launchPart(attribution.utm_campaign,10,'socials'),
+    launchPart(attribution.utm_content,8,'default')
+  ].join('__');
+
+  const telegramApp=document.querySelector('[data-destination="telegram_app"]');
+  const vkApp=document.querySelector('[data-destination="vk_app"]');
+  telegramApp.href='https://t.me/SmartPetHelper_bot?startapp='+encodeURIComponent(launchPayload);
+  vkApp.href='https://vk.ru/app54599546?ref='+encodeURIComponent(launchPayload);
+}
+
 window.ym=window.ym||function(){(window.ym.a=window.ym.a||[]).push(arguments)};window.ym.l=Date.now();
 const tag=document.createElement('script');tag.async=true;tag.src='https://mc.yandex.ru/metrika/tag.js?id=112520314';document.head.append(tag);
-ym(112520314,'init',{clickmap:true,trackLinks:true,accurateTrackBounce:true});
-document.querySelectorAll('[data-destination]').forEach(link=>link.addEventListener('click',()=>ym(112520314,'reachGoal','socials_link_clicked',{destination:link.dataset.destination})));
+ym(112520314,'init',{clickmap:true,trackLinks:true,accurateTrackBounce:true,url:window.location.href,referrer:document.referrer});
+document.querySelectorAll('[data-destination]').forEach(link=>link.addEventListener('click',()=>ym(112520314,'reachGoal','socials_link_clicked',{destination:link.dataset.destination,...attribution})));
 const intro=document.querySelector('#intro'),introVideo=intro.querySelector('video'),idle=document.querySelector('#idle');
 let timer;function finish(){clearTimeout(timer);intro.hidden=true;introVideo.pause();}
 intro.querySelector('button').onclick=finish;introVideo.onended=finish;introVideo.onerror=finish;
