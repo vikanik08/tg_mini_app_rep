@@ -53,8 +53,52 @@ function readParamsFrom(value: string) {
   return new URLSearchParams(paramsSource);
 }
 
+function readTelegramStartParam() {
+  const fromWebApp = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
+  if (fromWebApp) return fromWebApp;
+
+  for (const source of [window.location.search, window.location.hash]) {
+    const params = readParamsFrom(source);
+
+    for (const paramName of ["tgWebAppStartParam", "start_param", "startapp"]) {
+      const value = params.get(paramName);
+      if (value) return value;
+    }
+  }
+
+  return "";
+}
+
+function readAttributionFromTelegramStartParam() {
+  const startParam = readTelegramStartParam();
+  const parts = startParam.split("__");
+
+  if (parts[0]?.startsWith("utm_") && parts.length >= 4) {
+    return {
+      utm_source: parts[0].slice("utm_".length),
+      utm_medium: parts[1],
+      utm_campaign: parts[2],
+      utm_content: parts[3],
+      utm_term: parts[4],
+    };
+  }
+
+  if (parts[0]?.startsWith("promo_") && parts.length >= 5) {
+    return {
+      promo: parts[0].slice("promo_".length),
+      utm_source: parts[1],
+      utm_medium: parts[2],
+      utm_campaign: parts[3],
+      utm_content: parts[4],
+      utm_term: parts[5],
+    };
+  }
+
+  return {};
+}
+
 function readAttributionFromLocation() {
-  const attribution: AnalyticsParams = {};
+  const attribution: AnalyticsParams = readAttributionFromTelegramStartParam();
 
   for (const source of [window.location.search, window.location.hash]) {
     const params = readParamsFrom(source);
