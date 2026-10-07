@@ -598,7 +598,7 @@ export default function PassportPetPage() {
           <InfoRow label="Вес" value={getDisplayWeight(pet.weight_kg)} />
 
           <MedicalBullet
-            title="Репродуктивная операция"
+            title="Кастрация/стерилизация"
             value={formatReproductiveStatus(pet)}
           />
           <MedicalBullet
