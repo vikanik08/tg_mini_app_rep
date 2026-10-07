@@ -994,8 +994,8 @@ export default function PassportPetEditPage() {
             {isReproductiveInfoOpen ? (
               <div className="P-PassportEditLive__infoNote">
                 <p>
-                  <strong>Кастрация</strong> — удаление половых желёз, после которого
-                  снижается выработка половых гормонов.
+                  <strong>Кастрация</strong> — это удаление половых желёз, приводящее к
+                  снижению выработки половых гормонов.
                 </p>
                 <p>
                   <strong>Стерилизация</strong> — исключение возможности размножения без
