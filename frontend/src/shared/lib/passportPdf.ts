@@ -324,7 +324,7 @@ function buildDocumentDefinition(pet: Pet, events: EventItem[], photoDataUrl: st
       ]),
       buildSectionCard("Медицинская информация", [
         buildInfoRow("Вес", formatWeight(pet.weight_kg)),
-        buildInfoRow("Кастрация/стерилизация", formatReproductiveStatus(pet))
+        buildInfoRow("Кастрация/стерилизация", formatReproductiveStatus(pet)),
         buildInfoRow(
           "Последняя вакцинация",
           pet.is_vaccinated
