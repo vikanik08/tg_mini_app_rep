@@ -89,6 +89,9 @@ export function getLaunchPromoCode() {
   const fromTelegramInitData = readFromParams(getTelegramInitData(), promoParamNames);
   if (fromTelegramInitData) return normalizePromoCode(fromTelegramInitData);
 
+  const fromVkRef = readFromParams(window.location.search, ["vk_ref", "ref"]);
+  if (fromVkRef.startsWith("promo_")) return normalizePromoCode(fromVkRef);
+
   return normalizePromoCode(
     readFromParams(window.location.search, promoParamNames)
       || readFromParams(window.location.hash, promoParamNames),
