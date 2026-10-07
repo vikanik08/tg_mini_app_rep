@@ -133,9 +133,9 @@
   height: 30px;
   padding: 0;
   flex-shrink: 0;
-  border: 1px solid rgba(41, 31, 58, 0.18);
+  border: none;
   border-radius: 50%;
-  background: rgba(217, 190, 246, 0.28);
+  background: #d9bef6;
   color: var(--color-text);
   font: var(--font-16);
   font-weight: 700;
@@ -150,7 +150,7 @@
 .P-PassportEditLive__infoNote {
   padding: 14px 16px;
   border-radius: 18px;
-  background: #fff7d7;
+  background: #fff4ad;
   color: var(--color-text);
   box-shadow: inset 0 0 0 1px rgba(235, 205, 120, 0.36);
 }
