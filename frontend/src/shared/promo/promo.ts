@@ -21,9 +21,19 @@ function readFromParams(value: string, paramNames: string[]) {
 }
 
 function normalizePromoCode(value: string) {
-  return value.startsWith(transferPrefix) || value.startsWith(accountCopyPrefix)
-    ? ""
-    : value;
+  if (value.startsWith(transferPrefix) || value.startsWith(accountCopyPrefix)) {
+    return "";
+  }
+
+  if (value.startsWith("utm_")) {
+    return "";
+  }
+
+  if (value.startsWith("promo_")) {
+    return value.split("__", 1)[0].slice("promo_".length);
+  }
+
+  return value;
 }
 
 function normalizePrefixedToken(value: string, prefix: string) {
