@@ -35,7 +35,10 @@ type RawAuthResponse = {
 };
 
 const authApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL?.trim() || window.location.origin,
+  baseURL:
+    import.meta.env.DEV || window.location.hostname.endsWith(".vercel.app")
+      ? import.meta.env.VITE_API_URL?.trim() || window.location.origin
+      : window.location.origin,
   headers: {
     "Content-Type": "application/json",
   },
