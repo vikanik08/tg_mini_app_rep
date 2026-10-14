@@ -278,6 +278,12 @@ async def get_telegram_webhook_info() -> dict[str, Any]:
 
 
 async def setup_telegram_bot_polling() -> dict[str, Any]:
+    # Remove a stale webhook first so polling can recover even if a later
+    # menu-button update is rejected by Telegram.
+    webhook_response = await _telegram_api_post(
+        "deleteWebhook",
+        {"drop_pending_updates": True},
+    )
     commands_response = await _telegram_api_post(
         "setMyCommands",
         {
@@ -295,10 +301,6 @@ async def setup_telegram_bot_polling() -> dict[str, Any]:
                 "web_app": {"url": _mini_app_url()},
             },
         },
-    )
-    webhook_response = await _telegram_api_post(
-        "deleteWebhook",
-        {"drop_pending_updates": True},
     )
 
     return {
