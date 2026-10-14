@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     telegram_bot_token: str
     public_base_url: str = "https://smartpet-care-service.ru"
     telegram_mini_app_url: str = "https://smartpet-care-service.ru"
-    telegram_mini_app_version: str = "20260912"
+    telegram_mini_app_version: str = "20261014-1"
     telegram_support_url: str = "https://t.me/maiiamk"
     telegram_webhook_url: str = ""
     telegram_webhook_secret: str = ""
