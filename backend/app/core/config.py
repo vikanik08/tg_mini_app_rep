@@ -26,8 +26,8 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
 
     telegram_bot_token: str
-    public_base_url: str = "https://smartpet-lunyc.amvera.io"
-    telegram_mini_app_url: str = "https://smartpet-lunyc.amvera.io"
+    public_base_url: str = "https://smartpet-care-service.ru"
+    telegram_mini_app_url: str = "https://smartpet-care-service.ru"
     telegram_mini_app_version: str = "20260912"
     telegram_support_url: str = "https://t.me/maiiamk"
     telegram_webhook_url: str = ""
