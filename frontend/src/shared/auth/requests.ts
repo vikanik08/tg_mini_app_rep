@@ -35,7 +35,7 @@ type RawAuthResponse = {
 };
 
 const authApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL?.trim() || window.location.origin,
   headers: {
     "Content-Type": "application/json",
   },

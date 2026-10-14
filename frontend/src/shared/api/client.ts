@@ -3,7 +3,7 @@ import { devLogin, telegramLogin, vkLogin } from "@/shared/auth/requests";
 import { getPlatformAuthContext } from "@/shared/platform";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL?.trim() || window.location.origin,
   headers: {
     "Content-Type": "application/json",
   },

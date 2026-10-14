@@ -7,7 +7,10 @@ RUN npm ci
 
 COPY frontend ./
 
-ARG VITE_API_URL=https://smartpet-lunyc.amvera.io
+# The frontend and API are served by the same container. Keep this empty by
+# default so a restored deployment or a new domain continues to use its own
+# origin without requiring a frontend rebuild-time URL override.
+ARG VITE_API_URL=
 ARG VITE_USE_DEV_LOGIN=false
 ARG VITE_PLATFORM_TARGET=auto
 ARG VITE_YANDEX_METRICA_ID=112520314
