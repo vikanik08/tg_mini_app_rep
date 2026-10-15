@@ -19,7 +19,7 @@ class SiteHeader extends HTMLElement {
             <a class="header__social" href="https://t.me/SmartPetHelper_bot?startapp" aria-label="Мини-апп Telegram" data-label="Мини-апп Telegram">
               <img src="/socials/miniapp-tg.png" alt="">
             </a>
-            <a class="header__social" href="https://vk.ru/app54599546" aria-label="Мини-апп VK" data-label="Мини-апп VK">
+            <a class="header__social" href="https://vk.com/app54599546" aria-label="Мини-апп VK" data-label="Мини-апп VK">
               <img src="/socials/miniapp-vk.png" alt="">
             </a>
             <a class="header__social" href="https://t.me/smartpet_info" aria-label="Telegram-канал" data-label="Telegram-канал">
@@ -77,7 +77,7 @@ class SiteFooter extends HTMLElement {
               <h3 class="footer__title">Контакты</h3>
               <div class="footer__links">
                 <a class="footer__link" href="https://t.me/SmartPetHelper_bot?startapp">Мини-апп Telegram</a>
-                <a class="footer__link" href="https://vk.ru/app54599546">Мини-апп VK</a>
+                <a class="footer__link" href="https://vk.com/app54599546">Мини-апп VK</a>
                 <a class="footer__link" href="https://t.me/smartpet_info">Telegram-канал</a>
                 <a class="footer__link" href="https://vk.ru/club239532031">Сообщество VK</a>
               </div>

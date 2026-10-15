@@ -149,7 +149,7 @@ export function buildTelegramPromoLink(code = getLaunchPromoCode()) {
 
 export function buildVkPromoLink(code = getLaunchPromoCode()) {
   const hash = code ? `#promo=${encodeURIComponent(code)}` : "";
-  return `https://vk.ru/app${vkAppId}${hash}`;
+  return `https://vk.com/app${vkAppId}${hash}`;
 }
 
 export function buildTelegramTransferLink(token: string) {
@@ -157,7 +157,7 @@ export function buildTelegramTransferLink(token: string) {
 }
 
 export function buildVkTransferLink(token: string) {
-  return `https://vk.ru/app${vkAppId}#${transferPrefix}${encodeURIComponent(token)}`;
+  return `https://vk.com/app${vkAppId}#${transferPrefix}${encodeURIComponent(token)}`;
 }
 
 export function buildTelegramAccountCopyLink(token: string) {
@@ -165,5 +165,5 @@ export function buildTelegramAccountCopyLink(token: string) {
 }
 
 export function buildVkAccountCopyLink(token: string) {
-  return `https://vk.ru/app${vkAppId}#${accountCopyPrefix}${encodeURIComponent(token)}`;
+  return `https://vk.com/app${vkAppId}#${accountCopyPrefix}${encodeURIComponent(token)}`;
 }
