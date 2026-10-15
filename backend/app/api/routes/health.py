@@ -2,11 +2,12 @@ from fastapi import APIRouter, HTTPException
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.core.config import settings
 from app.core.db import engine
 
 
 router = APIRouter(tags=["health"])
-release = "20261014-db-check-2"
+release = "20261015-vk-check-1"
 
 
 def check_database() -> None:
@@ -60,3 +61,16 @@ def database_health():
         ) from exc
 
     return {"status": "ok", "database": "ok", "release": release}
+
+
+@router.get("/health/vk")
+def vk_health():
+    app_id = settings.vk_app_id.strip()
+    secret_configured = bool(settings.vk_app_secret.strip())
+
+    return {
+        "status": "ok" if app_id and secret_configured else "degraded",
+        "vk_app_id": app_id or None,
+        "vk_app_secret_configured": secret_configured,
+        "release": release,
+    }
