@@ -44,6 +44,21 @@ const authApi = axios.create({
   },
 });
 
+function throwReadableAuthError(error: unknown): never {
+  if (axios.isAxiosError(error)) {
+    const responseData = error.response?.data as { detail?: unknown } | undefined;
+    if (typeof responseData?.detail === "string" && responseData.detail.trim()) {
+      throw new Error(responseData.detail);
+    }
+
+    if (error.code === "ECONNABORTED") {
+      throw new Error("Backend authentication request timed out");
+    }
+  }
+
+  throw error;
+}
+
 export function normalizeAuthUser(
   user: RawAuthUser,
   platformOverride?: AuthPlatform,
@@ -74,22 +89,34 @@ function normalizeAuthResponse(
 }
 
 export async function devLogin(telegramId: number) {
-  const response = await authApi.post<RawAuthResponse>(
-    `/dev/login?telegram_id=${telegramId}`,
-  );
-  return normalizeAuthResponse(response.data, "dev");
+  try {
+    const response = await authApi.post<RawAuthResponse>(
+      `/dev/login?telegram_id=${telegramId}`,
+    );
+    return normalizeAuthResponse(response.data, "dev");
+  } catch (error) {
+    throwReadableAuthError(error);
+  }
 }
 
 export async function telegramLogin(initData: string) {
-  const response = await authApi.post<RawAuthResponse>("/auth/telegram", {
-    init_data: initData,
-  });
-  return normalizeAuthResponse(response.data, "telegram");
+  try {
+    const response = await authApi.post<RawAuthResponse>("/auth/telegram", {
+      init_data: initData,
+    });
+    return normalizeAuthResponse(response.data, "telegram");
+  } catch (error) {
+    throwReadableAuthError(error);
+  }
 }
 
 export async function vkLogin(launchParams: string) {
-  const response = await authApi.post<RawAuthResponse>("/auth/vk", {
-    launch_params: launchParams,
-  });
-  return normalizeAuthResponse(response.data, "vk");
+  try {
+    const response = await authApi.post<RawAuthResponse>("/auth/vk", {
+      launch_params: launchParams,
+    });
+    return normalizeAuthResponse(response.data, "vk");
+  } catch (error) {
+    throwReadableAuthError(error);
+  }
 }
