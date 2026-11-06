@@ -25,6 +25,9 @@ class SpaHandler(SimpleHTTPRequestHandler):
         if requested_path in ("/socials", "/socials/"):
             self.path = "/socials/index.html"
             return super().do_GET()
+        if requested_path in ("/social", "/social/"):
+            self.path = "/social/index.html"
+            return super().do_GET()
         file_path = (DIST_DIR / requested_path.lstrip("/")).resolve()
 
         if not str(file_path).startswith(str(DIST_DIR.resolve())):

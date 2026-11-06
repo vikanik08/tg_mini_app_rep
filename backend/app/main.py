@@ -93,6 +93,8 @@ if frontend_dist.exists():
             return FileResponse(frontend_dist / "smartpet-pet-care-service/index.html", headers=index_headers)
         if full_path.rstrip("/") == "socials":
             return FileResponse(frontend_dist / "socials/index.html", headers=index_headers)
+        if full_path.rstrip("/") == "social":
+            return FileResponse(frontend_dist / "social/index.html", headers=index_headers)
         requested_file = (frontend_dist / full_path).resolve()
         dist_root = frontend_dist.resolve()
 
