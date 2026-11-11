@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Plus, Star } from "lucide-react";
 import { useDashboard } from "@/entities/dashboard/userDashboard";
 import type {
@@ -205,6 +205,13 @@ export default function HomePageLive() {
       source: "home",
       date: date.toISOString().slice(0, 10),
     });
+  }
+
+  if (
+    showFirstRunState
+    && localStorage.getItem("smartpet_onboarding_completed_v1") !== "true"
+  ) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return (

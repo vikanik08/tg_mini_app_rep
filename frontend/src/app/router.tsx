@@ -11,9 +11,11 @@ import HealthCheckPage from "../pages/HealthCheckPage";
 import PetTransferPage from "../pages/PetTransferPage";
 import AccountCopyPage from "../pages/AccountCopyPage";
 import AdminTariffsPage from "../pages/AdminTariffsPage";
+import OnboardingPage from "../pages/OnboardingPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <HomePage /> },
+  { path: "/onboarding", element: <OnboardingPage /> },
   { path: "/calendar", element: <CalendarPage /> },
   { path: "/subscriptions", element: <SubscriptionsPage /> },
   { path: "/passport", element: <PassportRedirectPage /> },
