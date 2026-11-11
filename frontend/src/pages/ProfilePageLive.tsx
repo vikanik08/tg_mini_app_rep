@@ -678,6 +678,16 @@ export default function ProfilePageLive() {
             >
               Скопировать данные между VK и Telegram
             </Link>
+            <Link
+              className="P-ProfilePageLive__actionButton P-ProfilePageLive__actionButton--ghost"
+              to="/onboarding?replay=1"
+              onClick={() => {
+                trackButtonClick("profile_replay_onboarding");
+                trackFeatureUse("onboarding", "replay", { source: "profile_actions" });
+              }}
+            >
+              Пройти онбординг ещё раз
+            </Link>
             <button
               type="button"
               className="P-ProfilePageLive__actionButton P-ProfilePageLive__actionButton--ghost"

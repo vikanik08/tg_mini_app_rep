@@ -57,6 +57,18 @@
 
 .P-Onboarding__topbarSpace { width: 40px; }
 
+.P-Onboarding__replayNotice {
+  width: fit-content;
+  max-width: calc(100% - 40px);
+  margin: -2px auto 4px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(252, 247, 251, 0.7);
+  color: var(--color-grey-text);
+  font: var(--font-12);
+  text-align: center;
+}
+
 .P-Onboarding__content {
   flex: 1;
   padding: 8px 20px 20px;

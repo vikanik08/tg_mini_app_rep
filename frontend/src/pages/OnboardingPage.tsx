@@ -1,5 +1,6 @@
-import { type ChangeEvent, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { type ChangeEvent, useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Bell,
@@ -15,7 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { createEvent, type EventType } from "@/entities/event/api";
-import { createPet, type Pet } from "@/entities/pet/api";
+import { createPet, getPets, type Pet } from "@/entities/pet/api";
 import { getApiErrorMessage } from "@/shared/api/errors";
 import { trackButtonClick, trackEvent, trackPageView } from "@/shared/analytics/metrica";
 import { zonedDateTimeToUtcIso } from "@/shared/lib/dateTime";
@@ -168,7 +169,14 @@ async function readPhoto(file: File) {
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { showToast } = useToast();
+  const isReplay = searchParams.get("replay") === "1";
+  const existingPetsQuery = useQuery({
+    queryKey: ["pets"],
+    queryFn: getPets,
+    enabled: isReplay,
+  });
   const [step, setStep] = useState(0);
   const [petCount, setPetCount] = useState(1);
   const [isBreeder, setIsBreeder] = useState(false);
@@ -182,6 +190,20 @@ export default function OnboardingPage() {
   const [reminderDate, setReminderDate] = useState(tomorrowKey);
   const [reminderTime, setReminderTime] = useState("10:00");
   const [savedReminder, setSavedReminder] = useState<{ title: string; date: string } | null>(null);
+
+  useEffect(() => {
+    if (!isReplay || !existingPetsQuery.data?.length) return;
+
+    const existingPets = existingPetsQuery.data;
+    setPetCount(existingPets.length);
+    setPets(existingPets.map((pet) => ({
+      name: pet.name,
+      species: pet.species === "dog" ? "dog" : "cat",
+      birthdate: pet.birthdate ?? "",
+      photo_url: pet.photo_url ?? "",
+    })));
+    setCreatedPets(existingPets);
+  }, [existingPetsQuery.data, isReplay]);
 
   const recommendation = useMemo<Recommendation>(() => {
     if (isBreeder) return "breeder";
@@ -198,9 +220,12 @@ export default function OnboardingPage() {
   }
 
   function completeOnboarding(source: string) {
-    localStorage.setItem(completionKey, "true");
-    trackEvent("onboarding_completed", { source, recommendation });
-    navigate("/", { replace: true });
+    if (!isReplay) localStorage.setItem(completionKey, "true");
+    trackEvent(isReplay ? "onboarding_replay_completed" : "onboarding_completed", {
+      source,
+      recommendation,
+    });
+    navigate(isReplay ? "/profile" : "/", { replace: true });
   }
 
   function setCount(next: number) {
@@ -241,6 +266,12 @@ export default function OnboardingPage() {
   }
 
   async function savePets() {
+    if (isReplay) {
+      setCreatedPets(existingPetsQuery.data ?? []);
+      goTo(4);
+      return;
+    }
+
     if (createdPets.length > 0) {
       goTo(4);
       return;
@@ -279,7 +310,7 @@ export default function OnboardingPage() {
 
   function choosePlan() {
     trackEvent("onboarding_plan_selected", { plan: recommendation });
-    if (recommendation !== "basic") {
+    if (!isReplay && recommendation !== "basic") {
       const user = readCurrentUser();
       openPlatformSupport(`Здравствуйте! Хочу оформить тариф ${plan.name} после онбординга.`, user?.platform);
     }
@@ -294,6 +325,16 @@ export default function OnboardingPage() {
       return;
     }
     const reminder = reminderTypes.find((item) => item.value === reminderType) ?? reminderTypes[0];
+    const formatted = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" })
+      .format(new Date(`${reminderDate}T${reminderTime}:00`));
+
+    if (isReplay) {
+      setSavedReminder({ title: reminder.title, date: `${formatted}, ${reminderTime}` });
+      trackEvent("onboarding_replay_reminder_previewed", { type: reminder.value });
+      goTo(8);
+      return;
+    }
+
     setIsSaving(true);
     try {
       await createEvent({
@@ -302,8 +343,6 @@ export default function OnboardingPage() {
         title: reminder.title,
         scheduled_at: zonedDateTimeToUtcIso(reminderDate, reminderTime),
       });
-      const formatted = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" })
-        .format(new Date(`${reminderDate}T${reminderTime}:00`));
       setSavedReminder({ title: reminder.title, date: `${formatted}, ${reminderTime}` });
       trackEvent("onboarding_reminder_created", { type: reminder.value });
       goTo(8);
@@ -340,6 +379,10 @@ export default function OnboardingPage() {
             </button>
           ) : <span className="P-Onboarding__topbarSpace" />}
         </header>
+
+        {isReplay ? (
+          <div className="P-Onboarding__replayNotice">Повторный просмотр · данные не изменятся</div>
+        ) : null}
 
         <section className="P-Onboarding__content">
           {step === 0 ? (
@@ -485,15 +528,15 @@ export default function OnboardingPage() {
         </section>
 
         <footer className="P-Onboarding__footer">
-          {step === 0 ? <><button className="P-Onboarding__primary" type="button" onClick={() => { trackButtonClick("onboarding_start"); goTo(1); }}>Настроить под меня</button><button className="P-Onboarding__link" type="button" onClick={() => completeOnboarding("skip")}>Сначала посмотрю</button></> : null}
+          {step === 0 ? <><button className="P-Onboarding__primary" type="button" onClick={() => { trackButtonClick(isReplay ? "onboarding_replay_start" : "onboarding_start"); goTo(1); }}>{isReplay ? "Пройти ещё раз" : "Настроить под меня"}</button><button className="P-Onboarding__link" type="button" onClick={() => completeOnboarding("skip")}>{isReplay ? "Вернуться в профиль" : "Сначала посмотрю"}</button></> : null}
           {step === 1 ? <button className="P-Onboarding__primary" type="button" onClick={() => goTo(2)}>Продолжить</button> : null}
           {step === 2 ? <button className="P-Onboarding__primary" type="button" onClick={nextPet}>{petIndex < petCount - 1 ? "Следующий питомец" : "Продолжить"}</button> : null}
-          {step === 3 ? <button className="P-Onboarding__primary" type="button" onClick={() => void savePets()} disabled={isSaving}>{isSaving ? "Сохраняю..." : pets.some((pet) => pet.photo_url) ? "Продолжить" : "Продолжить без фото"}</button> : null}
+          {step === 3 ? <button className="P-Onboarding__primary" type="button" onClick={() => void savePets()} disabled={isSaving || (isReplay && existingPetsQuery.isLoading)}>{isSaving ? "Сохраняю..." : isReplay ? "Продолжить просмотр" : pets.some((pet) => pet.photo_url) ? "Продолжить" : "Продолжить без фото"}</button> : null}
           {step === 4 ? <button className="P-Onboarding__primary" type="button" onClick={() => goTo(5)}>Продолжить</button> : null}
           {step === 5 ? <button className="P-Onboarding__primary" type="button" onClick={() => goTo(6)}>Подобрать тариф</button> : null}
           {step === 6 ? <><button className="P-Onboarding__secondary" type="button" onClick={() => setShowPlans((value) => !value)}>{showPlans ? "Скрыть тарифы" : "Посмотреть все тарифы"}</button><button className="P-Onboarding__primary" type="button" onClick={choosePlan}>{plan.cta}</button>{recommendation !== "basic" ? <button className="P-Onboarding__link" type="button" onClick={() => goTo(7)}>Продолжить бесплатно</button> : null}</> : null}
-          {step === 7 ? <><button className="P-Onboarding__primary" type="button" onClick={() => void saveReminder()} disabled={isSaving}>{isSaving ? "Создаю..." : "Создать напоминание"}</button><button className="P-Onboarding__link" type="button" onClick={() => { trackEvent("onboarding_reminder_skipped"); setSavedReminder(null); goTo(8); }}>Добавлю позже</button></> : null}
-          {step === 8 ? <button className="P-Onboarding__primary" type="button" onClick={() => completeOnboarding("finished")}>Главный экран</button> : null}
+          {step === 7 ? <><button className="P-Onboarding__primary" type="button" onClick={() => void saveReminder()} disabled={isSaving}>{isSaving ? "Создаю..." : isReplay ? "Посмотреть результат" : "Создать напоминание"}</button><button className="P-Onboarding__link" type="button" onClick={() => { trackEvent(isReplay ? "onboarding_replay_reminder_skipped" : "onboarding_reminder_skipped"); setSavedReminder(null); goTo(8); }}>{isReplay ? "Пропустить экран" : "Добавлю позже"}</button></> : null}
+          {step === 8 ? <button className="P-Onboarding__primary" type="button" onClick={() => completeOnboarding("finished")}>{isReplay ? "Вернуться в профиль" : "Главный экран"}</button> : null}
         </footer>
       </div>
     </main>
