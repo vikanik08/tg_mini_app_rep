@@ -3,12 +3,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
-  Bell,
   CalendarDays,
   Camera,
   Check,
   ChevronDown,
-  FileText,
   HeartPulse,
   Minus,
   PawPrint,
@@ -36,7 +34,6 @@ import screen10 from "@/assets/onboarding/screen-10.webp";
 import screen11 from "@/assets/onboarding/screen-11.webp";
 import screen12 from "@/assets/onboarding/screen-12.webp";
 import screen13 from "@/assets/onboarding/screen-13.webp";
-import featureCalendar from "@/assets/onboarding/feature-calendar.png";
 import featureDiary from "@/assets/onboarding/feature-diary.png";
 import featurePassport from "@/assets/onboarding/feature-passport.png";
 import featureReminder from "@/assets/onboarding/feature-reminder.png";
@@ -366,7 +363,7 @@ export default function OnboardingPage() {
   return (
     <main className="P-Onboarding">
       <div className="P-Onboarding__screen">
-        <header className="P-Onboarding__topbar">
+        <header className={`P-Onboarding__topbar ${step === 0 ? "P-Onboarding__topbar--welcome" : ""}`}>
           {step > 0 && step < 8 ? (
             <button className="P-Onboarding__iconButton" type="button" onClick={back} aria-label="Назад">
               <ArrowLeft size={22} />
@@ -387,19 +384,13 @@ export default function OnboardingPage() {
         <section className="P-Onboarding__content">
           {step === 0 ? (
             <>
-              <div className="P-Onboarding__heading">
+              <div className="P-Onboarding__heading P-Onboarding__heading--welcome">
                 <p className="P-Onboarding__eyebrow">СмартПет</p>
                 <h1>Заботу беру на лапы</h1>
                 <p>Напоминания, ветпаспорт и дневник — рядом.</p>
               </div>
               <div className="P-Onboarding__art P-Onboarding__art--welcome">
                 <img src={screen01} alt="Кот Вася знакомится с владельцем" />
-              </div>
-              <div className="P-Onboarding__featureStrip" aria-label="Возможности SmartPet">
-                <img src={featureCalendar} alt="Календарь" />
-                <img src={featureDiary} alt="Дневник" />
-                <img src={featurePassport} alt="Ветпаспорт" />
-                <img src={featureReminder} alt="Напоминания" />
               </div>
             </>
           ) : null}
@@ -410,7 +401,7 @@ export default function OnboardingPage() {
                 <h1>Сколько у вас питомцев?</h1>
                 <p>Добавим каждого по очереди.</p>
               </div>
-              <div className="P-Onboarding__art"><img src={screen02} alt="Кот рядом с мисками" /></div>
+              <div className="P-Onboarding__art P-Onboarding__art--count"><img src={screen02} alt="Кот рядом с мисками" /></div>
               <div className="P-Onboarding__counter" aria-label="Количество питомцев">
                 <button type="button" onClick={() => setCount(petCount - 1)} disabled={petCount <= 1} aria-label="Уменьшить"><Minus /></button>
                 <strong>{petCount}</strong>
@@ -450,7 +441,7 @@ export default function OnboardingPage() {
           {step === 3 ? (
             <>
               <div className="P-Onboarding__heading"><h1>Добавим фотографии?</h1><p>Так будет проще узнавать питомцев.</p></div>
-              <div className="P-Onboarding__art P-Onboarding__art--small"><img src={screen05} alt="Кот с камерой" /></div>
+              <div className="P-Onboarding__art P-Onboarding__art--photo"><img src={screen05} alt="Кот с камерой" /></div>
               <div className="P-Onboarding__photoList">
                 {pets.map((pet, index) => (
                   <div className="P-Onboarding__photoRow" key={`${pet.name}-${index}`}>
@@ -467,15 +458,15 @@ export default function OnboardingPage() {
           {step === 4 ? (
             <>
               <div className="P-Onboarding__heading"><h1>С чем помочь в первую очередь?</h1><p>Можно выбрать несколько вариантов.</p></div>
-              <div className="P-Onboarding__art P-Onboarding__art--small"><img src={screen06} alt="Кот с календарем, дневником и документами" /></div>
+              <div className="P-Onboarding__art P-Onboarding__art--priorities"><img src={screen06} alt="Кот с календарем, дневником и документами" /></div>
               <div className="P-Onboarding__choices">
                 {([
-                  ["care", Bell, "Не забывать об уходе"],
-                  ["health", HeartPulse, "Вести дневник здоровья"],
-                  ["report", FileText, "Собирать отчет для ветеринара"],
-                ] as const).map(([value, Icon, label]) => (
+                  ["care", featureReminder, "Не забывать об уходе"],
+                  ["health", featureDiary, "Вести дневник здоровья"],
+                  ["report", featurePassport, "Собирать отчет для ветеринара"],
+                ] as const).map(([value, icon, label]) => (
                   <button type="button" className={priorities.includes(value) ? "is-active" : ""} onClick={() => togglePriority(value)} key={value}>
-                    <Icon size={22} /><span>{label}</span><span className="P-Onboarding__check">{priorities.includes(value) ? <Check size={16} /> : null}</span>
+                    <img className="P-Onboarding__priorityIcon" src={icon} alt="" /><span>{label}</span><span className="P-Onboarding__check">{priorities.includes(value) ? <Check size={16} /> : null}</span>
                   </button>
                 ))}
               </div>
@@ -485,7 +476,7 @@ export default function OnboardingPage() {
           {step === 5 ? (
             <>
               <div className="P-Onboarding__heading"><p className="P-Onboarding__eyebrow">Ваш сценарий</p><h1>Меньше «кажется». Больше наблюдений.</h1><p>Вес, аппетит и самочувствие — в одном дневнике.</p></div>
-              <div className="P-Onboarding__art"><img src={screen07} alt="Кот ведет дневник здоровья" /></div>
+              <div className="P-Onboarding__art P-Onboarding__art--scenario"><img src={screen07} alt="Кот ведет дневник здоровья" /></div>
               <div className="P-Onboarding__exampleCard"><div className="P-Onboarding__exampleIcon"><HeartPulse size={22} /></div><div><strong>Дневник здоровья</strong><span>Вес · аппетит · активность · заметки</span></div><Check size={20} /></div>
             </>
           ) : null}
@@ -509,7 +500,7 @@ export default function OnboardingPage() {
           {step === 7 ? (
             <>
               <div className="P-Onboarding__heading"><h1>Первое дело — в календарь</h1><p>Что напомнить для {firstPetName}?</p></div>
-              <div className="P-Onboarding__art P-Onboarding__art--small"><img src={screen12} alt="Кот с часами и календарем" /></div>
+              <div className="P-Onboarding__art P-Onboarding__art--reminder"><img src={screen12} alt="Кот с часами и календарем" /></div>
               <div className="P-Onboarding__reminderCard">
                 <label className="P-Onboarding__field"><span>Тип задачи</span><div className="P-Onboarding__select"><select value={reminderType} onChange={(event) => setReminderType(event.target.value as EventType)}>{reminderTypes.map((item) => <option value={item.value} key={item.value}>{item.label}</option>)}</select><ChevronDown size={18} /></div></label>
                 <div className="P-Onboarding__fieldRow"><label className="P-Onboarding__field"><span>Дата</span><input type="date" value={reminderDate} onChange={(event) => setReminderDate(event.target.value)} /></label><label className="P-Onboarding__field"><span>Время</span><input type="time" value={reminderTime} onChange={(event) => setReminderTime(event.target.value)} /></label></div>
