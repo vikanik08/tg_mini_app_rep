@@ -18,6 +18,9 @@ VK_MINI_APP_URL = "https://vk.com/app54599546"
 VK_COMMUNITY_URL = "https://vk.com/club239532031"
 TELEGRAM_CHANNEL_URL = "https://t.me/smartpet_info"
 TRANSFER_PAYLOAD_PREFIX = "transfer_"
+PROMO_PAYLOAD_PREFIX = "promo_"
+ATTRIBUTION_PAYLOAD_PREFIX = "utm_"
+SOCIAL_PAYLOAD = "social"
 
 
 def _mini_app_url(path: str = "") -> str:
@@ -179,6 +182,25 @@ async def handle_telegram_update(update: dict[str, Any]) -> None:
                     reply_markup=_transfer_inline_keyboard(transfer_token),
                 )
                 return
+
+        if (
+            start_payload == SOCIAL_PAYLOAD
+            or start_payload.startswith(PROMO_PAYLOAD_PREFIX)
+            or start_payload.startswith(ATTRIBUTION_PAYLOAD_PREFIX)
+        ):
+            has_trial = start_payload.startswith(PROMO_PAYLOAD_PREFIX)
+            app_path = f"?promo={start_payload}" if start_payload else ""
+            await _send_telegram_message(
+                chat_id=chat_id,
+                text=(
+                    "Откройте SmartPet по кнопке ниже. После входа бесплатный Premium "
+                    "активируется автоматически."
+                    if has_trial
+                    else "Откройте SmartPet по кнопке ниже."
+                ),
+                reply_markup=_open_app_inline_keyboard(app_path),
+            )
+            return
 
         await send_bot_menu(chat_id, first_name)
         return

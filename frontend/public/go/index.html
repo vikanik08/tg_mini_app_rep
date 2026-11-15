@@ -30,15 +30,14 @@
     }
 
     const launchPayload=[
-      'utm_'+launchPart(attribution.utm_source,20,'direct'),
-      launchPart(attribution.utm_medium,16,'redirect'),
-      launchPart(attribution.utm_campaign,24,'smartpet'),
-      launchPart(attribution.utm_content,16,platform||'default'),
-      launchPart(attribution.utm_term,16,'none')
+      'utm_'+launchPart(attribution.utm_source,14,'direct'),
+      launchPart(attribution.utm_medium,10,'redirect'),
+      launchPart(attribution.utm_campaign,12,'smartpet'),
+      launchPart(attribution.utm_content,10,platform||'default')
     ].join('__');
 
     const destinations={
-      telegram:'https://t.me/SmartPetHelper_bot?startapp='+encodeURIComponent(launchPayload),
+      telegram:'https://t.me/SmartPetHelper_bot?start='+encodeURIComponent(launchPayload),
       telegram_channel:'https://t.me/smartpet_info',
       vk:'https://vk.ru/app54599546?ref='+encodeURIComponent(launchPayload)
     };
