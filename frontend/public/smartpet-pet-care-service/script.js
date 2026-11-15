@@ -16,7 +16,7 @@ class SiteHeader extends HTMLElement {
           </nav>
 
           <div class="header__socials" aria-label="Ссылки">
-            <a class="header__social" href="https://t.me/SmartPetHelper_bot?startapp" aria-label="Мини-апп Telegram" data-label="Мини-апп Telegram">
+            <a class="header__social" href="https://t.me/SmartPetHelper_bot?start=social" aria-label="Мини-апп Telegram" data-label="Мини-апп Telegram">
               <img src="/socials/miniapp-tg.png" alt="">
             </a>
             <a class="header__social" href="https://vk.com/app54599546" aria-label="Мини-апп VK" data-label="Мини-апп VK">
@@ -76,7 +76,7 @@ class SiteFooter extends HTMLElement {
             <div class="footer__column">
               <h3 class="footer__title">Контакты</h3>
               <div class="footer__links">
-                <a class="footer__link" href="https://t.me/SmartPetHelper_bot?startapp">Мини-апп Telegram</a>
+                <a class="footer__link" href="https://t.me/SmartPetHelper_bot?start=social">Мини-апп Telegram</a>
                 <a class="footer__link" href="https://vk.com/app54599546">Мини-апп VK</a>
                 <a class="footer__link" href="https://t.me/smartpet_info">Telegram-канал</a>
                 <a class="footer__link" href="https://vk.ru/club239532031">Сообщество VK</a>
@@ -88,6 +88,7 @@ class SiteFooter extends HTMLElement {
               <div class="footer__links">
                 <a class="footer__link" href="./user-agreement.html">Пользовательское соглашение</a>
                 <a class="footer__link" href="./privacy-policy.html">Политика конфиденциальности</a>
+                <a class="footer__link" href="./requisites.html">Реквизиты, тарифы и оплата</a>
               </div>
             </div>
           </div>
