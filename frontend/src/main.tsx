@@ -28,7 +28,7 @@ if (!rootElement) {
 }
 
 const root = createRoot(rootElement);
-const appBuild = "account-copy-20261001-1";
+const appBuild = "telegram-startup-20261117-1";
 
 function hasLaunchMarker(value: string) {
   const rawValue = value.replace(/^[?#]/, "");
@@ -54,6 +54,7 @@ async function renderApp() {
 }
 
 function renderBootError(message: string) {
+  window.Telegram?.WebApp?.ready();
   const isTelegramInitDataMissing = message.includes("Telegram initData");
   const isVkLaunchParamsMissing = message.includes("VK launch params");
   const isPlatformLaunchParamsMissing = message.includes("Platform launch params");

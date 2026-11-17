@@ -42,6 +42,7 @@ const authApi = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 15_000,
 });
 
 function throwReadableAuthError(error: unknown): never {

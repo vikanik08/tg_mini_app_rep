@@ -1,7 +1,18 @@
 let telegramScriptLoadStarted = false;
+const telegramSdkWaitAttempts = 80;
+const telegramInitDataWaitAttempts = 100;
+const telegramWaitIntervalMs = 100;
 
 function loadTelegramScript() {
   if (telegramScriptLoadStarted || window.Telegram?.WebApp) return;
+
+  const existingScript = document.querySelector<HTMLScriptElement>(
+    'script[src^="https://telegram.org/js/telegram-web-app.js"]',
+  );
+  if (existingScript) {
+    telegramScriptLoadStarted = true;
+    return;
+  }
 
   telegramScriptLoadStarted = true;
 
@@ -9,6 +20,25 @@ function loadTelegramScript() {
   script.src = "https://telegram.org/js/telegram-web-app.js";
   script.async = true;
   document.head.appendChild(script);
+}
+
+function wait(milliseconds: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, milliseconds);
+  });
+}
+
+async function waitForTelegramWebApp() {
+  loadTelegramScript();
+
+  for (let attempt = 0; attempt < telegramSdkWaitAttempts; attempt += 1) {
+    const webApp = window.Telegram?.WebApp;
+    if (webApp) return webApp;
+
+    await wait(telegramWaitIntervalMs);
+  }
+
+  return undefined;
 }
 
 function safeDecode(value: string) {
@@ -75,25 +105,21 @@ export function hasTelegramContext() {
 }
 
 export async function waitForTelegramInitData() {
-  const maxAttempts = 20;
-  loadTelegramScript();
+  const webApp = await waitForTelegramWebApp();
+  webApp?.ready();
 
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+  for (let attempt = 0; attempt < telegramInitDataWaitAttempts; attempt += 1) {
     const initData = getTelegramInitData();
     if (initData) return initData;
 
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, 100);
-    });
+    await wait(telegramWaitIntervalMs);
   }
 
   return "";
 }
 
-export function initTelegramPlatform() {
-  loadTelegramScript();
-
-  const tg = window.Telegram?.WebApp;
+export async function initTelegramPlatform() {
+  const tg = await waitForTelegramWebApp();
   if (!tg) return;
 
   tg.ready();

@@ -26,7 +26,7 @@ export async function initPlatform() {
   const platform = detectRuntimePlatform();
 
   if (platform === "telegram") {
-    initTelegramPlatform();
+    await initTelegramPlatform();
     return;
   }
 

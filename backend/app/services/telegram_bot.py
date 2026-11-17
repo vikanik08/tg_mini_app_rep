@@ -21,6 +21,7 @@ TRANSFER_PAYLOAD_PREFIX = "transfer_"
 PROMO_PAYLOAD_PREFIX = "promo_"
 ATTRIBUTION_PAYLOAD_PREFIX = "utm_"
 SOCIAL_PAYLOAD = "social"
+TELEGRAM_CLIENT_BUILD = "20261117-1"
 
 
 def _mini_app_url(path: str = "") -> str:
@@ -43,6 +44,7 @@ def _mini_app_url(path: str = "") -> str:
     query.update(parse_qsl(requested_parts.query, keep_blank_values=True))
     if settings.telegram_mini_app_version:
         query["v"] = settings.telegram_mini_app_version
+    query["build"] = TELEGRAM_CLIENT_BUILD
 
     return urlunsplit((
         base_parts.scheme,
